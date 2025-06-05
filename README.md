@@ -1,0 +1,3 @@
+# NutriCast
+
+NutriCast is a personalized food tracking and recommendation platform designed to support users in planning, tracking, and enjoying meals aligned with their dietary preferences and nutritional goals. The platform leverages advanced image recognition and nutrition analysis to allow easy photo-based meal logging, while offering interactive dashboards for visualizing nutritional intake. Integrated features include personalized meal and recipe suggestions, restaurant recommendations via Google Maps API, and community engagement through verified dietitians, fitness coaches, and friend interactions. NutriCast’s objective is to empower users in achieving healthier eating habits through intuitive, data-driven experiences.
