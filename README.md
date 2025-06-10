@@ -3,7 +3,7 @@
 ## 1. Description
 - A personalized food tracking and recommendation platform that uses image recognition, nutrition analysis, and real-time location data to help users plan, track, and enjoy meals that match their dietary needs and preferences.
 
-2. Key Features
+## 2. Key Features
 - Photo-Based Meal Logging: Detects calories, carbs, protein, etc., from meal photos.
 - Nutrition Dashboard: Graph daily/weekly intake of calories, carbs, and protein.
 - Restaurant Recommendations: Use Google Maps API to find local meals based on dietary goals.
@@ -13,18 +13,18 @@
 - Verified Professionals: verified dietitians and fitness coaches that can share meals and their workout plan.
 - Friends: View friends profiles, share meals with friends, etc.
 
-3. Additional Features
+## 3. Additional Features
 - Allergen tracking and warnings.
 - Meal tagging and image generation from recipes.
 - Clear disclaimers on data accuracy.
 - Generate realistic meal images from recipe descriptions using a text-to-picture API.
 
-4. Tech Stack Specification
+## 4. Tech Stack Specification
 
-4.1. Frontend framework/library
+### 4.1. Frontend framework/library
 - React Native
 
-4.2. Backend framework
+### 4.2. Backend framework
 - Java/SpringBoot
 
 4.3. Database technology
