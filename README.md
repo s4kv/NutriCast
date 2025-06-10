@@ -1,50 +1,85 @@
-# Welcome to your Expo app 👋
+# NutriCast
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## 1. Description
+- A personalized food tracking and recommendation platform that uses image recognition, nutrition analysis, and real-time location data to help users plan, track, and enjoy meals that match their dietary needs and preferences.
 
-## Get started
+## 2. Key Features
+- Photo-Based Meal Logging: Detects calories, carbs, protein, etc., from meal photos.
+- Nutrition Dashboard: Graph daily/weekly intake of calories, carbs, and protein.
+- Restaurant Recommendations: Use Google Maps API to find local meals based on dietary goals.
+- Smart Meal Suggestions: Suggest meals from fridge photos or typed ingredients.
+- Recipe Generator: Suggest recipes + shopping list based on user priorities (e.g., protein, budget).
+- Surprise Me Feature: “I’m Feeling Lucky” meal suggestions within user constraints.
+- Verified Professionals: verified dietitians and fitness coaches that can share meals and their workout plan.
+- Friends: View friends profiles, share meals with friends, etc.
 
-1. Install dependencies
+## 3. Additional Features
+- Allergen tracking and warnings.
+- Meal tagging and image generation from recipes.
+- Clear disclaimers on data accuracy.
+- Generate realistic meal images from recipe descriptions using a text-to-picture API.
 
-   ```bash
-   npm install
-   ```
+## 4. Tech Stack Specification
 
-2. Start the app
+### 4.1. Frontend framework/library
+- React Native
 
-   ```bash
-   npx expo start
-   ```
+### 4.2. Backend framework
+- Java/SpringBoot
 
-In the output, you'll find options to open the app in a
+### 4.3. Database technology
+- mongoDB
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 4.4 Version Control System
+- Github/Git
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### 4.5. Any Additional tools or libraries
+- Google Cloud Platform (GCP), GPT-4, Google Maps API, Gemini
 
-## Get a fresh project
+## 5. Minimal Marketable Features
 
-When you're ready, run:
+### 5.1. Users can log meals by uploading photos from React Native, process it using GPT-4, and receive nutritional analysis (calories, protein, carbs, etc.) of it and show it on the frontend.
+- User logs into the application
+- User navigates to the “Log Meals” section
+- User uploads a photo.
+- AI processes the photo and generates a nutritional analysis.
+- Nutritional analysis appears in the frontend.
+- User can modify, copy, or export the nutritional analysis.
 
-```bash
-npm run reset-project
-```
+### 5.2. Users can view a dynamic nutrition dashboard from React Native with Java/SpringBoot backend using mongoDB database, showing their daily and weekly intake of calories, carbs, and protein.
+- User logs into the application.
+- User navigates to the “Dashboard” section.
+- User’s past information, dietary information and caloric intake is stored in a mongoDB database and displayed on the dashboard.
+- User’s caloric intake, carb intake, and protein intake across various meals throughout the week are summed up and displayed graphically. 
+- Graphs are created and inputted using the frontend through React Native.
+- Users can input new meals they consumed and update the information displayed.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 5.3. Users receive AI-powered meal suggestions based on fridge photos, ingredient input, or personalized constraints (e.g., calorie limits, macros, budget) using GPT-4 to process the user inputs and output those inputs onto React Native.
+- User logs into the application.
+- User  navigates to the “AI Meal Suggestion” section.
+- User uploads a photo of his ingredients in the fridge.
+- GPT-4 processes the photo of the ingredients and generates a personalized meal suggestion based on the constraints.
+- Personalized meal suggestion appears in the frontend React Native.
+- User can modify, copy, or export the personalized meal suggestions.
 
-## Learn more
+### 5.4. Users can discover local restaurant meals that match their dietary needs using Google Maps API and filter results by price, cuisine, or location and show to the frontend.
+- User logs into the application.
+- User navigates to the “Near Me” section.
+- Users share their location on the app and Google Maps API is used to generate a map with the user’s pin.
+- User can click the “Filter” button which gives them the option to filter by location(certain distance away), price, and cuisine. This is done using React Native. Restaurants that don’t meet the criteria are hidden.
+- Users can click on a Restaurant pin to bring up information regarding it.
 
-To learn more about developing your project with Expo, look at the following resources:
+### 5.5. Users can connect with friends to view friends profiles and share meals with friends, see the achievements of the other person, and view your own progress streaks and friends’ progress streaks.
+- User logs into the application.
+- User navigates to the “profile” section.
+- User navigates to the “friends” section.
+- User can add and remove friends, view the profile of their friends where it shows the achievements of the other person and their progress streaks.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 5.6. Users can connect with verified professionals to share meals, view profiles, and get guidance from dietitians or fitness coaches.
+- Users log into the application. 
+- Logged in users navigate to the social media section. 
+- Users can see a button to "post" meals or guidance or thoughts in general, or scroll through the feed to see what other users post. 
+- Users can create a post; posts can have either text or an image or both. This will update the MongoDB database so other users can see what is posted. 
+- Other users can see what is posted in the social media feature. Social media feed will be updated with the latest data in our MongoDB database. 
 
-## Join the community
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
