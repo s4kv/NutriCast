@@ -27,18 +27,18 @@
 ### 4.2. Backend framework
 - Java/SpringBoot
 
-4.3. Database technology
+### 4.3. Database technology
 - mongoDB
 
-4.4 Version Control System
+### 4.4 Version Control System
 - Github/Git
 
-4.5. Any Additional tools or libraries
+### 4.5. Any Additional tools or libraries
 - Google Cloud Platform (GCP), GPT-4, Google Maps API, Gemini
 
-5. Minimal Marketable Features
+## 5. Minimal Marketable Features
 
-5.1. Users can log meals by uploading photos from React Native, process it using GPT-4, and receive nutritional analysis (calories, protein, carbs, etc.) of it and show it on the frontend.
+### 5.1. Users can log meals by uploading photos from React Native, process it using GPT-4, and receive nutritional analysis (calories, protein, carbs, etc.) of it and show it on the frontend.
 - User logs into the application
 - User navigates to the “Log Meals” section
 - User uploads a photo.
@@ -46,7 +46,7 @@
 - Nutritional analysis appears in the frontend.
 - User can modify, copy, or export the nutritional analysis.
 
-5.2. Users can view a dynamic nutrition dashboard from React Native with Java/SpringBoot backend using mongoDB database, showing their daily and weekly intake of calories, carbs, and protein.
+### 5.2. Users can view a dynamic nutrition dashboard from React Native with Java/SpringBoot backend using mongoDB database, showing their daily and weekly intake of calories, carbs, and protein.
 - User logs into the application.
 - User navigates to the “Dashboard” section.
 - User’s past information, dietary information and caloric intake is stored in a mongoDB database and displayed on the dashboard.
@@ -54,7 +54,7 @@
 - Graphs are created and inputted using the frontend through React Native.
 - Users can input new meals they consumed and update the information displayed.
 
-5.3. Users receive AI-powered meal suggestions based on fridge photos, ingredient input, or personalized constraints (e.g., calorie limits, macros, budget) using GPT-4 to process the user inputs and output those inputs onto React Native.
+### 5.3. Users receive AI-powered meal suggestions based on fridge photos, ingredient input, or personalized constraints (e.g., calorie limits, macros, budget) using GPT-4 to process the user inputs and output those inputs onto React Native.
 - User logs into the application.
 - User  navigates to the “AI Meal Suggestion” section.
 - User uploads a photo of his ingredients in the fridge.
@@ -62,20 +62,20 @@
 - Personalized meal suggestion appears in the frontend React Native.
 - User can modify, copy, or export the personalized meal suggestions.
 
-5.4. Users can discover local restaurant meals that match their dietary needs using Google Maps API and filter results by price, cuisine, or location and show to the frontend.
+### 5.4. Users can discover local restaurant meals that match their dietary needs using Google Maps API and filter results by price, cuisine, or location and show to the frontend.
 - User logs into the application.
 - User navigates to the “Near Me” section.
 - Users share their location on the app and Google Maps API is used to generate a map with the user’s pin.
 - User can click the “Filter” button which gives them the option to filter by location(certain distance away), price, and cuisine. This is done using React Native. Restaurants that don’t meet the criteria are hidden.
 - Users can click on a Restaurant pin to bring up information regarding it.
 
-5.5. Users can connect with friends to view friends profiles and share meals with friends, see the achievements of the other person, and view your own progress streaks and friends’ progress streaks.
+### 5.5. Users can connect with friends to view friends profiles and share meals with friends, see the achievements of the other person, and view your own progress streaks and friends’ progress streaks.
 - User logs into the application.
 - User navigates to the “profile” section.
 - User navigates to the “friends” section.
 - User can add and remove friends, view the profile of their friends where it shows the achievements of the other person and their progress streaks.
 
-5.6. Users can connect with verified professionals to share meals, view profiles, and get guidance from dietitians or fitness coaches.
+### 5.6. Users can connect with verified professionals to share meals, view profiles, and get guidance from dietitians or fitness coaches.
 - Users log into the application. 
 - Logged in users navigate to the social media section. 
 - Users can see a button to "post" meals or guidance or thoughts in general, or scroll through the feed to see what other users post. 
