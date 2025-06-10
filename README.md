@@ -1,6 +1,6 @@
-NutriCast
+#NutriCast
 
-1. Description
+##1. Description
 - A personalized food tracking and recommendation platform that uses image recognition, nutrition analysis, and real-time location data to help users plan, track, and enjoy meals that match their dietary needs and preferences.
 
 2. Key Features
