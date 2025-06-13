@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { View, Image, Button, Text, Platform } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import backend from "../backend";
+import storage from "../firebase";
 
 export default function NutriCast() {
   const [image, setImage] = useState<string | null>(null);
