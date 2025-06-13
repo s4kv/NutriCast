@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class WelcomeController {
 
-    @GetMapping("/welcome")
-    public String welcome() {
-        return "Welcome to the CS3300G1 Backend Application from SpringBoot!";
-    }
+  @GetMapping("/welcome")
+  public String welcome() {
+    return "Welcome to the CS3300G1 Backend Application from SpringBoot!";
+  }
 }
