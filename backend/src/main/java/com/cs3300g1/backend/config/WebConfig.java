@@ -11,10 +11,10 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("*") // React Native app URL, * means allow requests from any origin
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
-    }    
+  @Override
+  public void addCorsMappings(CorsRegistry registry) {
+    registry.addMapping("/**")
+        .allowedOrigins("*") // React Native app URL, * means allow requests from any origin
+        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
+  }
 }
