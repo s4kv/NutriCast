@@ -23,7 +23,6 @@ export default function NutriCast() {
   const [image, setImage] = useState<string | null>(null);
   const [publicImageUri, setPublicImageUri] = useState<string | null>(null);
   const [aiResponse, setAiResponse] = useState<NutriCastResponse | null>(null);
-  const [userReqMessage, setUserReqMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,27 +47,28 @@ export default function NutriCast() {
   };
 
   // send the image to the backend for analysis
-  const sendImageToBackend = async () => {
-    if (!publicImageUri || !userReqMessage) {
+  const sendImageToBackend = async (message: string, uri: string) => {
+    // Accept arguments
+    if (!uri || !message) {
+      // Use arguments for the check
       console.error("Image URI or user request message is missing.");
       return;
     }
 
-    resetState(); // reset previous state
-
+    resetState();
     setIsLoading(true);
 
     try {
       const requestBody = {
-        userMessage: userReqMessage,
-        imageUri: publicImageUri,
+        userMessage: message, // Use the argument
+        imageUri: uri, // Use the argument
       };
 
       const response = await backend.post<NutriCastResponse>(
         "/api/chat",
         requestBody,
       );
-      // ?
+
       console.log("Response from backend:", response.data);
       setAiResponse(response.data);
     } catch (e: any) {
@@ -131,10 +131,14 @@ export default function NutriCast() {
 
   // first option: analyze the image for calorie count and nutrition info
   const analyzeImage = async () => {
-    setUserReqMessage(
-      "Analyze this image for calorie count and nutrition info.",
-    );
-    await sendImageToBackend();
+    const message = "Analyze this image for calorie count and nutrition info.";
+
+    if (publicImageUri) {
+      await sendImageToBackend(message, publicImageUri); // Pass the data directly
+    } else {
+      console.error("Cannot analyze: public image URI is not available.");
+      setError("Please select an image first.");
+    }
   };
 
   return (
