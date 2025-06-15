@@ -50,6 +50,9 @@ public class NutriMealResponse {
   @JsonPropertyDescription("Total milligrams of sodium in the meal.")
   public int sodiumInMg;
 
+  @JsonPropertyDescription("Estimated milligrams (mg) of cholesterol for the portion shown, as a whole number.")
+  public int cholesterolInMg;
+
   @JsonPropertyDescription("An analysis explaining how this meal recommendation meets the user's specific dietary goals. This should justify the recipe choice.")
   public String mealAnalysis;
 
