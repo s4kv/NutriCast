@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { View, Image, Button, Text, Platform } from "react-native";
+import {
+  View,
+  Image,
+  Button,
+  Text,
+  Platform,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import backend from "../backend";
 import { storage } from "../firebase";
@@ -141,89 +150,216 @@ export default function NutriCast() {
     }
   };
 
+  const askQuestion = async () => {
+    const message = "What is this food?";
+    if (publicImageUri) {
+      await sendImageToBackend(message, publicImageUri);
+    } else {
+      console.error("Cannot ask question: public image URI is not available.");
+      setError("Please select an image first.");
+    }
+  };
+
+  const getRecipe = async () => {
+    const message = "Get a recipe based on the image contents.";
+    if (publicImageUri) {
+      await sendImageToBackend(message, publicImageUri);
+    } else {
+      console.error("Cannot get recipe: public image URI is not available.");
+      setError("Please select an image first.");
+    }
+  };
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 20,
-      }}
-    >
-      <Text style={{ fontSize: 24, fontWeight: "bold" }}>NutriCast</Text>
-      {status?.granted === false ? (
-        <Button title="Grant Permission" onPress={requestPermission} />
-      ) : (
-        <div>
-          <Button title="Pick an image" onPress={pickImage} />
-        </div>
-      )}
+    <View style={styles.container}>
+      <ScrollView
+        style={{ width: "100%" }}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <Text style={styles.title}>NutriCast</Text>
 
-      {(Platform.OS === "android" || Platform.OS === "ios") &&
-        (cameraStatus?.granted === false ? (
+        {/* Display permission buttons if needed */}
+        {status?.granted === false && (
           <Button
-            title="Grant Camera Permission"
-            onPress={requestCameraPermission}
+            title="Grant Gallery Permission"
+            onPress={requestPermission}
           />
-        ) : (
-          <Button title="Take a Photo" onPress={takePhoto} />
-        ))}
+        )}
+        {(Platform.OS === "android" || Platform.OS === "ios") &&
+          cameraStatus?.granted === false && (
+            <View style={styles.buttonSpacer}>
+              <Button
+                title="Grant Camera Permission"
+                onPress={requestCameraPermission}
+              />
+            </View>
+          )}
 
-      {image && (
-        <div>
-          <Image
-            source={{ uri: image }}
-            style={{ width: 200, height: 200, marginTop: 20 }}
-          />
-          {/*
-            Make a button to send the image to the backend:
-            Set 3 different buttons:
-              1. Analyze the image for calorie count and nutrition info
-              2. Ask a question about the image, like "What is this food?"
-              3. Get a recipe based on the image contents.
-          */}
-          <Button title="Analyze Image" onPress={analyzeImage} />
-          {/* Other buttons will be implemented later */}
-        </div>
-      )}
+        {/* Initial state: Show image selection buttons */}
+        <View style={styles.actionsContainer}>
+          {status?.granted && (
+            <Button title="Pick an image" onPress={pickImage} />
+          )}
+          <View style={styles.buttonSpacer} />
+          {(Platform.OS === "android" || Platform.OS === "ios") &&
+            cameraStatus?.granted && (
+              <Button title="Take a Photo" onPress={takePhoto} />
+            )}
+        </View>
 
-      {isLoading && (
-        <div className="mt-6 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Processing...</p>
-        </div>
-      )}
+        {/* Display image and action buttons */}
+        {image && (
+          <View style={styles.centered}>
+            <Image source={{ uri: image }} style={styles.image} />
+            <View style={styles.actionsContainer}>
+              <Button title="Analyze Nutrition" onPress={analyzeImage} />
+              <View style={styles.buttonSpacer} />
+              <Button title="What is this food?" onPress={askQuestion} />
+              <View style={styles.buttonSpacer} />
+              <Button title="Get a Recipe" onPress={getRecipe} />
+            </View>
+          </View>
+        )}
 
-      {aiResponse && (
-        <Text style={{ marginTop: 20, fontSize: 16 }}>
-          Food Name: {aiResponse.name_of_the_food}
-          {"\n"}
-          Additional Recommendations: {aiResponse.additional_recommendation}
-          {"\n"}
-          Analysis: {aiResponse.analysis_of_contents_of_the_picture}
-          {"\n"}
-          Calories: {aiResponse.calories}
-          {"\n"}
-          Protein: {aiResponse.protein}
-          {"\n"}
-          Carbs: {aiResponse.carbs}
-          {"\n"}
-          Fat: {aiResponse.fat}
-          {"\n"}
-          Fiber: {aiResponse.fiber}
-          {"\n"}
-          Sugar: {aiResponse.sugar}
-          {"\n"}
-          Sodium: {aiResponse.sodium}
-          {"\n"}
-          Cholesterol: {aiResponse.cholesterol}
-        </Text>
-      )}
-      {!image && !aiResponse && (
-        <Text style={{ marginTop: 20, fontSize: 16 }}>
-          No image selected or AI response available.
-        </Text>
-      )}
+        {/* Loading Indicator */}
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#4a90e2" />
+            <Text style={styles.infoText}>Processing...</Text>
+          </View>
+        )}
+
+        {/* Error Message */}
+        {error && <Text style={styles.errorText}>{error}</Text>}
+
+        {/* AI Response */}
+        {aiResponse && (
+          <View style={styles.responseContainer}>
+            <Text style={styles.responseTitle}>
+              {aiResponse.name_of_the_food}
+            </Text>
+            <Text style={styles.responseText}>
+              <Text style={styles.bold}>Analysis: </Text>
+              {aiResponse.analysis_of_contents_of_the_picture}
+            </Text>
+            <View style={styles.nutritionGrid}>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Calories:</Text> {aiResponse.calories}{" "}
+                kcal
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Protein:</Text> {aiResponse.protein} g
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Carbs:</Text> {aiResponse.carbs} g
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Fat:</Text> {aiResponse.fat} g
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Fiber:</Text> {aiResponse.fiber} g
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Sugar:</Text> {aiResponse.sugar} g
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Sodium:</Text> {aiResponse.sodium} g
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>cholesterol:</Text>{" "}
+                {aiResponse.cholesterol} g
+              </Text>
+            </View>
+            <Text style={styles.responseText}>
+              <Text style={styles.bold}>Recommendation: </Text>
+              {aiResponse.additional_recommendation}
+            </Text>
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f8f9fa",
+  },
+  scrollView: {
+    width: "100%",
+  },
+  contentContainer: {
+    alignItems: "center",
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+  },
+  centered: {
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#2c3e50",
+    marginBottom: 20,
+  },
+  image: {
+    width: 320,
+    height: 320,
+    borderRadius: 15,
+    marginBottom: 20,
+  },
+  actionsContainer: {
+    width: "80%",
+    marginTop: 10,
+  },
+  buttonSpacer: {
+    marginVertical: 5,
+  },
+  loadingContainer: {
+    marginTop: 30,
+    alignItems: "center",
+  },
+  infoText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#555",
+  },
+  errorText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: "#d9534f",
+    textAlign: "center",
+  },
+  responseContainer: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  responseTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#34495e",
+    marginBottom: 10,
+  },
+  responseText: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: "#34495e",
+    marginBottom: 8,
+  },
+  bold: {
+    fontWeight: "bold",
+  },
+  nutritionGrid: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+});
