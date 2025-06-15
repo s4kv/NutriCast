@@ -1,19 +1,118 @@
-import { useEffect, useState } from "react";
-import { View, Image, Button, Text, Platform } from "react-native";
+import { useState } from "react";
+import {
+  View,
+  Image,
+  Button,
+  Text,
+  Platform,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import backend from "../backend";
+import { storage } from "../firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+interface NutriCastResponse {
+  name_of_the_food: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  sugar: number;
+  sodium: number;
+  cholesterol: number;
+  additional_recommendation: string;
+  prompt_response: string;
+  analysis_of_contents_of_the_picture: string;
+}
 
 export default function NutriCast() {
   const [image, setImage] = useState<string | null>(null);
-  const [imageBase64, setImageBase64] = useState<string | null>(null);
-  const [aiResponse, setIaResponse] = useState<string | null>(null);
+  const [publicImageUri, setPublicImageUri] = useState<string | null>(null);
+  const [aiResponse, setAiResponse] = useState<NutriCastResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   // permissions
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
   const [cameraStatus, requestCameraPermission] =
     ImagePicker.useCameraPermissions();
 
-  // handle image picking from gallerr / documents
+  // upload image to Firebase Storage
+  const uploadImageToStorage = async (uri: string, fileName: string) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const storageRef = ref(storage, `images/${fileName}`);
+    await uploadBytes(storageRef, blob);
+    return await getDownloadURL(storageRef);
+  };
+
+  // resetState
+  const resetState = () => {
+    setAiResponse(null);
+    setError(null);
+  };
+
+  // send the image to the backend for analysis
+  const sendImageToBackend = async (message: string, uri: string) => {
+    // Accept arguments
+    if (!uri || !message) {
+      // Use arguments for the check
+      console.error("Image URI or user request message is missing.");
+      return;
+    }
+
+    resetState();
+    setIsLoading(true);
+
+    try {
+      const requestBody = {
+        userMessage: message, // Use the argument
+        imageUri: uri, // Use the argument
+      };
+
+      const response = await backend.post<NutriCastResponse>(
+        "/api/chat",
+        requestBody,
+      );
+
+      console.log("Response from backend:", response.data);
+      setAiResponse(response.data);
+    } catch (e: any) {
+      console.error("Error sending image to backend:", e);
+      setAiResponse(null);
+      setError(e.message || "An error occurred while processing the image.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const processImage = async (res: ImagePicker.ImagePickerResult) => {
+    if (!res.canceled && res.assets && res.assets.length > 0) {
+      const asset = res.assets[0];
+      setImage(asset.uri);
+
+      // create the image file name, using the user ass reference and the current time.
+      // this will be handled in the future when we have proper user autentification.
+      const fileName = `user_${Date.now()}.jpg`; // create a unique file name
+
+      try {
+        const downloadUrl = await uploadImageToStorage(asset.uri, fileName);
+        console.log(downloadUrl);
+        setPublicImageUri(downloadUrl);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        return;
+      }
+    } else {
+      console.log("Image selection was canceled or no image was selected.");
+    }
+  };
+
+  // handle image picking from gallery / documents
   const pickImage = async () => {
     let res = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
@@ -25,24 +124,7 @@ export default function NutriCast() {
 
     console.log("ImagePicker result:", res);
 
-    if (!res.canceled && res.assets && res.assets.length > 0) {
-      setImage(res.assets[0].uri);
-      setImageBase64(res.assets[0].base64 || null);
-
-      // post to backend "/api/nutricast", body: { userMessage: prompt, base64Image: res.assets[0].base64 }
-      backend
-        .post("/api/nutricast", {
-          userMessage: "Analyze this image",
-          // this will actually pass a base64 image string (dont let the uri fool you :)  )
-          base64Image: res.assets[0].uri,
-        })
-        .then((res) => setIaResponse(res.data))
-        .catch((err) => console.error("Error posting to backend:", err));
-
-      console.log("Selected image URI:", res.assets[0].uri);
-    } else {
-      console.log("Image selection was canceled or no image was selected.");
-    }
+    await processImage(res);
   };
 
   // handle image capture from camera
@@ -54,64 +136,235 @@ export default function NutriCast() {
       quality: 1,
     });
 
-    console.log("Camera result:", res);
+    await processImage(res);
+  };
 
-    if (!res.canceled && res.assets && res.assets.length > 0) {
-      setImage(res.assets[0].uri);
-      setImageBase64(res.assets[0].base64 || null);
+  // first option: analyze the image for calorie count and nutrition info
+  const analyzeImage = async () => {
+    const message = "Analyze this image for calorie count and nutrition info.";
+
+    if (publicImageUri) {
+      await sendImageToBackend(message, publicImageUri); // Pass the data directly
     } else {
-      console.log("Camera capture was canceled or no image was captured.");
+      console.error("Cannot analyze: public image URI is not available.");
+      setError("Please select an image first.");
     }
   };
 
-  // use effect: idk if we are going to use this, (for fetching openai data)
-  // I feel that a better idea is to use the backend to handle the openai requests
-  // but, openai sdk is easier to use on javascript....
+  const askQuestion = async () => {
+    const message = "What is this food?";
+    if (publicImageUri) {
+      await sendImageToBackend(message, publicImageUri);
+    } else {
+      console.error("Cannot ask question: public image URI is not available.");
+      setError("Please select an image first.");
+    }
+  };
 
-  // Read the image as base64
+  const getRecipe = async () => {
+    const message = "Get a recipe based on the image contents.";
+    if (publicImageUri) {
+      await sendImageToBackend(message, publicImageUri);
+    } else {
+      console.error("Cannot get recipe: public image URI is not available.");
+      setError("Please select an image first.");
+    }
+  };
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 20,
-      }}
-    >
-      <Text style={{ fontSize: 24, fontWeight: "bold" }}>NutriCast</Text>
-      {status?.granted === false ? (
-        <Button title="Grant Permission" onPress={requestPermission} />
-      ) : (
-        <div>
-          <Button title="Pick an image" onPress={pickImage} />
-        </div>
-      )}
+    <View style={styles.container}>
+      <ScrollView
+        style={{ width: "100%" }}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <Text style={styles.title}>NutriCast</Text>
 
-      {(Platform.OS === "android" || Platform.OS === "ios") &&
-        (cameraStatus?.granted === false ? (
+        {/* Display permission buttons if needed */}
+        {status?.granted === false && (
           <Button
-            title="Grant Camera Permission"
-            onPress={requestCameraPermission}
+            title="Grant Gallery Permission"
+            onPress={requestPermission}
           />
-        ) : (
-          <Button title="Take a Photo" onPress={takePhoto} />
-        ))}
+        )}
+        {(Platform.OS === "android" || Platform.OS === "ios") &&
+          cameraStatus?.granted === false && (
+            <View style={styles.buttonSpacer}>
+              <Button
+                title="Grant Camera Permission"
+                onPress={requestCameraPermission}
+              />
+            </View>
+          )}
 
-      {image && (
-        <Image
-          source={{ uri: image }}
-          style={{ width: 200, height: 200, marginTop: 20 }}
-        />
-      )}
+        {/* Initial state: Show image selection buttons */}
+        <View style={styles.actionsContainer}>
+          {status?.granted && (
+            <Button title="Pick an image" onPress={pickImage} />
+          )}
+          <View style={styles.buttonSpacer} />
+          {(Platform.OS === "android" || Platform.OS === "ios") &&
+            cameraStatus?.granted && (
+              <Button title="Take a Photo" onPress={takePhoto} />
+            )}
+        </View>
 
-      {aiResponse && (
-        <Text style={{ marginTop: 20, fontSize: 16 }}>{aiResponse}</Text>
-      )}
-      {!image && !aiResponse && (
-        <Text style={{ marginTop: 20, fontSize: 16 }}>
-          No image selected or AI response available.
-        </Text>
-      )}
+        {/* Display image and action buttons */}
+        {image && (
+          <View style={styles.centered}>
+            <Image source={{ uri: image }} style={styles.image} />
+            <View style={styles.actionsContainer}>
+              <Button title="Analyze Nutrition" onPress={analyzeImage} />
+              <View style={styles.buttonSpacer} />
+              <Button title="What is this food?" onPress={askQuestion} />
+              <View style={styles.buttonSpacer} />
+              <Button title="Get a Recipe" onPress={getRecipe} />
+            </View>
+          </View>
+        )}
+
+        {/* Loading Indicator */}
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#4a90e2" />
+            <Text style={styles.infoText}>Processing...</Text>
+          </View>
+        )}
+
+        {/* Error Message */}
+        {error && <Text style={styles.errorText}>{error}</Text>}
+
+        {/* AI Response */}
+        {aiResponse && (
+          <View style={styles.responseContainer}>
+            <Text style={styles.responseTitle}>
+              {aiResponse.name_of_the_food}
+            </Text>
+            <Text style={styles.responseText}>
+              <Text style={styles.bold}>Response: </Text>
+              {aiResponse.prompt_response}
+            </Text>
+            <Text style={styles.responseText}>
+              <Text style={styles.bold}>Analysis: </Text>
+              {aiResponse.analysis_of_contents_of_the_picture}
+            </Text>
+            <View style={styles.nutritionGrid}>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Calories:</Text> {aiResponse.calories}{" "}
+                kcal
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Protein:</Text> {aiResponse.protein} g
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Carbs:</Text> {aiResponse.carbs} g
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Fat:</Text> {aiResponse.fat} g
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Fiber:</Text> {aiResponse.fiber} g
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Sugar:</Text> {aiResponse.sugar} g
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>Sodium:</Text> {aiResponse.sodium} g
+              </Text>
+              <Text style={styles.responseText}>
+                <Text style={styles.bold}>cholesterol:</Text>{" "}
+                {aiResponse.cholesterol} g
+              </Text>
+            </View>
+            <Text style={styles.responseText}>
+              <Text style={styles.bold}>Recommendation: </Text>
+              {aiResponse.additional_recommendation}
+            </Text>
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f8f9fa",
+  },
+  scrollView: {
+    width: "100%",
+  },
+  contentContainer: {
+    alignItems: "center",
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+  },
+  centered: {
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#2c3e50",
+    marginBottom: 20,
+  },
+  image: {
+    width: 320,
+    height: 320,
+    borderRadius: 15,
+    marginBottom: 20,
+  },
+  actionsContainer: {
+    width: "80%",
+    marginTop: 10,
+  },
+  buttonSpacer: {
+    marginVertical: 5,
+  },
+  loadingContainer: {
+    marginTop: 30,
+    alignItems: "center",
+  },
+  infoText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#555",
+  },
+  errorText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: "#d9534f",
+    textAlign: "center",
+  },
+  responseContainer: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  responseTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#34495e",
+    marginBottom: 10,
+  },
+  responseText: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: "#34495e",
+    marginBottom: 8,
+  },
+  bold: {
+    fontWeight: "bold",
+  },
+  nutritionGrid: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+});

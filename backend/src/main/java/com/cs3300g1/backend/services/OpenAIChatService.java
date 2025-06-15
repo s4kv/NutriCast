@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.openai.models.chat.completions.StructuredChatCompletion;
 import com.openai.client.OpenAIClient;
 import com.openai.models.ChatModel;
 import com.openai.models.chat.completions.ChatCompletionContentPart;
@@ -28,12 +29,12 @@ public class OpenAIChatService {
 
   // another key idea here: wrap this in anohter method to log into database
   public NutriCastPictureResponse getNutriCastImageResponse(NutriCastPictureRequest prompt) {
-    String base64Url = prompt.getBase64Image();
+    String imageUri = prompt.getImageUri();
 
     ChatCompletionContentPart imagePart = ChatCompletionContentPart.ofImageUrl(
         ChatCompletionContentPartImage.builder()
             .imageUrl(ChatCompletionContentPartImage.ImageUrl.builder()
-                .url(base64Url)
+                .url(imageUri)
                 .build())
             .build());
 
@@ -48,15 +49,12 @@ public class OpenAIChatService {
         .addUserMessageOfArrayOfContentParts(List.of(userMessage, imagePart))
         .build();
 
-    var completition = openAIClient.chat().completions().create(params);
+    StructuredChatCompletion<NutriCastPictureResponse> completition = openAIClient.chat().completions().create(params);
 
-    NutriCastPictureResponse response = completition.responseType().cast(NutriCastPictureResponse.class);
+    NutriCastPictureResponse response = completition.choices().get(0).message()
+        .content().orElseThrow(() -> new RuntimeException("No response content found"));
 
-    if (response == null) {
-      throw new RuntimeException("Failed to get a valid response from OpenAI.");
-    }
-
-    System.out.println("Response from OpenAI: " + response);
+    System.out.println("Response from OpenAI: " + response.name_of_the_food);
 
     return response;
   }

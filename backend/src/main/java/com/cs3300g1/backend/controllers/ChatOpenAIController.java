@@ -2,7 +2,6 @@ package com.cs3300g1.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +30,7 @@ public class ChatOpenAIController {
       return ResponseEntity.ok(response);
     } catch (Exception e) {
       return ResponseEntity.status(500)
-          .body(new NutriCastPictureResponse("Error processing request: " + e.getMessage(), null, null, null));
+          .body(new NutriCastPictureResponse());
     }
   }
 }
