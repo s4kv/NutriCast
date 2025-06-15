@@ -50,7 +50,6 @@ logs/
 /frontend/yarn-debug.log*
 /frontend/yarn-error.log*
 
-/frontend/app/firebase.ts
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Backend: Spring Boot (Java + MongoDB)
