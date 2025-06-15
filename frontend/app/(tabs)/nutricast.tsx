@@ -25,6 +25,7 @@ interface NutriCastResponse {
   sodium: number;
   cholesterol: number;
   additional_recommendation: string;
+  prompt_response: string;
   analysis_of_contents_of_the_picture: string;
 }
 
@@ -237,6 +238,10 @@ export default function NutriCast() {
           <View style={styles.responseContainer}>
             <Text style={styles.responseTitle}>
               {aiResponse.name_of_the_food}
+            </Text>
+            <Text style={styles.responseText}>
+              <Text style={styles.bold}>Response: </Text>
+              {aiResponse.prompt_response}
             </Text>
             <Text style={styles.responseText}>
               <Text style={styles.bold}>Analysis: </Text>
