@@ -15,5 +15,5 @@ import lombok.Setter;
 public class NutriCastPictureRequest {
   public String userMessage;
   // base64Image (which is called uri in frontend)
-  public String base64Image;
+  public String imageUri;
 }
