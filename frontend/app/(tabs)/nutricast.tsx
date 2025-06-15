@@ -1,20 +1,108 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { View, Image, Button, Text, Platform } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import backend from "../backend";
-import storage from "../firebase";
+import { storage } from "../firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+interface NutriCastResponse {
+  name_of_the_food: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  sugar: number;
+  sodium: number;
+  cholesterol: number;
+  additional_recommendation: string;
+  analysis_of_contents_of_the_picture: string;
+}
 
 export default function NutriCast() {
   const [image, setImage] = useState<string | null>(null);
-  const [imageBase64, setImageBase64] = useState<string | null>(null);
-  const [aiResponse, setIaResponse] = useState<string | null>(null);
+  const [publicImageUri, setPublicImageUri] = useState<string | null>(null);
+  const [aiResponse, setAiResponse] = useState<NutriCastResponse | null>(null);
+  const [userReqMessage, setUserReqMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   // permissions
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
   const [cameraStatus, requestCameraPermission] =
     ImagePicker.useCameraPermissions();
 
-  // handle image picking from gallerr / documents
+  // upload image to Firebase Storage
+  const uploadImageToStorage = async (uri: string, fileName: string) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const storageRef = ref(storage, `images/${fileName}`);
+    await uploadBytes(storageRef, blob);
+    return await getDownloadURL(storageRef);
+  };
+
+  // resetState
+  const resetState = () => {
+    setAiResponse(null);
+    setError(null);
+  };
+
+  // send the image to the backend for analysis
+  const sendImageToBackend = async () => {
+    if (!publicImageUri || !userReqMessage) {
+      console.error("Image URI or user request message is missing.");
+      return;
+    }
+
+    resetState(); // reset previous state
+
+    setIsLoading(true);
+
+    try {
+      const requestBody = {
+        userMessage: userReqMessage,
+        imageUri: publicImageUri,
+      };
+
+      const response = await backend.post<NutriCastResponse>(
+        "/api/chat",
+        requestBody,
+      );
+      // ?
+      console.log("Response from backend:", response.data);
+      setAiResponse(response.data);
+    } catch (e: any) {
+      console.error("Error sending image to backend:", e);
+      setAiResponse(null);
+      setError(e.message || "An error occurred while processing the image.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const processImage = async (res: ImagePicker.ImagePickerResult) => {
+    if (!res.canceled && res.assets && res.assets.length > 0) {
+      const asset = res.assets[0];
+      setImage(asset.uri);
+
+      // create the image file name, using the user ass reference and the current time.
+      // this will be handled in the future when we have proper user autentification.
+      const fileName = `user_${Date.now()}.jpg`; // create a unique file name
+
+      try {
+        const downloadUrl = await uploadImageToStorage(asset.uri, fileName);
+        console.log(downloadUrl);
+        setPublicImageUri(downloadUrl);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        return;
+      }
+    } else {
+      console.log("Image selection was canceled or no image was selected.");
+    }
+  };
+
+  // handle image picking from gallery / documents
   const pickImage = async () => {
     let res = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
@@ -26,24 +114,7 @@ export default function NutriCast() {
 
     console.log("ImagePicker result:", res);
 
-    if (!res.canceled && res.assets && res.assets.length > 0) {
-      setImage(res.assets[0].uri);
-      setImageBase64(res.assets[0].base64 || null);
-
-      // post to backend "/api/nutricast", body: { userMessage: prompt, base64Image: res.assets[0].base64 }
-      backend
-        .post("/api/nutricast", {
-          userMessage: "Analyze this image",
-          // this will actually pass a base64 image string (dont let the uri fool you :)  )
-          base64Image: res.assets[0].uri,
-        })
-        .then((res) => setIaResponse(res.data))
-        .catch((err) => console.error("Error posting to backend:", err));
-
-      console.log("Selected image URI:", res.assets[0].uri);
-    } else {
-      console.log("Image selection was canceled or no image was selected.");
-    }
+    await processImage(res);
   };
 
   // handle image capture from camera
@@ -55,21 +126,17 @@ export default function NutriCast() {
       quality: 1,
     });
 
-    console.log("Camera result:", res);
-
-    if (!res.canceled && res.assets && res.assets.length > 0) {
-      setImage(res.assets[0].uri);
-      setImageBase64(res.assets[0].base64 || null);
-    } else {
-      console.log("Camera capture was canceled or no image was captured.");
-    }
+    await processImage(res);
   };
 
-  // use effect: idk if we are going to use this, (for fetching openai data)
-  // I feel that a better idea is to use the backend to handle the openai requests
-  // but, openai sdk is easier to use on javascript....
+  // first option: analyze the image for calorie count and nutrition info
+  const analyzeImage = async () => {
+    setUserReqMessage(
+      "Analyze this image for calorie count and nutrition info.",
+    );
+    await sendImageToBackend();
+  };
 
-  // Read the image as base64
   return (
     <View
       style={{
@@ -99,14 +166,54 @@ export default function NutriCast() {
         ))}
 
       {image && (
-        <Image
-          source={{ uri: image }}
-          style={{ width: 200, height: 200, marginTop: 20 }}
-        />
+        <div>
+          <Image
+            source={{ uri: image }}
+            style={{ width: 200, height: 200, marginTop: 20 }}
+          />
+          {/*
+            Make a button to send the image to the backend:
+            Set 3 different buttons:
+              1. Analyze the image for calorie count and nutrition info
+              2. Ask a question about the image, like "What is this food?"
+              3. Get a recipe based on the image contents.
+          */}
+          <Button title="Analyze Image" onPress={analyzeImage} />
+          {/* Other buttons will be implemented later */}
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="mt-6 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Processing...</p>
+        </div>
       )}
 
       {aiResponse && (
-        <Text style={{ marginTop: 20, fontSize: 16 }}>{aiResponse}</Text>
+        <Text style={{ marginTop: 20, fontSize: 16 }}>
+          Food Name: {aiResponse.name_of_the_food}
+          {"\n"}
+          Additional Recommendations: {aiResponse.additional_recommendation}
+          {"\n"}
+          Analysis: {aiResponse.analysis_of_contents_of_the_picture}
+          {"\n"}
+          Calories: {aiResponse.calories}
+          {"\n"}
+          Protein: {aiResponse.protein}
+          {"\n"}
+          Carbs: {aiResponse.carbs}
+          {"\n"}
+          Fat: {aiResponse.fat}
+          {"\n"}
+          Fiber: {aiResponse.fiber}
+          {"\n"}
+          Sugar: {aiResponse.sugar}
+          {"\n"}
+          Sodium: {aiResponse.sodium}
+          {"\n"}
+          Cholesterol: {aiResponse.cholesterol}
+        </Text>
       )}
       {!image && !aiResponse && (
         <Text style={{ marginTop: 20, fontSize: 16 }}>

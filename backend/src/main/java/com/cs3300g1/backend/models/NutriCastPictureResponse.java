@@ -32,7 +32,7 @@ public class NutriCastPictureResponse {
   public int sodium;
   public int cholesterol;
   @JsonPropertyDescription("Additional recommendations based on the food item, such as serving suggestions or dietary advice.")
-  public String additional_recomendation;
+  public String additional_recommendation;
   @JsonPropertyDescription("An analysis of the contents of the picture, providing insights into the food items and their nutritional content.")
   public String analysis_of_contents_of_the_picture;
 }
