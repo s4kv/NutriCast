@@ -8,6 +8,7 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import backend from "../backend";
@@ -35,6 +36,7 @@ export default function NutriCast() {
   const [aiResponse, setAiResponse] = useState<NutriCastResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [mealDescription, setMealDescription] = useState<string>("");
 
   // permissions
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
@@ -141,7 +143,11 @@ export default function NutriCast() {
 
   // first option: analyze the image for calorie count and nutrition info
   const analyzeImage = async () => {
-    const message = "Analyze this image for calorie count and nutrition info.";
+    let message = "Analyze this image for calorie count and nutrition info.";
+
+    if (mealDescription) {
+      message += ` Meal description: ${mealDescription}`;
+    }
 
     if (publicImageUri) {
       await sendImageToBackend(message, publicImageUri); // Pass the data directly
@@ -197,7 +203,7 @@ export default function NutriCast() {
           )}
 
         {/* Initial state: Show image selection buttons */}
-        <View style={styles.actionsContainer}>
+        <View style={styles.centered}>
           {status?.granted && (
             <Button title="Pick an image" onPress={pickImage} />
           )}
@@ -212,6 +218,13 @@ export default function NutriCast() {
         {image && (
           <View style={styles.centered}>
             <Image source={{ uri: image }} style={styles.image} />
+            <Text style={styles.label}>Describe the meal</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Chicken Salad with Avocado"
+              value={mealDescription}
+              onChangeText={setMealDescription}
+            />
             <View style={styles.actionsContainer}>
               <Button title="Analyze Nutrition" onPress={analyzeImage} />
               <View style={styles.buttonSpacer} />
@@ -366,5 +379,22 @@ const styles = StyleSheet.create({
   nutritionGrid: {
     marginTop: 10,
     marginBottom: 10,
+  },
+  input: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    fontSize: 16,
+    width: "100%",
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#34495e",
+    marginBottom: 8,
+    marginTop: 10,
   },
 });
