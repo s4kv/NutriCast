@@ -240,7 +240,7 @@ export default function NutriMeal() {
           )}
 
         {/* Image selection buttons */}
-        <View style={styles.actionsContainer}>
+        <View style={styles.centered}>
           {status?.granted && (
             <Button title="Pick an image" onPress={pickImage} />
           )}
