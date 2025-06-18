@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 // import { getAnalytics } from "firebase/analytics";
+import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 // maybe import the db in the future? but we will not use it for now
 // right now we are using mongodb
@@ -21,6 +22,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 const storage = getStorage(app);
+const auth = getAuth(app);
 
 // export { app, analytics, storage };
-export { app, storage };
+export { app, storage, auth };
