@@ -1,0 +1,61 @@
+services:
+  # React native frontend
+  app:
+    build: ./frontend/
+    container_name: frontend_app
+    ports:
+      - "8081:8081"
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    expose:
+      - "8081"
+      - "19000"
+      - "19001"
+      - "19002"
+    volumes:
+      - ./frontend/:/usr/src/app
+      - ./frontend/node_modules:/usr/src/app/node_modules
+    environment:
+      - EXPO_DEVTOOLS_LISTEN_ADRESS=0.0.0.0
+      - REACT_NATIVE_PACKAGER_HOSTNAME=0.0.0.0
+    networks:
+      - react-spring
+      - spring-sql
+
+  # Spring-boot backend
+  backend:
+    build: ./backend/
+    container_name: backend_app
+    depends_on:
+      - app
+      # - mongo
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    volumes:
+      - ./backend/:/usr/src/app
+      - ./backend/target:/usr/src/app/target
+    networks:
+      - react-spring
+      - spring-sql
+
+  # # MongoDB database
+  # mongo:
+  #   image: mongo:latest
+  #   container_name: mongo_db
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - mongo_data:/data/db
+  #   networks:
+  #     - spring-sql
+
+# volumes:
+#   mongo_data: {}
+networks:
+  react-spring: {}
+  spring-sql: {}
