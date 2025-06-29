@@ -1,6 +1,22 @@
 # NutriCast
 
-# Run with docker
+## Run from terminal (locally)
+1. Make a new branch from main.
+2. Clone the repository to any IDE.
+3. Install node_modules in the frontend folder.
+   ```
+   cd "frontend"
+   npm install
+   ```
+4. Run BackendApplication.java from backend folder.
+5. Run expo (frontend).
+   ```
+   cd "frontend"
+   npx expo start
+   ```
+6. Open local web link from output.
+
+## Run with docker
 
 1. Make sure to have docker installed on your machine.
 2. Clone the repository:
