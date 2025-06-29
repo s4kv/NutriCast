@@ -1,3 +1,7 @@
+/**
+ * This files is responsible for the signup screen of NutriCast.
+ */
+
 import React, { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet, Alert } from "react-native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
