@@ -9,6 +9,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * This class represents the nutritional macros of a food item in NutriCast.
+ * It includes fields for calories, protein, carbs, fat, fiber, sugar, sodium, and cholesterol.
+ * Each of the fields are in grams or milligrams.
+ */
 @Document("nutricast_picture_requests")
 @JsonClassDescription("Represents the nutritional macros of a food item, including calories, protein, carbs, fat, fiber, sugar, sodium, and cholesterol.")
 @Getter
