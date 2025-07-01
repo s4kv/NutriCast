@@ -5,11 +5,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
-
 /**
  * This class represents a Food in NutriCast.
  * 
@@ -25,9 +23,10 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Food {
     @Id
-    private String id; // Unique identifier for the food item
+    @ToString.Exclude private String id; // Unique identifier for the food item
     private String name; // Name of the food
     private FoodType type; // Type of food (e.g., ITEM, MEAL)
     private Meal meal; // Meal type (e.g., breakfast, lunch, dinner, snack)
@@ -35,5 +34,4 @@ public class Food {
     private String servingUnit; // Unit of the serving size (e.g., grams, ounces, cups)
     private double numberOfServings; // Number of servings
     private FoodMacros macros; // Nutritional macros of the food
-    private List<Food> ingredients; // if type == MEAL, this will contain the single food items that make up the meal
 }

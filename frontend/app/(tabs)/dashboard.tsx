@@ -12,9 +12,6 @@
  * 
  * TODO:
  * - Connect backend to get the user's daily calorie goal, calories consumed, and calories burned.
- *   - Create a FoodLog model to represent the user's logged foods so that we can store when and how many servings the user has consumed.
- *   - Update user model to include List<FoodLog> instead of List<String> for food logs.
- *   - Create a FoodLogRepository to handle CRUD operations for food logs and findByUserEmailAndTimestampBetween method.
  *   - Create a NutritionService to handle the business logic of calculating calories consumed and burned.
  *   - Create a CalorieController to handle the API endpoints for getting the user's daily calories consumed.
  *   - Use axios to call the CalorieController API endpoint to get the user's daily calories consumed and show it on the dashboard.
@@ -23,6 +20,9 @@
  * - UI for the circular progress bar showing calories consumed today.
  * - Created Food model to represent food items in NutriCast and connected SpringBoot to MongoDB.
  * - Created User model to represent users in NutriCast and connected it to MongoDB.
+ * - Create a FoodLog model to represent the user's logged foods so that we can store when and how many servings the user has consumed.
+ * - Update user model to include List<FoodLog> instead of List<String> for food logs.
+ * - Create a FoodLogRepository to handle CRUD operations for food logs and findByUserFoodLogsForToday method.
  */
 
 import React from 'react';
