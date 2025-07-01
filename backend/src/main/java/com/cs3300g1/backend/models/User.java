@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -26,11 +27,12 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class User {
     @Id
-    private String id; // Unique identifier for the user
+    @ToString.Exclude private String id; // Unique identifier for the user
     private String username; // Username of the user
     private String password; // Password of the user
     private String email; // Email of the user
-    private List<String> loggedFoodIds; // List of foods that the user has logged
+    private List<FoodLog> foodLogs; // List of foods that the user has logged
 }
