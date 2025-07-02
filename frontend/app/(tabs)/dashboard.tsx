@@ -12,6 +12,7 @@
  * 
  * TODO:
  * - Connect backend to get the user's daily calorie goal, calories consumed, and calories burned.
+ *   - Test new Food and FoodLog model to make sure it works with mongoDB.
  *   - Create a CalorieController to handle the API endpoints for getting the user's daily calories consumed.
  *   - Use axios to call the CalorieController API endpoint to get the user's daily calories consumed and show it on the dashboard.
  * 
