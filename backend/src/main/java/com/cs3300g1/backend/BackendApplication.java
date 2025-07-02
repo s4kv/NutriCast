@@ -60,7 +60,6 @@ public class BackendApplication {
       // Test FoodRepository to see if the methods work.
       List<Food> findByName = foods.findByName("Chicken Breast");
       List<Food> findByType = foods.findByType(FoodType.ITEM);
-      List<Food> findByMeal = foods.findByMeal(Meal.LUNCH);
       // System.out.println("findByName: " + findByName);
       // System.out.println("findByType: " + findByType);
       // System.out.println("findByMeal: " + findByMeal);
@@ -76,7 +75,7 @@ public class BackendApplication {
       // System.out.println("foodLoggedAtLocalTime: " + foodLoggedAtLocalTime);
 
       List<FoodLog> foodLogList = new ArrayList<>();
-      FoodLog foodLog = new FoodLog(null, findById.getId(), chickenBreast.getId(), 1.0, foodLoggedAt);
+      // FoodLog foodLog = new FoodLog(null, findById.getId(), chickenBreast.getId(), 1.0, foodLoggedAt);
       // foodLogs.save(foodLog);
       // foodLogList.add(foodLog);
       // findById.setFoodLogs(foodLogList);

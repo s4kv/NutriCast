@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.cs3300g1.backend.models.FoodLog;
+import com.cs3300g1.backend.models.Meal;
 
 /**
  * This interface represents the repository for the collection of foods_log in MongoDB.
@@ -28,6 +29,13 @@ public interface FoodLogRepository extends MongoRepository<FoodLog, String> {
      * @return a list of foods logged that match the given food id.
      */
     List<FoodLog> findByFoodId(String foodId);
+
+    /**
+     * Finds a list of foods logged that matches the type of meal in the database.
+     * @param meal type of meal (BREAKFAST, LUNCH, DINNER, SNACK)
+     * @return a list of foods logged that match the given food id.
+     */
+    List<FoodLog> findByMeal(Meal meal);
 
     /**
      * Finds a list of foods logged that matches the user id and is in between two timestamps in the database.
