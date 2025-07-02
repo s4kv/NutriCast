@@ -28,6 +28,7 @@ public class FoodLog {
     @ToString.Exclude private String id; // Unique id to identify the food log
     private String userId; // The user id which represents the user that logged the food
     private String foodId; // The food id which represents the food that the user logged
+    private Meal meal; // Meal type (e.g., breakfast, lunch, dinner, snack)
     private double noOfServings; // The no of servings the user has decided to log
     private Instant timestamp; // When the user logged the food
 }
