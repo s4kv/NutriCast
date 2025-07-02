@@ -29,9 +29,7 @@ public class Food {
     @ToString.Exclude private String id; // Unique identifier for the food item
     private String name; // Name of the food
     private FoodType type; // Type of food (e.g., ITEM, MEAL)
-    private Meal meal; // Meal type (e.g., breakfast, lunch, dinner, snack)
     private double servingSize; // Serving size
     private String servingUnit; // Unit of the serving size (e.g., grams, ounces, cups)
-    private double numberOfServings; // Number of servings
     private FoodMacros macros; // Nutritional macros of the food
 }

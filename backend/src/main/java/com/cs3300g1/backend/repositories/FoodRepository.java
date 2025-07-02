@@ -5,7 +5,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.cs3300g1.backend.models.Food;
 import com.cs3300g1.backend.models.FoodType;
-import com.cs3300g1.backend.models.Meal;
 
 import java.util.List;
 
@@ -28,11 +27,4 @@ public interface FoodRepository extends MongoRepository<Food, String> {
      * @return a list of Food items that match the given type.
      */
     List<Food> findByType(FoodType type);
-
-    /**
-     * Finds a list of Food items by their meal type in the database.
-     * @param meal the type of meal to search for in the database (e.g., BREAKFAST, LUNCH, DINNER, SNACK).
-     * @return a list of Food items that match the given meal type.
-     */
-    List<Food> findByMeal(Meal meal);
 }
