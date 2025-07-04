@@ -45,7 +45,7 @@ public class NutritionService {
      * @param date      when the user logged the food.
      * @return the number of calories logged by the user today.
      */
-    public int getCaloriesLoggedToday(String userEmail, LocalDate today) {
+    public int getUserCaloriesLoggedToday(String userEmail, LocalDate today) {
         // 1. Get the User from userEmail in MongoDB.
         //    If User is found, then proceed with the calculation.
         //    If User is not found, then don't proceed with the calculation and generate an runtime error.
@@ -76,5 +76,19 @@ public class NutritionService {
             caloriesLoggedToday += food.getMacros().getCalories() * userFoodLogForToday.getNoOfServings();
         }
         return caloriesLoggedToday;
+    }
+
+    /**
+     * This method gets the user's calorie goal from the database.
+     * @param userEmail the user's email.
+     * @return the user's calorie goal matching the user's email.
+     */
+    public int getUserCalorieGoal(String userEmail) {
+        // 1. Get the user from userEmail in mongoDB.
+        User user = userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("No user found with the email: " + userEmail));
+        
+        // 2. Get the user's calorie goal and return it.
+        return user.getCalorieGoal();
     }
 }

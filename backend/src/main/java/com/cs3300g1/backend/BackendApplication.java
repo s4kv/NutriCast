@@ -41,7 +41,7 @@ public class BackendApplication {
       // Testing new user making a user account, adding a food that they are going to eat, and then log it.
 
       // Make a user and add it to the database.
-      // User user = new User(null, "test", "test", "test@test.com", null);
+      // User user = new User(null, "test", "test", "test@test.com", 2000, null);
       // users.save(user);
 
       // Test UserRepository to see if the methods work.
@@ -54,7 +54,7 @@ public class BackendApplication {
 
       // Make a food.
       // FoodMacros foodMacros = new FoodMacros(280, 53, 0, 6, 0, 0, 70, 140);
-      // Food food = new Food(null, "Chicken Breast", FoodType.ITEM, Meal.LUNCH, 100, "grams", 1.0, foodMacros);
+      // Food food = new Food(null, "Chicken Breast", FoodType.ITEM, 100, "grams", foodMacros);
       // foods.save(food);
 
       // Test FoodRepository to see if the methods work.
@@ -62,7 +62,6 @@ public class BackendApplication {
       List<Food> findByType = foods.findByType(FoodType.ITEM);
       // System.out.println("findByName: " + findByName);
       // System.out.println("findByType: " + findByType);
-      // System.out.println("findByMeal: " + findByMeal);
       Food chickenBreast = findByName.get(0);
 
       // User logs a food.
@@ -74,8 +73,8 @@ public class BackendApplication {
       // System.out.println("foodLoggedAt: " + foodLoggedAt);
       // System.out.println("foodLoggedAtLocalTime: " + foodLoggedAtLocalTime);
 
-      List<FoodLog> foodLogList = new ArrayList<>();
-      // FoodLog foodLog = new FoodLog(null, findById.getId(), chickenBreast.getId(), 1.0, foodLoggedAt);
+      // List<FoodLog> foodLogList = new ArrayList<>();
+      // FoodLog foodLog = new FoodLog(null, findById.getId(), chickenBreast.getId(), Meal.LUNCH, 1.0, foodLoggedAt);
       // foodLogs.save(foodLog);
       // foodLogList.add(foodLog);
       // findById.setFoodLogs(foodLogList);
@@ -84,8 +83,10 @@ public class BackendApplication {
       // Testing FoodLogRepository methods
       List<FoodLog> findByUserId = foodLogs.findByUserId(findById.getId());
       List<FoodLog> findByFoodId = foodLogs.findByFoodId(chickenBreast.getId());
+      List<FoodLog> findByMeal = foodLogs.findByMeal(Meal.LUNCH);
       // System.out.println("findByUserId: " + findByUserId);
       // System.out.println("findByFoodId: " + findByFoodId);
+      // System.out.println("findByMeal: " + findByMeal);
       LocalDate today = LocalDate.now(ZoneId.systemDefault());
       Instant startOfDay = today
         .atStartOfDay(ZoneId.systemDefault())
@@ -101,7 +102,7 @@ public class BackendApplication {
       // System.out.println("startOfDayAtLocalTime: " + startOfDayAtLocalTime);
       // System.out.println("endOfDayAtLocalTime: " + endOfDayAtLocalTime);
       List<FoodLog> findUserFoodLogsForToday = foodLogs.findUserFoodLogsForToday(findById.getId(), startOfDay, endOfDay);
-      // System.out.println("findByUserIdAndTimeStampGreaterThanEqualAndTimeStampLessThan: " + findUserFoodLogsForToday);
+      // System.out.println("findUserFoodLogsForToday: " + findUserFoodLogsForToday);
       // ----------------------------------------------------------
     };
   }
