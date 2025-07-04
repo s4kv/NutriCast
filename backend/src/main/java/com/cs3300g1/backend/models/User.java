@@ -30,5 +30,6 @@ public class User {
     private String username; // Username of the user
     private String password; // Password of the user
     private String email; // Email of the user
+    private int calorieGoal; // Number of calories the user wants to consume each day
     private List<FoodLog> foodLogs; // List of foods that the user has logged
 }
