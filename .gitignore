@@ -1,90 +1,26 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# Root
-# ─────────────────────────────────────────────────────────────────────────────
+# This file is used to specify files and directories that should be ignored by Git.
 
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
+# --------------------------------
+# IDE's
+# --------------------------------
+.vscode
 
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+# --------------------------------
+# frontend
+# --------------------------------
+frontend/.vscode
+frontend/node_modules
+frontend/.expo
+frontend/.gitignore
+frontend/expo-env.d.ts
 
-# Editor / IDE
-.vscode/
-.idea/
-*.iml
-*.ipr
-*.iws
+# --------------------------------
+# backend
+# --------------------------------
+backend/.settings
 
-# Environment files
-.env
-.env.*.local
-
-# Logs
-logs/
-*.log
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Frontend: React Native (Expo)
-# ─────────────────────────────────────────────────────────────────────────────
-
-# Node modules
-/frontend/node_modules/
-
-# Expo
-/frontend/.expo/
-/frontend/.expo-shared/
-/frontend/web-build/
-
-# React Native artifacts
-/frontend/android/.gradle/
-/frontend/android/app/build/
-/frontend/ios/Pods/
-/frontend/ios/build/
-
-# NPM/Yarn debug
-/frontend/npm-debug.log*
-/frontend/yarn-debug.log*
-/frontend/yarn-error.log*
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Backend: Spring Boot (Java + MongoDB)
-# ─────────────────────────────────────────────────────────────────────────────
-
-# Maven
-/backend/target/
-/backend/.mvn/
-/backend/mvnw*
-/backend/mvnw.cmd
-
-# Gradle (if you switch to Gradle)
-/backend/.gradle/
-/backend/build/
-
-# Java compiled
-*.class
-*.jar
-*.war
-*.ear
-
-# Spring Boot devtools restarts
-restart/**
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Miscellaneous
-# ─────────────────────────────────────────────────────────────────────────────
-
-# Package locks: you DO want to track these for reproducibility—do NOT ignore!
-# /frontend/yarn.lock
-# /frontend/package-lock.json
-
-# Coverage reports
-coverage/
-*.lcov
-
-# Testing / temp
-/tmp/
+# --------------------------------
+# expo
+# ---------------------------------
+.expo
+.expo-env.d.ts

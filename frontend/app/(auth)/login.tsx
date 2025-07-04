@@ -1,3 +1,8 @@
+/**
+ * This file is responsible for the login screen of NutriCast.
+ * Users that first visit the NutriCast app will be redirected to this screen first.
+ */
+
 import React, { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet, Alert } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
