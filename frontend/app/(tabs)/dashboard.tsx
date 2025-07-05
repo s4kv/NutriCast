@@ -12,6 +12,7 @@
  * 
  * TODO:
  * - Implement the circular progress bar to show calories consumed in the day.
+ *      - User can change their calorie goal
  *      - Make a page where the user can add food manually and log food manually.
  * 
  * COMPLETED:
@@ -19,14 +20,17 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Card } from 'react-native-paper';
+import { View, Text, StyleSheet, Platform } from 'react-native';
+import { Button, Card } from 'react-native-paper';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { useAuth } from '../auth-context';
 import backend from '../backend';
 import { Circle } from 'react-native-svg';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import { useRouter } from 'expo-router';
 
 export default function Dashboard() {
+    const router = useRouter();
     const { user, logout } = useAuth(); // Get the authenticated user from the auth context
     const [calorieGoal, setCalorieGoal] = useState(0); // User's goal for daily calorie intake
     const [caloriesConsumed, setCaloriesConsumed] = useState(0); // User's calories consumed today
@@ -34,6 +38,10 @@ export default function Dashboard() {
     const caloriesRemaining = calorieGoal - caloriesConsumed + caloriesBurned; // User's remaining calories for the day
     const netCalories = caloriesConsumed - caloriesBurned; // User's net calorie intake
     const percentOfCalorieGoal = calorieGoal > 0 ? Math.min(Math.max(netCalories/calorieGoal * 100, 0), 100) : 0; // User's percentage of completion to the calorie goal
+
+    const redirectToEditCaloriesCard = () => {
+        router.push('/Nutrition/edit-calories-card');
+    }
 
     useEffect(() => {
         // Get the user's calories logged today
@@ -57,12 +65,17 @@ export default function Dashboard() {
             <div style={{paddingTop: 10}}>
                 <Text style={styles.heading1Text}>Today</Text>
                 <Card mode='elevated'>
-                    <Card.Title title='Calories' subtitle='Remaining = Goal - Consumed + Burned'/>
-                    <Card.Content style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                        <div style={{padding: 10}}>
+                    <div style={styles.flexRowBaseline}>
+                        <Card.Title title='Calories'/>
+                        <div style={{marginLeft: 'auto', paddingRight: 16}}>
+                            <Button onPress={redirectToEditCaloriesCard}><FontAwesome5 name='edit'/> Edit</Button>
+                        </div>
+                    </div>
+                    <Card.Content style={styles.flexColumn}>
+                        <div style={styles.circularProgress}>
                             <AnimatedCircularProgress
-                                size={150}
-                                width={5}
+                                size={200}
+                                width={10}
                                 fill={percentOfCalorieGoal}
                                 tintColor="LimeGreen"
                                 backgroundColor="grey"
@@ -71,15 +84,27 @@ export default function Dashboard() {
                                 padding={5}>
                                 {
                                     () => (
-                                        <Text style={{textAlign: 'center'}}>{caloriesRemaining}{"\n"}Remaining</Text>
+                                        <div style={styles.flexColumnCenter}>
+                                            <Text style={styles.heading1Text}>{caloriesRemaining}</Text>
+                                            <Text>Remaining</Text>
+                                        </div>
                                     )
                                 }
                             </AnimatedCircularProgress>
                         </div>
-                        <div style={{display: 'flex', flexDirection: 'column'}}>
-                            <Text>Goal: {calorieGoal}</Text>
-                            <Text>Consumed: {caloriesConsumed}</Text>
-                            <Text>Burned: {caloriesBurned}</Text>
+                        <div style={styles.flexSpaceEvenly}>
+                            <div style={styles.flexColumnCenter}>
+                                <Text style={styles.heading3Text}>Goal:</Text>
+                                <Text style={styles.heading1Text}>{calorieGoal} 🎯</Text>
+                            </div>
+                            <div style={styles.flexColumnCenter}>
+                                <Text style={styles.heading3Text}>Consumed:</Text>
+                                <Text style={styles.heading1Text}>{caloriesConsumed} 🍽️</Text>
+                            </div>
+                            <div style={styles.flexColumnCenter}>
+                                <Text style={styles.heading3Text}>Burned:</Text>
+                                <Text style={styles.heading1Text}>{caloriesBurned} 🔥</Text>
+                            </div>
                         </div>
                     </Card.Content>
                 </Card>
@@ -96,6 +121,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 20
     },
+    circularProgress: {
+       paddingLeft: 50, 
+       paddingRight: 50, 
+       paddingBottom: 10, 
+       margin: 'auto'
+    },
     titleText: {
         fontSize: 26,
         fontWeight: 'bold'
@@ -103,5 +134,34 @@ const styles = StyleSheet.create({
     heading1Text: {
         fontSize: 20,
         fontWeight: 'bold'
+    },
+    heading2Text: {
+        fontSize: 16,
+        fontWeight: 'bold'
+    },
+    heading3Text: {
+        fontSize: 14
+    },
+    flexColumn: {
+        display: 'flex',
+        flexDirection: 'column'
+    },
+    flexColumnCenter: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
+    },
+    flexRow: {
+        display: 'flex',
+        flexDirection: 'row'
+    },
+    flexRowBaseline: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'baseline'
+    },
+    flexSpaceEvenly: {
+        display: 'flex',
+        justifyContent: 'space-evenly'
     }
 })
