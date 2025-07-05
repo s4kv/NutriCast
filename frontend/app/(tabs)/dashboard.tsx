@@ -12,11 +12,10 @@
  * 
  * TODO:
  * - Implement the circular progress bar to show calories consumed in the day.
- *      - When a user makes an account from firebase, it also adds the user's account information to mongoDB.
  *      - Make a page where the user can add food manually and log food manually.
  * 
  * COMPLETED:
- * 
+ * - When a user makes an account from firebase, it also adds the user's account information to mongoDB.
  */
 
 import React, { useEffect, useState } from 'react';
