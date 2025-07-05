@@ -15,8 +15,7 @@ import java.util.List;
  * This class represents a user in NutriCast.
  * The user will include fields such as id, username, password, email, and list of food that the user has logged.
  * 
- * TODO:
- * - Hash the user's password before passing it through to the database.
+ * TODO: Hash the user's password before passing it through to the database.
  */
 @Document("users")
 @Getter
