@@ -39,6 +39,7 @@ export default function Dashboard() {
     const netCalories = caloriesConsumed - caloriesBurned; // User's net calorie intake
     const percentOfCalorieGoal = calorieGoal > 0 ? Math.min(Math.max(netCalories/calorieGoal * 100, 0), 100) : 0; // User's percentage of completion to the calorie goal
 
+    // Redirects the user to a new tab, edit-calories-card.
     const redirectToEditCaloriesCard = () => {
         router.push('/Nutrition/edit-calories-card');
     }
