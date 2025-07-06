@@ -12,11 +12,11 @@
  * 
  * TODO:
  * - Implement the circular progress bar to show calories consumed in the day.
- *      - User can change their calorie goal
  *      - Make a page where the user can add food manually and log food manually.
  * 
  * COMPLETED:
  * - When a user makes an account from firebase, it also adds the user's account information to mongoDB.
+ * - User can change their calorie goal
  */
 
 import React, { useEffect, useState } from 'react';
@@ -41,7 +41,7 @@ export default function Dashboard() {
 
     // Redirects the user to a new tab, edit-calories-card.
     const redirectToEditCaloriesCard = () => {
-        router.push('/Nutrition/edit-calories-card');
+        router.push('/Nutrition/edit-calorie-goal-card');
     }
 
     useEffect(() => {
@@ -67,7 +67,7 @@ export default function Dashboard() {
                 <Text style={styles.heading1Text}>Today</Text>
                 <Card mode='elevated'>
                     <div style={styles.flexRowBaseline}>
-                        <Card.Title title='Calories'/>
+                        <Card.Title title='Daily Calorie Progress'/>
                         <div style={{marginLeft: 'auto', paddingRight: 16}}>
                             <Button onPress={redirectToEditCaloriesCard}><FontAwesome5 name='edit'/> Edit</Button>
                         </div>
@@ -116,17 +116,12 @@ export default function Dashboard() {
         
 // Style sheet for the dashboard screen.
 const styles = StyleSheet.create({
+    // General styling for all tabs.
     container: {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         padding: 20
-    },
-    circularProgress: {
-       paddingLeft: 50, 
-       paddingRight: 50, 
-       paddingBottom: 10, 
-       margin: 'auto'
     },
     titleText: {
         fontSize: 26,
@@ -164,5 +159,13 @@ const styles = StyleSheet.create({
     flexSpaceEvenly: {
         display: 'flex',
         justifyContent: 'space-evenly'
-    }
+    },
+
+    // Specific styling for the tab.
+    circularProgress: {
+       paddingLeft: 50, 
+       paddingRight: 50, 
+       paddingBottom: 10, 
+       margin: 'auto'
+    },
 })
