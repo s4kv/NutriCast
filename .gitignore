@@ -24,3 +24,7 @@ backend/.settings
 # ---------------------------------
 .expo
 .expo-env.d.ts
+# --------------------------------
+# firebase
+# ---------------------------------
+**/firebase-service-account.json
