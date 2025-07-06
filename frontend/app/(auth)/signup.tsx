@@ -34,7 +34,7 @@ export default function SignupScreen() {
         );
         console.log("Response from backend: " + response.status);
       } catch (exception: any) {
-        console.error("Error sending image to backend: " + exception);
+        console.error("Error sending user's account information to backend: " + exception);
       }
 
       Alert.alert("Success", "Account created successfully!");
