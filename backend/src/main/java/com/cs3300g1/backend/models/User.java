@@ -1,6 +1,7 @@
 package com.cs3300g1.backend.models;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
@@ -26,9 +27,16 @@ import java.util.List;
 public class User {
     @Id
     @ToString.Exclude private String id; // Unique identifier for the user
+        
+    @Indexed(unique = true, sparse = true)
     private String username; // Username of the user
+    
     private String password; // Password of the user
+    
+    @Indexed(unique = true)
     private String email; // Email of the user
+    
     private int calorieGoal; // Number of calories the user wants to consume each day
+    
     private List<FoodLog> foodLogs; // List of foods that the user has logged
 }
