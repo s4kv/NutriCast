@@ -10,7 +10,6 @@ const api = axios.create({
   },
 });
 
-
 export default api;
 
 /* ------------------------------------------------------------------
@@ -24,28 +23,36 @@ export async function sendFriendRequest(username: string, token: string) {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 }
 
 export async function getFriends(token: string) {
-  return api.get("/api/friends", { headers: { Authorization: `Bearer ${token}` } });
+  return api.get("/api/friends", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getIncomingRequests(token: string) {
-  return api.get("/api/friends/requests", { headers: { Authorization: `Bearer ${token}` } });
+  return api.get("/api/friends/requests", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getSentRequests(token: string) {
-  return api.get("/api/friends/requests/sent", { headers: { Authorization: `Bearer ${token}` } });
+  return api.get("/api/friends/requests/sent", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
-export async function respondToRequest(requestId: string, accept: boolean, token: string) {
+export async function respondToRequest(
+  requestId: string,
+  accept: boolean,
+  token: string,
+) {
   return api.post(
     "/api/friends/respond",
     { requestId, accept },
-    { headers: { Authorization: `Bearer ${token}` } }
+    { headers: { Authorization: `Bearer ${token}` } },
   );
 }
-
-
