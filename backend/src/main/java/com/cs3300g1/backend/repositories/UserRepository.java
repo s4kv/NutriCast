@@ -26,4 +26,7 @@ public interface UserRepository extends MongoRepository<User, String> {
      * @return an Optional containing the User if found, or an empty Optional if not found.
      */
     Optional<User> findByEmail(String email);
+
+    Optional<User> findByAuthUid(String authUid);
+
 }
