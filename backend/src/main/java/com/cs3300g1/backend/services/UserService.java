@@ -1,5 +1,6 @@
 package com.cs3300g1.backend.services;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ public class UserService {
     public User createOrGetUserShell(String email, String uid) {
         return userRepository.findByEmail(email)
             .orElseGet(() -> userRepository.save(
-                    new User(null, null, uid, email, 0, null)
+                    new User(null, null, uid, email, 0, null, new ArrayList<>())
             ));
     }
 
@@ -107,6 +108,16 @@ public class UserService {
 
         u.setUsername(username);
         userRepository.save(u);
+    }
+
+    public String getUsername(String userId) {
+        return userRepository.findById(userId)
+                .map(User::getUsername)
+                .orElseThrow(() -> new IllegalStateException("user-not-found"));
+    }
+
+    public Optional<User> findByAuthUid(String authUid) {
+        return userRepository.findByAuthUid(authUid);
     }
 
 }
