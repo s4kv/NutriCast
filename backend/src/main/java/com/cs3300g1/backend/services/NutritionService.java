@@ -91,4 +91,18 @@ public class NutritionService {
         // 2. Get the user's calorie goal and return it.
         return user.getCalorieGoal();
     }
+
+    /**
+     * This method sets the user's calorie goal to a new value and saves it in mongoDB.
+     * @param userCalorieGoal the new value of the user's calorie goal.
+     */
+    public void setUserCalorieGoal(String email, Integer calorieGoal) {
+        // 1. Find the user in the database from the email.
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("No users that match the email: " + email));
+
+        // 2. Edit the user's calorie goal with the new calorie goal and save the user to mongoDB.
+        user.setCalorieGoal((int) calorieGoal);
+        userRepository.save(user);
+    }
 }
