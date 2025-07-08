@@ -3,8 +3,8 @@ import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { getIdToken } from "firebase/auth";
 
-import { auth } from "../firebase";  // path: app/firebase.ts
-import api from "../backend";         // Axios instance (app/backend.ts)
+import { auth } from "../firebase"; // path: app/firebase.ts
+import api from "../backend"; // Axios instance (app/backend.ts)
 
 export default function ChooseUsername() {
   const [username, setUsername] = useState("");
@@ -26,7 +26,7 @@ export default function ChooseUsername() {
       await api.post(
         "/api/users/username",
         { username: username.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       // On success, go to dashboard (tabs root)
@@ -57,7 +57,9 @@ export default function ChooseUsername() {
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <Pressable style={styles.button} onPress={submit} disabled={loading}>
-        <Text style={styles.buttonText}>{loading ? "Saving…" : "Continue"}</Text>
+        <Text style={styles.buttonText}>
+          {loading ? "Saving…" : "Continue"}
+        </Text>
       </Pressable>
     </View>
   );
