@@ -16,10 +16,14 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
       console.log("User logged in:", userCredential.user);
       Alert.alert("Success", "Logged in successfully!");
-      router.replace("/"); 
+      router.replace("/");
     } catch (error: any) {
       console.error("Login error:", error);
       Alert.alert("Error", error.message);
