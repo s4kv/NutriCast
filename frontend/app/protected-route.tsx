@@ -1,9 +1,11 @@
 import React, { useEffect } from "react";
-import { useAuth } from "./auth-context"; 
+import { useAuth } from "./auth-context";
 import { useRouter } from "expo-router";
 import { View, ActivityIndicator } from "react-native";
 
-export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { user, loading } = useAuth();
   const router = useRouter();
 
