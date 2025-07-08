@@ -31,7 +31,8 @@ public class User {
     @Indexed(unique = true, sparse = true)
     private String username; // Username of the user
     
-    private String password; // Password of the user
+    @Indexed(unique = true)
+    private String authUid; // <-- Add this field
     
     @Indexed(unique = true)
     private String email; // Email of the user
@@ -39,4 +40,6 @@ public class User {
     private int calorieGoal; // Number of calories the user wants to consume each day
     
     private List<FoodLog> foodLogs; // List of foods that the user has logged
+
+    private List<String> friends;
 }
