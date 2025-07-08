@@ -7,7 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * This class represents a User's information for sign-up.
+ * This class represents a User's information for sign-up that handles the connection between the frontend and backend.
  * It includes the user's email and password.
  * 
  * TODO: Hash the user's password.
