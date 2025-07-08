@@ -1,10 +1,9 @@
 package com.cs3300g1.backend.config;
 
+import com.openai.client.OpenAIClient;
+import com.openai.client.okhttp.OpenAIOkHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.openai.client.okhttp.OpenAIOkHttpClient;
-import com.openai.client.OpenAIClient;
 
 @Configuration
 public class OpenAIConfig {
