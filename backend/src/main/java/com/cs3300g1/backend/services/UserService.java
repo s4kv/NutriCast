@@ -43,7 +43,7 @@ public class UserService {
     public User createOrGetUserShell(String email, String uid) {
         return userRepository.findByEmail(email)
             .orElseGet(() -> userRepository.save(
-                    new User(null, null, uid, email, 0, null, new ArrayList<>())
+                    new User(null, null, uid, email, 0, new ArrayList<>(), new ArrayList<>())
             ));
     }
 

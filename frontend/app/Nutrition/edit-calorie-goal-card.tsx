@@ -68,7 +68,7 @@ export default function editCalorieGoalCard() {
                         {newCalorieGoalInputError && <Text style={styles.errorText}>This field is required.</Text>}
                         <div style={styles.saveButton}>
                             <Button title="Save" onPress={editCalorieGoal}/>
-                        </div>                        
+                        </div>                     
                     </Card.Content>                    
                 </Card>
             </div> 
