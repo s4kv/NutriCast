@@ -25,10 +25,6 @@ public class FriendRequestService {
   ------------------------------------------------------------------ */
   public void sendRequest(String fromAuthUid, String toUsername) {
 
-    System.out.println(
-        "Looking up sender by authUid: "
-            + fromAuthUid); // ----------------THIS WAS GOOD!!!!!!!!!!!!
-
     // 1. Look-up recipient by username
     User toUser =
         userRepo
