@@ -18,7 +18,7 @@ frontend/expo-env.d.ts
 # backend
 # --------------------------------
 backend/.settings
-
+backend/target 
 # --------------------------------
 # expo
 # ---------------------------------
@@ -27,4 +27,4 @@ backend/.settings
 # --------------------------------
 # firebase
 # ---------------------------------
-**/firebase-service-account.json
+**/firebase-service-account.json 
