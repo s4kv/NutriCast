@@ -46,6 +46,12 @@ export default function TabLayout() {
           title: "Friends",
         }}
       />
+      <Tabs.Screen
+        name="log-food"
+        options={{
+          title: "Log Food",
+        }}
+      />
     </Tabs>
   );
 }
