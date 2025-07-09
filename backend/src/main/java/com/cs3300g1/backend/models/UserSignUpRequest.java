@@ -7,10 +7,10 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * This class represents a User's information for sign-up.
- * It includes the user's email and password.
- * 
- * TODO: Hash the user's password.
+ * This class represents a User's information for sign-up that handles the connection between the
+ * frontend and backend. It includes the user's email and password.
+ *
+ * <p>TODO: Hash the user's password.
  */
 @Getter
 @Setter
@@ -18,6 +18,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class UserSignUpRequest {
-    private String email; // the email the user used to sign-up
-    private String password; // the password the user used to sign-up
+  private String email; // the email the user used to sign-up
+  private String password; // the password the user used to sign-up
 }

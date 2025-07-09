@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { getIdToken } from "firebase/auth";
 import { auth } from "../firebase";
-import api, { respondToRequest } from "../backend"; 
+import api, { respondToRequest } from "../backend";
 
 type FriendRequest = {
   id: string;
@@ -61,7 +61,7 @@ export default function FriendsScreen() {
       await api.post(
         "/api/friends/request",
         { username: username.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setUsername("");
       await fetchAll();
@@ -74,61 +74,59 @@ export default function FriendsScreen() {
   /* ------------------------------------------------------------- */
 
   // Accept / decline handler
-    const handleRespond = async (requestId: string, accept: boolean) => {
+  const handleRespond = async (requestId: string, accept: boolean) => {
     const token = await getIdToken(auth.currentUser!, true);
     try {
-        await api.post(
+      await api.post(
         "/api/friends/respond",
         { requestId, accept },
-        { headers: { Authorization: `Bearer ${token}` } }
-        );
-        await fetchAll();
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      await fetchAll();
     } catch (e: any) {
-        console.error("Respond error:", e);
+      console.error("Respond error:", e);
     }
-    };
+  };
 
   /* ------------------------------------------------------------- */
 
   useFocusEffect(
     useCallback(() => {
       fetchAll();
-    }, [])
+    }, []),
   );
 
   /* ------------------------------------------------------------- */
 
-    const renderIncomingItem = ({ item }: { item: FriendRequest }) => (
+  const renderIncomingItem = ({ item }: { item: FriendRequest }) => (
     <View style={styles.requestRow}>
-        <Text style={styles.requestText}>From: {item.fromUsername}</Text>
-        <Pressable
+      <Text style={styles.requestText}>From: {item.fromUsername}</Text>
+      <Pressable
         style={[styles.actionBtn, styles.acceptBtn]}
         onPress={() => handleRespond(item.id, true)}
-        >
+      >
         <Text style={styles.actionText}>✔</Text>
-        </Pressable>
-        <Pressable
+      </Pressable>
+      <Pressable
         style={[styles.actionBtn, styles.declineBtn]}
         onPress={() => handleRespond(item.id, false)}
-        >
+      >
         <Text style={styles.actionText}>✖</Text>
-        </Pressable>
+      </Pressable>
     </View>
-    );
+  );
 
   const renderList = (
     title: string,
     data: any[],
-    label: "incoming" | "outgoing" | "friends"
+    label: "incoming" | "outgoing" | "friends",
   ) => (
     <>
       <Text style={styles.sectionTitle}>{title}</Text>
       {data.length > 0 ? (
         <FlatList
           data={data}
-          keyExtractor={(item) =>
-            typeof item === "string" ? item : item.id
-          }
+          keyExtractor={(item) => (typeof item === "string" ? item : item.id)}
           renderItem={
             label === "incoming"
               ? renderIncomingItem
@@ -137,8 +135,8 @@ export default function FriendsScreen() {
                     {label === "friends"
                       ? item
                       : label === "outgoing"
-                      ? `To: ${item.toUsername}`
-                      : ""}
+                        ? `To: ${item.toUsername}`
+                        : ""}
                   </Text>
                 )
           }
@@ -180,23 +178,45 @@ export default function FriendsScreen() {
 const styles = StyleSheet.create({
   container: { padding: 24, flex: 1, backgroundColor: "#fff" },
   title: { fontSize: 26, fontWeight: "bold", marginBottom: 16 },
-  sectionTitle: { fontSize: 18, fontWeight: "600", marginTop: 24, marginBottom: 8 },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginTop: 24,
+    marginBottom: 8,
+  },
   listItem: { fontSize: 16, paddingVertical: 4 },
   emptyText: { fontSize: 14, fontStyle: "italic", color: "#999" },
   input: {
-    borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8,
-    marginTop: 32, marginBottom: 12, fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 32,
+    marginBottom: 12,
+    fontSize: 16,
   },
   button: {
-    backgroundColor: "#007bff", padding: 14, borderRadius: 8, alignItems: "center",
+    backgroundColor: "#007bff",
+    padding: 14,
+    borderRadius: 8,
+    alignItems: "center",
   },
   buttonText: { color: "#fff", fontWeight: "600", fontSize: 16 },
   error: { color: "red", marginBottom: 8, textAlign: "center" },
 
   /* ── new styles for action buttons ── */
-  requestRow: { flexDirection: "row", alignItems: "center", paddingVertical: 4 },
+  requestRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 4,
+  },
   actions: { flexDirection: "row", marginLeft: "auto" },
-  actionBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4, marginLeft: 6 },
+  actionBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+    marginLeft: 6,
+  },
   acceptBtn: { backgroundColor: "#28a745" },
   declineBtn: { backgroundColor: "#dc3545" },
   actionText: { color: "#fff", fontSize: 14 },
