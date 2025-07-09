@@ -49,8 +49,6 @@ public class FriendRequestController {
       return ResponseEntity.badRequest().body(Map.of("error", "missing-username"));
     }
 
-    System.out.println(
-        "Decoded Firebase UID: " + decoded.getUid()); // ----------------THIS WAS GOOD!!!!!!!!!!!!
     User sender =
         userService
             .findByAuthUid(decoded.getUid())
