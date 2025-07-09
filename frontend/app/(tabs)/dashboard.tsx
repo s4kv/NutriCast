@@ -10,13 +10,24 @@
  * - Implement the daily goals.
  * - Implement the line chart to show the user's weight.
  *
- * TODO:
+  * TODO:
  * - Implement the circular progress bar to show calories consumed in the day.
  *      - Make a page where the user can add food manually and log food manually.
- *
+ *          - Users can add food seamlessly in the application.
+ *              - Make addFood.tsx frontend file.
+ *              - Update Food.java model to include the userId of the user adding the food.
+ *              - Update FoodRepository.java to include a method called findByNameAndUserId.
+ *              - Test it on BackendApplication.java to make sure all methods in FoodRepository.java work.
+ *              - Make FoodService.java to handle all business logic.
+ *              - Make FoodController.java to handle all api endpoints.
+ *                  - Make @PostMapping method in FoodController.java which saves the food into mongoDB.
+ *                  - Make @GetMapping method in FoodController.java which shows the list of foods from mongoDB.
+ *              - Update log-food.tsx file to use the backend to get the food data.
+ * 
  * COMPLETED:
  * - When a user makes an account from firebase, it also adds the user's account information to mongoDB.
  * - User can change their calorie goal
+ * - Made UI for log food tab.
  */
 
 import React, { useEffect, useState } from "react";
