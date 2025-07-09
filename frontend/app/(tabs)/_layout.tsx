@@ -40,6 +40,12 @@ export default function TabLayout() {
           title: "NutriMeal",
         }}
       />
+      <Tabs.Screen
+        name="friends"
+        options={{
+          title: "Friends",
+        }}
+      />
     </Tabs>
   );
 }
