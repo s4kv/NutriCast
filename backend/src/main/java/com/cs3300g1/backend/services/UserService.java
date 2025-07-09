@@ -40,7 +40,7 @@ public class UserService {
         .findByEmail(email)
         .orElseGet(
             () ->
-                userRepository.save(new User(null, null, uid, email, 0, null, new ArrayList<>())));
+                userRepository.save(new User(null, null, uid, email, 0, new ArrayList<>(), new ArrayList<>())));
   }
 
   /**
