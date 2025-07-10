@@ -54,22 +54,17 @@ public class NutritionService {
   public int getUserCaloriesLoggedToday(String userEmail, LocalDate today) {
     // 1. Get the User from userEmail in MongoDB.
     //    If User is found, then proceed with the calculation.
-    //    If User is not found, then don't proceed with the calculation and generate an runtime
-    // error.
+    //    If User is not found, then don't proceed with the calculation and generate an runtime error.
     //    Though, 99% of the time, the user should be found since only users can log meals.
-    User user =
-        userRepository
-            .findByEmail(userEmail)
-            .orElseThrow(
-                () -> new RuntimeException("No user was found with the email: " + userEmail));
+    User user = userRepository.findByEmail(userEmail)
+                  .orElseThrow(() -> new RuntimeException("No user was found with the email: " + userEmail));
 
     // 2. Get the List<FoodLog> of the user for today.
     //    First, we need to convert the LocalDate to Instant.
     //    Second, we use findUserFoodLogsForToday from foodLogRepository.
     Instant start = today.atStartOfDay(ZoneId.systemDefault()).toInstant();
     Instant end = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
-    List<FoodLog> userFoodLogsForToday =
-        foodLogRepository.findUserFoodLogsForToday(user.getId(), start, end);
+    List<FoodLog> userFoodLogsForToday = foodLogRepository.findUserFoodLogsForToday(user.getId(), start, end);
 
     // 3. Go through userFoodLogsForToday and get the total amount of calories logged by the user.
     //    For each FoodLog in List<FoodLog>, get the Food that is related to that FoodLog.
@@ -77,13 +72,8 @@ public class NutritionService {
     int caloriesLoggedToday = 0;
     for (FoodLog userFoodLogForToday : userFoodLogsForToday) {
       String foodId = userFoodLogForToday.getFoodId();
-      Food food =
-          foodRepository
-              .findById(foodId)
-              .orElseThrow(
-                  () ->
-                      new RuntimeException(
-                          "No food cannot be found in the database with this id: " + foodId));
+      Food food =foodRepository.findById(foodId)
+                  .orElseThrow(() -> new RuntimeException("No food cannot be found in the database with this id: " + foodId));
       caloriesLoggedToday += food.getMacros().getCalories() * userFoodLogForToday.getNoOfServings();
     }
     return caloriesLoggedToday;
