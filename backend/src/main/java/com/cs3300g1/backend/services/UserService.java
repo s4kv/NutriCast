@@ -118,6 +118,15 @@ public class UserService {
         .orElseThrow(() -> new IllegalStateException("user-not-found"));
   }
 
+
+  public String getEmailByUsername(String username) {
+      return userRepository
+              .findByUsername(username)
+              .map(User::getEmail)
+              .orElseThrow(() -> new IllegalArgumentException("user-not-found"));
+  }
+
+
   public Optional<User> findByAuthUid(String authUid) {
     return userRepository.findByAuthUid(authUid);
   }
