@@ -24,7 +24,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @ToString
 public class Food {
-  @Id @ToString.Exclude private String id; // Unique identifier for the food item
+  @Id @ToString.Exclude private String id; // Unique identifier for the food
+  private String userId; // The unique identifier of the user that added this food
   private String name; // Name of the food
   private FoodType type; // Type of food (e.g., ITEM, MEAL)
   private double servingSize; // Serving size
