@@ -29,7 +29,7 @@ public class User {
   private String username; // Username of the user
 
   @Indexed(unique = true)
-  private String authUid; // <-- Add this field
+  private String authUid; // Unique identifier of the user in firebase
 
   @Indexed(unique = true)
   private String email; // Email of the user

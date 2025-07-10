@@ -13,8 +13,7 @@ export default function editCalorieGoalCard() {
   const { user, logout } = useAuth();
   const [currentCalorieGoal, setCurrentCalorieGoal] = useState(""); // The user's current calorie goal
   const [newCalorieGoal, setNewCalorieGoal] = useState(""); // The new calorie goal
-  const [newCalorieGoalInputError, setNewCalorieGoalInputError] =
-    useState<Boolean>(); // Makes the newCalorieGoal field required
+  const [newCalorieGoalInputError, setNewCalorieGoalInputError] = useState<Boolean>(); // Makes the newCalorieGoal field required
 
   // Sends the newCalorieGoal to the backend and updates it to the database
   const editCalorieGoal = async () => {

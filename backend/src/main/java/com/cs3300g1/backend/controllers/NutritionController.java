@@ -51,8 +51,7 @@ public class NutritionController {
   }
 
   @PostMapping("/calories/goal")
-  public ResponseEntity<Void> editUserCalorieGoal(
-      @PathVariable("userEmail") String email, @RequestBody Integer calorieGoal) {
+  public ResponseEntity<Void> editUserCalorieGoal(@PathVariable("userEmail") String email, @RequestBody Integer calorieGoal) {
     nutritionService.setUserCalorieGoal(email, calorieGoal);
     return new ResponseEntity<>(HttpStatus.OK);
   }
