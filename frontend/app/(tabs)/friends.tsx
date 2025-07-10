@@ -86,31 +86,57 @@ export default function FriendsScreen() {
     }
   };
 
+  /* -------- new: open friend's profile ---------- */
+  const seeProfile = async (friendUsername: string) => {
+    try {
+      const { data } = await api.get(
+        `/api/users/email-from-username/${encodeURIComponent(friendUsername)}`,
+      );
+      router.push({
+        pathname: "/friend/[friendEmail]",
+        params: { friendEmail: encodeURIComponent(data.email) },
+      });
+    } catch (e) {
+      console.error("Lookup email error:", e);
+      setError("Unable to open profile");
+    }
+  };
+
   /* -------- on focus ---------- */
-  useFocusEffect(useCallback(() => { fetchAll(); }, []));
+  useFocusEffect(
+    useCallback(() => {
+      fetchAll();
+    }, []),
+  );
 
   /* -------- render helpers ---------- */
   const FriendRow = ({ name }: { name: string }) => (
     <View style={styles.friendRow}>
       <Text style={styles.listItem}>{name}</Text>
 
-<Pressable
-  style={styles.chatBtn}
-  onPress={() =>
-    router.push({
-      pathname: "/chat/[friendUsername]",
-      params: {
-        friendUsername: name,
-        myUsername:
-          auth.currentUser?.displayName ||
-          auth.currentUser?.email?.split("@")[0] ||
-          "unknown",
-      },
-    })
-  }
->
-  <FontAwesome name="comment" size={18} color="#fff" />
-</Pressable>
+      {/* chat button */}
+      <Pressable
+        style={styles.chatBtn}
+        onPress={() =>
+          router.push({
+            pathname: "/chat/[friendUsername]",
+            params: {
+              friendUsername: name,
+              myUsername:
+                auth.currentUser?.displayName ||
+                auth.currentUser?.email?.split("@")[0] ||
+                "unknown",
+            },
+          })
+        }
+      >
+        <FontAwesome name="comment" size={18} color="#fff" />
+      </Pressable>
+
+      {/* profile button */}
+      <Pressable style={styles.profileBtn} onPress={() => seeProfile(name)}>
+        <FontAwesome name="user" size={18} color="#fff" />
+      </Pressable>
     </View>
   );
 
@@ -132,7 +158,11 @@ export default function FriendsScreen() {
     </View>
   );
 
-  const renderList = (title: string, data: any[], label: "friends" | "incoming" | "outgoing") => (
+  const renderList = (
+    title: string,
+    data: any[],
+    label: "friends" | "incoming" | "outgoing",
+  ) => (
     <>
       <Text style={styles.sectionTitle}>{title}</Text>
       {data.length ? (
@@ -143,10 +173,10 @@ export default function FriendsScreen() {
             label === "friends"
               ? ({ item }) => <FriendRow name={item} />
               : label === "incoming"
-                ? IncomingRow
-                : ({ item }) => (
-                    <Text style={styles.listItem}>To: {item.toUsername}</Text>
-                  )
+              ? IncomingRow
+              : ({ item }) => (
+                  <Text style={styles.listItem}>To: {item.toUsername}</Text>
+                )
           }
         />
       ) : (
@@ -190,23 +220,42 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 14, fontStyle: "italic", color: "#999" },
 
   input: {
-    borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8,
-    marginTop: 32, marginBottom: 12, fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 32,
+    marginBottom: 12,
+    fontSize: 16,
   },
   button: {
-    backgroundColor: "#007bff", padding: 14, borderRadius: 8, alignItems: "center",
+    backgroundColor: "#007bff",
+    padding: 14,
+    borderRadius: 8,
+    alignItems: "center",
   },
   buttonText: { color: "#fff", fontWeight: "600", fontSize: 16 },
   error: { color: "red", marginBottom: 8, textAlign: "center" },
 
   /* friend row */
-  friendRow: { flexDirection: "row", alignItems: "center", paddingVertical: 4 },
+  friendRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 4,
+  },
   chatBtn: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 4,
-    marginLeft: 6, // same as actionBtn
-    backgroundColor: "#007aff", // optional: adds a blue background for visibility
+    marginLeft: 6,
+    backgroundColor: "#007aff", // green for chat
+  },
+  profileBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+    marginLeft: 6,
+    backgroundColor: "#007aff", // blue for profile
   },
 
   /* incoming request row */
