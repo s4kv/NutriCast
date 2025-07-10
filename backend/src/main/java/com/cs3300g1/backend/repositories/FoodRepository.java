@@ -13,6 +13,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FoodRepository extends MongoRepository<Food, String> {
   /**
+   * Finds a list of Food items by the userId in mongoDB.
+   * @param userId the unique identifier of the user.
+   * @return a list of Food objects that matches the userId.
+   */
+  List<Food> findByUserId(String userId);
+
+  /**
    * Finds a list of Food items by their name in the database.
    *
    * @param name the name of the food item to search for in the database.
@@ -27,4 +34,13 @@ public interface FoodRepository extends MongoRepository<Food, String> {
    * @return a list of Food items that match the given type.
    */
   List<Food> findByType(FoodType type);
+
+  /**
+   * Finds a list of Food items by the userId that created the Food and
+   * the name of the Food.
+   * @param userId the unique identifier of the user that created the Food.
+   * @param name the name of the Food.
+   * @return a list of Food items that matches the given userId and name.
+   */
+  List<Food> findByUserIdAndName(String userId, String name);
 }
