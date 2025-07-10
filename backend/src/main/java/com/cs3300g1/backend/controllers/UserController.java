@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -101,4 +102,25 @@ public class UserController {
         .<ResponseEntity<?>>map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
   }
+
+
+    /**
+     * Given a friend's **username**, return their public email so the frontend can call the nutrition
+     * routes that are still keyed by <code>{userEmail}</code>.
+     */
+
+    @GetMapping("/email-from-username/{username}")
+    public ResponseEntity<?> getUserEmailFromUsername(@PathVariable("username") String username) {
+        System.out.println("HIT  /api/users/email-from-username/" + username);   // <-- ADDED
+
+      return userService
+          .findByUsername(username)
+          .map(User::getEmail)
+          .<ResponseEntity<?>>map(email -> ResponseEntity.ok(Map.of("email", email)))
+          .orElseGet(
+              () ->
+                  ResponseEntity.status(HttpStatus.NOT_FOUND)
+                      .body(Map.of("error", "user-not-found")));
+    }
+
 }
