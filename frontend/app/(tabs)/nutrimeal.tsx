@@ -15,6 +15,8 @@ import { Picker } from "@react-native-picker/picker";
 import backend from "../backend";
 import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useAuth } from "../auth-context";
+import { useRouter } from "expo-router";
 
 interface NutriMealResponse {
   mealName: string;
@@ -31,6 +33,39 @@ interface NutriMealResponse {
   mealAnalysis: string;
   servingSuggestions: string[];
 }
+
+// this is imported from add-food.tsx
+// haha we should probably export the interfaces from a type file or something, but for now...
+// okey, main idea: use java controller with this interface to send data to the backend? maybe...
+// still need to figure out how rex handles this data xd
+interface foodData {
+  name: String;
+  type: FoodType;
+  servingSize: number;
+  servingUnit: String;
+  foodMacros: FoodMacros;
+}
+// end of imported interfaces...
+
+// This are imported from log-food.tsx
+// this are the food macros defined for the backend...
+interface FoodMacros {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  sugar: number;
+  sodium: number;
+  cholesterol: number;
+}
+
+// since nutricast is only for meals, we can use this enum
+enum FoodType {
+  ITEM,
+  MEAL,
+}
+// end of imported interfaces...
 
 // def of macro levels
 const macroLevels = ["Any", "Low", "Medium", "High"];
@@ -59,6 +94,56 @@ export default function NutriMeal() {
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
   const [cameraStatus, requestCameraPermission] =
     ImagePicker.useCameraPermissions();
+
+  // user
+  const { user } = useAuth();
+
+  // router
+  const router = useRouter();
+
+  // new log foods option added here!
+  const logFood = async (serviceSize: number) => {
+    // Check if user is authenticated
+    if (!user) {
+      console.error("User is not authenticated.");
+      return;
+    }
+
+    if (!aiResponse) {
+      console.error("No AI response available to log food.");
+      return;
+    }
+
+    // create foodData from AI Response
+    const foodData: foodData = {
+      name: aiResponse.mealName,
+      type: FoodType.MEAL,
+      servingSize: 1, // Use the service size provided by the user
+      servingUnit: "grams", // Default unit, can be adjusted
+      foodMacros: {
+        calories: aiResponse.calories,
+        protein: aiResponse.proteinInGrams,
+        carbs: aiResponse.carbsInGrams,
+        fat: aiResponse.fatInGrams,
+        fiber: aiResponse.fiberInGrams,
+        sugar: aiResponse.sugarInGrams,
+        sodium: aiResponse.sodiumInMg,
+        cholesterol: aiResponse.cholesterolInMg,
+      },
+    };
+
+    try {
+      const response = await backend.post(
+        `/api/users/${user?.email}/foods`,
+        foodData,
+      );
+      console.log("Response from backend: " + response.status);
+    } catch (exception: any) {
+      console.error("Error sending user's new food to backend: " + exception);
+    } finally {
+      router.push("/(tabs)/log-food"); // NOTE: Current service for "food loggin" implementation has latency issues, so we will not redirect to the log food tab
+    }
+  };
 
   // get string representation the macro details
   const getMacroDetailsString = () => {
@@ -394,6 +479,7 @@ export default function NutriMeal() {
                 {aiResponse.cholesterolInMg} g
               </Text>
             </View>
+            <Button title="Log Food" onPress={() => logFood()} />
           </View>
         )}
       </ScrollView>
