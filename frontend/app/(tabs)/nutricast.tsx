@@ -14,7 +14,11 @@ import * as ImagePicker from "expo-image-picker";
 import backend from "../backend";
 import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { Picker } from "@react-native-picker/picker";
+import { useAuth } from "../auth-context";
+import { useRouter } from "expo-router";
 
+// this is the AI response, will be latter used to log the food
 interface NutriCastResponse {
   name_of_the_food: string;
   calories: number;
@@ -30,6 +34,39 @@ interface NutriCastResponse {
   analysis_of_contents_of_the_picture: string;
 }
 
+// this is imported from add-food.tsx
+// haha we should probably export the interfaces from a type file or something, but for now...
+// okey, main idea: use java controller with this interface to send data to the backend? maybe...
+// still need to figure out how rex handles this data xd
+interface foodData {
+  name: String;
+  type: FoodType;
+  servingSize: number;
+  servingUnit: String;
+  foodMacros: FoodMacros;
+}
+// end of imported interfaces...
+
+// This are imported from log-food.tsx
+// this are the food macros defined for the backend...
+interface FoodMacros {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  sugar: number;
+  sodium: number;
+  cholesterol: number;
+}
+
+// since nutricast is only for meals, we can use this enum
+enum FoodType {
+  ITEM,
+  MEAL,
+}
+// end of imported interfaces...
+
 export default function NutriCast() {
   const [image, setImage] = useState<string | null>(null);
   const [publicImageUri, setPublicImageUri] = useState<string | null>(null);
@@ -42,6 +79,56 @@ export default function NutriCast() {
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
   const [cameraStatus, requestCameraPermission] =
     ImagePicker.useCameraPermissions();
+
+  // user
+  const { user } = useAuth();
+
+  // router
+  const router = useRouter();
+
+  // new log foods option added here!
+  const logFood = async () => {
+    // Check if user is authenticated
+    if (!user) {
+      console.error("User is not authenticated.");
+      return;
+    }
+
+    if (!aiResponse) {
+      console.error("No AI response available to log food.");
+      return;
+    }
+
+    // create foodData from AI Response
+    const foodData: foodData = {
+      name: aiResponse.name_of_the_food,
+      type: FoodType.MEAL,
+      servingSize: 1, // Default serving size, can be adjusted maybe in the future
+      servingUnit: "grams", // Default unit, can be adjusted
+      foodMacros: {
+        calories: aiResponse.calories,
+        protein: aiResponse.protein,
+        carbs: aiResponse.carbs,
+        fat: aiResponse.fat,
+        fiber: aiResponse.fiber,
+        sugar: aiResponse.sugar,
+        sodium: aiResponse.sodium,
+        cholesterol: aiResponse.cholesterol,
+      },
+    };
+
+    try {
+      const response = await backend.post(
+        `/api/users/${user?.email}/foods`,
+        foodData,
+      );
+      console.log("Response from backend: " + response.status);
+    } catch (exception: any) {
+      console.error("Error sending user's new food to backend: " + exception);
+    } finally {
+      router.push("/(tabs)/log-food"); // NOTE: Current service for "food loggin" implementation has latency issues, so we will not redirect to the log food tab
+    }
+  };
 
   // upload image to Firebase Storage
   const uploadImageToStorage = async (uri: string, fileName: string) => {
@@ -292,6 +379,10 @@ export default function NutriCast() {
               <Text style={styles.bold}>Recommendation: </Text>
               {aiResponse.additional_recommendation}
             </Text>
+
+            {/* this is for the log food buttom */}
+            <View style={styles.buttonSpacer} />
+            <Button title="Log this food" onPress={logFood} />
           </View>
         )}
       </ScrollView>
@@ -396,5 +487,13 @@ const styles = StyleSheet.create({
     color: "#34495e",
     marginBottom: 8,
     marginTop: 10,
+  },
+  pickerContainer: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    width: "100%",
+    justifyContent: "center", // Center picker text on Android
   },
 });
