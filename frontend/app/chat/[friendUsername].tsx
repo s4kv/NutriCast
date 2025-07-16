@@ -6,9 +6,9 @@ import {
 } from "react-native";
 import { Stack, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";        /* ← icon import */
-import { auth } from "../firebase";
+import { firebaseAuth } from "../../services/firebase";
 import { getIdToken } from "firebase/auth";
-import api from "../backend";
+import api from "../../services/backend";
 import ChatBubble from "./ChatBubble";
 
 /* ---- types ---- */
@@ -32,7 +32,7 @@ export default function ChatScreen() {
     useCallback(() => {
       const load = async () => {
         try {
-          const token = await getIdToken(auth.currentUser!, true);
+          const token = await getIdToken(firebaseAuth.currentUser!, true);
           const { data } = await api.get<Message[]>(
             `/api/friends/chats/with/${friendUsername}`,
             { headers: { Authorization: `Bearer ${token}` } }
@@ -51,7 +51,7 @@ export default function ChatScreen() {
   const send = async () => {
     if (!draft.trim()) return;
     try {
-      const token = await getIdToken(auth.currentUser!, true);
+      const token = await getIdToken(firebaseAuth.currentUser!, true);
       const body = { recipientUsername: friendUsername, content: draft.trim() };
       const { data } = await api.post("/api/friends/chats", body, {
         headers: { Authorization: `Bearer ${token}` },

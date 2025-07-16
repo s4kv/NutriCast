@@ -1,8 +1,8 @@
 import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
 import { Card } from "react-native-paper";
 import { useEffect, useState } from "react";
-import { useAuth } from "../auth-context";
-import backend from "../backend";
+import { useAuth } from "../../services/auth-context";
+import backend from "../../services/backend";
 import { useRouter } from "expo-router";
 
 /**
@@ -41,7 +41,7 @@ export default function editCalorieGoalCard() {
     // Get the user's current calorie goal
     backend
       .get(`/api/users/${user?.email}/nutrition/calories/goal`)
-      .then((response) => setCurrentCalorieGoal(response.data))
+      .then((response) => setCurrentCalorieGoal(String(response.data)))
       .catch((error) => {
         console.error(error);
       });
@@ -50,11 +50,11 @@ export default function editCalorieGoalCard() {
   return (
     <View style={styles.container}>
       <Text style={styles.titleText}>Edit Calorie Goal</Text>
-      <div style={{ paddingTop: 10 }}>
+      <View style={{ paddingTop: 10 }}>
         <Card mode="elevated">
           <Card.Title title="Calorie Goal" />
           <Card.Content>
-            <div style={styles.flexRowCenter}>
+            <View style={styles.flexRowCenter}>
               <Text style={styles.heading3Text}>Calorie Goal: </Text>
               <TextInput
                 placeholder={currentCalorieGoal}
@@ -66,16 +66,16 @@ export default function editCalorieGoalCard() {
                 keyboardType="numeric"
                 style={styles.textInput}
               />
-            </div>
+            </View>
             {newCalorieGoalInputError && (
               <Text style={styles.errorText}>This field is required.</Text>
             )}
-            <div style={styles.saveButton}>
+            <View style={styles.saveButton}>
               <Button title="Save" onPress={editCalorieGoal} />
-            </div>
+            </View>
           </Card.Content>
         </Card>
-      </div>
+      </View>
     </View>
   );
 }

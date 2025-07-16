@@ -2,14 +2,14 @@ import { useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 import { Card } from "react-native-paper";
 import { Dropdown } from "react-native-element-dropdown";
-import { useAuth } from "../auth-context";
-import backend from "../backend";
+import { useAuth } from "../../services/auth-context";
+import backend from "../../services/backend";
 import { useRouter } from "expo-router";
 
 // For the field 'type' in Food.java
 enum FoodType {
   ITEM,
-  MEAL,
+  MEAL
 }
 
 // Data for the Dropdown
@@ -119,10 +119,10 @@ export default function AddFood() {
   return (
     <View style={styles.container}>
       <Text style={styles.titleText}>Add Food</Text>
-      <div style={{ padding: 10 }}>
+      <View style={{ width: "90%" }}>
         <Card>
           <Card.Content>
-            <div style={styles.flexRowBaseline}>
+            <View style={styles.flexRowBaseline}>
               <Text style={styles.heading3Text}>Name: </Text>
               <TextInput
                 placeholder={"e.g, Chicken Breast"}
@@ -138,11 +138,11 @@ export default function AddFood() {
                   isFoodNameFocus ? styles.textInputFocus : styles.textInputBlur
                 }
               />
-            </div>
+            </View>
             {isFoodNameEmpty && (
               <Text style={styles.errorText}>This field is required.</Text>
             )}
-            <div style={styles.flexRowBaseline}>
+            <View style={styles.flexRowBaseline}>
               <Text style={styles.heading3Text}>Type: </Text>
               <Dropdown
                 placeholder={"e.g, Item"}
@@ -157,11 +157,11 @@ export default function AddFood() {
                 itemTextStyle={styles.dropdownItemText}
                 style={styles.dropdown}
               />
-            </div>
+            </View>
             {isFoodTypeEmpty && (
               <Text style={styles.errorText}>This field is required.</Text>
             )}
-            <div style={styles.flexRowBaseline}>
+            <View style={styles.flexRowBaseline}>
               <Text style={styles.heading3Text}>Serving Size: </Text>
               <TextInput
                 placeholder={"e.g, 100"}
@@ -180,11 +180,11 @@ export default function AddFood() {
                     : styles.textInputBlur
                 }
               />
-            </div>
+            </View>
             {isFoodServingSizeEmpty && (
               <Text style={styles.errorText}>This field is required.</Text>
             )}
-            <div style={styles.input}>
+            <View style={styles.input}>
               <Text style={styles.heading3Text}>Serving Size Unit: </Text>
               <TextInput
                 placeholder={"e.g, grams"}
@@ -202,14 +202,14 @@ export default function AddFood() {
                     : styles.textInputBlur
                 }
               />
-            </div>
+            </View>
             {isFoodServingSizeUnitEmpty && (
               <Text style={styles.errorText}>This field is required.</Text>
             )}
             <Text style={styles.customHeading2Text}>
               Nutritional Information
             </Text>
-            <div style={styles.flexRowBaseline}>
+            <View style={styles.flexRowBaseline}>
               <Text style={styles.heading3Text}>Calories : </Text>
               <TextInput
                 placeholder={"e.g, 165"}
@@ -221,17 +221,18 @@ export default function AddFood() {
                 onBlur={(event) => {
                   setIsFoodCalorieFocus(event.nativeEvent.text != "");
                 }}
+                keyboardType="numeric"
                 style={
                   isFoodCalorieFocus
                     ? styles.textInputFocus
                     : styles.textInputBlur
                 }
               />
-            </div>
+            </View>
             {isFoodCalorieEmpty && (
               <Text style={styles.errorText}>This field is required.</Text>
             )}
-            <div style={styles.flexRowBaseline}>
+            <View style={styles.flexRowBaseline}>
               <Text style={styles.heading3Text}>Fat (g): </Text>
               <TextInput
                 placeholder={"e.g, 3"}
@@ -243,15 +244,16 @@ export default function AddFood() {
                 onBlur={(event) => {
                   setIsFoodFatFocus(event.nativeEvent.text != "");
                 }}
+                keyboardType="numeric"
                 style={
                   isFoodFatFocus ? styles.textInputFocus : styles.textInputBlur
                 }
               />
-            </div>
+            </View>
             {isFoodFatEmpty && (
               <Text style={styles.errorText}>This field is required.</Text>
             )}
-            <div style={styles.flexRowBaseline}>
+            <View style={styles.flexRowBaseline}>
               <Text style={styles.heading3Text}>Carbohydrates (g): </Text>
               <TextInput
                 placeholder={"e.g, 0"}
@@ -263,15 +265,16 @@ export default function AddFood() {
                 onBlur={(event) => {
                   setIsFoodCarbFocus(event.nativeEvent.text != "");
                 }}
+                keyboardType="numeric"
                 style={
                   isFoodCarbFocus ? styles.textInputFocus : styles.textInputBlur
                 }
               />
-            </div>
+            </View>
             {isFoodCarbEmpty && (
               <Text style={styles.errorText}>This field is required.</Text>
             )}
-            <div style={styles.flexRowBaseline}>
+            <View style={styles.flexRowBaseline}>
               <Text style={styles.heading3Text}>Protein (g): </Text>
               <TextInput
                 placeholder={"e.g, 31"}
@@ -283,22 +286,23 @@ export default function AddFood() {
                 onBlur={(event) => {
                   setIsFoodProteinFocus(event.nativeEvent.text != "");
                 }}
+                keyboardType="numeric"
                 style={
                   isFoodProteinFocus
                     ? styles.textInputFocus
                     : styles.textInputBlur
                 }
               />
-            </div>
+            </View>
             {isFoodProteinEmpty && (
               <Text style={styles.errorText}>This field is required.</Text>
             )}
-            <div style={styles.saveButton}>
+            <View style={styles.saveButton}>
               <Button title="Add Food" onPress={addFood} />
-            </div>
+            </View>
           </Card.Content>
         </Card>
-      </div>
+      </View>
     </View>
   );
 }
@@ -308,8 +312,7 @@ const styles = StyleSheet.create({
   container: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
-    padding: 20,
+    alignItems: "center"
   },
   titleText: {
     fontSize: 26,
@@ -368,7 +371,6 @@ const styles = StyleSheet.create({
   },
   dropdownPlaceholder: {
     fontSize: 16,
-    color: "grey",
   },
   dropdown: {
     marginLeft: "auto",
