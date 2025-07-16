@@ -1,7 +1,9 @@
 import { initializeApp } from "firebase/app";
 // import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
+import { initializeAuth } from "firebase/auth";
+import { getReactNativePersistence } from "./firebaseAuth/reactNativeAsyncStorage";
 import { getStorage } from "firebase/storage";
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 // maybe import the db in the future? but we will not use it for now
 // right now we are using mongodb
 
@@ -22,7 +24,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 const storage = getStorage(app);
-const auth = getAuth(app);
+const firebaseAuth = initializeAuth(app, {
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+});
 
 // export { app, analytics, storage };
-export { app, storage, auth };
+export { app, storage, firebaseAuth };

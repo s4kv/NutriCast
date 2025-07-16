@@ -12,9 +12,11 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Picker } from "@react-native-picker/picker";
-import backend from "../backend";
-import { storage } from "../firebase";
+import backend from "../../services/backend";
+import { storage } from "../../services/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useAuth } from "../../services/auth-context";
+import { useRouter } from "expo-router";
 
 interface NutriMealResponse {
   mealName: string;
@@ -31,6 +33,39 @@ interface NutriMealResponse {
   mealAnalysis: string;
   servingSuggestions: string[];
 }
+
+// this is imported from add-food.tsx
+// haha we should probably export the interfaces from a type file or something, but for now...
+// okey, main idea: use java controller with this interface to send data to the backend? maybe...
+// still need to figure out how rex handles this data xd
+interface foodData {
+  name: String;
+  type: FoodType;
+  servingSize: number;
+  servingUnit: String;
+  foodMacros: FoodMacros;
+}
+// end of imported interfaces...
+
+// This are imported from log-food.tsx
+// this are the food macros defined for the backend...
+interface FoodMacros {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  sugar: number;
+  sodium: number;
+  cholesterol: number;
+}
+
+// since nutricast is only for meals, we can use this enum
+enum FoodType {
+  ITEM,
+  MEAL,
+}
+// end of imported interfaces...
 
 // def of macro levels
 const macroLevels = ["Any", "Low", "Medium", "High"];
@@ -54,11 +89,65 @@ export default function NutriMeal() {
     sugar: "Any",
     sodium: "Any",
   });
+  const [numberOfServings, setNumberOfServings] = useState<number>(1);
+  const [numberOfServingsInput, setNumberOfServingsInput] = useState(
+    numberOfServings.toString(),
+  );
 
   // permissions
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
   const [cameraStatus, requestCameraPermission] =
     ImagePicker.useCameraPermissions();
+
+  // user
+  const { user } = useAuth();
+
+  // router
+  const router = useRouter();
+
+  // new log foods option added here!
+  const logFood = async (serviceSize: number) => {
+    // Check if user is authenticated
+    if (!user) {
+      console.error("User is not authenticated.");
+      return;
+    }
+
+    if (!aiResponse) {
+      console.error("No AI response available to log food.");
+      return;
+    }
+
+    // create foodData from AI Response
+    const foodData: foodData = {
+      name: aiResponse.mealName,
+      type: FoodType.MEAL,
+      servingSize: 1, // Use the service size provided by the user
+      servingUnit: "Serving", // Default unit, can be adjusted
+      foodMacros: {
+        calories: aiResponse.calories,
+        protein: aiResponse.proteinInGrams,
+        carbs: aiResponse.carbsInGrams,
+        fat: aiResponse.fatInGrams,
+        fiber: aiResponse.fiberInGrams,
+        sugar: aiResponse.sugarInGrams,
+        sodium: aiResponse.sodiumInMg,
+        cholesterol: aiResponse.cholesterolInMg,
+      },
+    };
+
+    try {
+      const response = await backend.post(
+        `/api/users/${user?.email}/foods`,
+        foodData,
+      );
+      console.log("Response from backend: " + response.status);
+    } catch (exception: any) {
+      console.error("Error sending user's new food to backend: " + exception);
+    } finally {
+      router.push("/(tabs)/log-food"); // NOTE: Current service for "food loggin" implementation has latency issues, so we will not redirect to the log food tab
+    }
+  };
 
   // get string representation the macro details
   const getMacroDetailsString = () => {
@@ -275,10 +364,12 @@ export default function NutriMeal() {
               />
 
               <Text style={styles.label}>What is your meal goal?</Text>
-              <View style={styles.pickerContainer}>
+              <View style={{ width: "90%", alignItems: "center" }}>
                 <Picker
                   selectedValue={mealGoal}
                   onValueChange={(itemValue: string) => setMealGoal(itemValue)}
+                  mode="dropdown"
+                  style={{ width: 250 }}
                 >
                   <Picker.Item label="Weight Loss" value="Weight Loss" />
                   <Picker.Item label="Muscle Gain" value="Muscle Gain" />
@@ -290,7 +381,6 @@ export default function NutriMeal() {
                   <Picker.Item label="Quick & Easy" value="Quick & Easy" />
                 </Picker>
               </View>
-
               <Text style={styles.label}>Macro Details</Text>
               <View style={styles.macroGrid}>
                 {Object.keys(macroDetails).map((macro) => (
@@ -350,17 +440,14 @@ export default function NutriMeal() {
               <Text style={styles.bold}>Instructions:</Text>{" "}
               {aiResponse.instructions.join(" ")}
             </Text>
-
             <Text style={styles.responseText}>
               <Text style={styles.bold}>Serving Suggestions:</Text>{" "}
               {aiResponse.servingSuggestions.join(", ")}
             </Text>
-
             <Text style={styles.responseText}>
               <Text style={styles.bold}>Meal Analysis:</Text>{" "}
               {aiResponse.mealAnalysis}
             </Text>
-
             <View style={styles.nutritionGrid}>
               <Text style={styles.responseText}>
                 <Text style={styles.bold}>Calories:</Text> {aiResponse.calories}{" "}
@@ -394,6 +481,43 @@ export default function NutriMeal() {
                 {aiResponse.cholesterolInMg} g
               </Text>
             </View>
+            {/* let change the serving size to the user */}
+            <View
+              style={{
+                width: "90%",
+                flexDirection: "row",
+                // align to the right
+                alignItems: "center",
+              }}
+            >
+              <Text style={styles.label}>Number of Servings:</Text>
+              <TextInput
+                style={[styles.input, { width: "10%", marginLeft: 10 }]}
+                keyboardType="numeric"
+                value={numberOfServingsInput}
+                onChangeText={(text) => {
+                  // Allow empty string for editing
+                  if (/^\d*$/.test(text)) {
+                    setNumberOfServingsInput(text);
+                    // Update numberOfServings only if valid number
+                    const num = parseInt(text, 10);
+                    if (!isNaN(num) && num >= 1 && num <= 20) {
+                      setNumberOfServings(num);
+                    } else if (num === 0) {
+                      setNumberOfServings(1); // Default to 1 if 0 is entered
+                    }
+                  }
+                }}
+                maxLength={2}
+                placeholder="1-20"
+              />
+              <View style={{ width: "40%" }}>
+                <Button
+                  title="Log Food"
+                  onPress={() => logFood(numberOfServings)}
+                />
+              </View>
+            </View>
           </View>
         )}
       </ScrollView>
@@ -420,7 +544,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#2c3e50",
+    color: "#000",
     marginBottom: 20,
   },
   image: {
@@ -444,7 +568,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#34495e",
+    color: "#000",
     marginBottom: 8,
     marginTop: 10,
   },
@@ -457,6 +581,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     width: "100%",
+    color: "#000",
   },
   pickerContainer: {
     backgroundColor: "#fff",
@@ -464,7 +589,7 @@ const styles = StyleSheet.create({
     borderColor: "#d1d5db",
     borderRadius: 8,
     width: "100%",
-    justifyContent: "center", // Center picker text on Android
+    justifyContent: "center",
   },
   macroGrid: {
     flexDirection: "row",
@@ -472,14 +597,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   macroItem: {
-    width: "48%", // Two items per row
+    width: "48%",
     marginBottom: 10,
   },
   macroLabel: {
     textAlign: "center",
     marginBottom: 5,
     fontSize: 14,
-    color: "#34495e",
+    color: "#000",
   },
   loadingContainer: {
     marginTop: 30,
@@ -488,12 +613,12 @@ const styles = StyleSheet.create({
   infoText: {
     marginTop: 10,
     fontSize: 16,
-    color: "#555",
+    color: "#000",
   },
   errorText: {
     marginTop: 20,
     fontSize: 16,
-    color: "#d9534f",
+    color: "#000",
     textAlign: "center",
   },
   responseContainer: {
@@ -511,17 +636,18 @@ const styles = StyleSheet.create({
   responseTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#34495e",
+    color: "#000",
     marginBottom: 10,
   },
   responseText: {
     fontSize: 16,
     lineHeight: 24,
-    color: "#34495e",
+    color: "#000",
     marginBottom: 8,
   },
   bold: {
     fontWeight: "bold",
+    color: "#000",
   },
   nutritionGrid: {
     marginTop: 10,

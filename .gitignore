@@ -18,13 +18,17 @@ frontend/expo-env.d.ts
 # backend
 # --------------------------------
 backend/.settings
+backend/target 
+backend/.mvn
 
 # --------------------------------
 # expo
-# ---------------------------------
+# --------------------------------
 .expo
 .expo-env.d.ts
+
+
 # --------------------------------
 # firebase
-# ---------------------------------
-**/firebase-service-account.json
+# --------------------------------
+**/firebase-service-account.json 
