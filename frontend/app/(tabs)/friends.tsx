@@ -10,8 +10,8 @@ import {
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { getIdToken } from "firebase/auth";
-import { auth } from "../firebase";
-import api from "../backend";
+import { firebaseAuth } from "../../services/firebase";
+import api from "../../services/backend";
 import { useRouter } from "expo-router";
 
 /* ---------------- types ---------------- */
@@ -34,7 +34,7 @@ export default function FriendsScreen() {
 
   /* --------------- fetch helpers ---------------- */
   const fetchAll = async () => {
-    const token = await getIdToken(auth.currentUser!, true);
+    const token = await getIdToken(firebaseAuth.currentUser!, true);
     const cfg = { headers: { Authorization: `Bearer ${token}` } };
 
     try {
@@ -57,7 +57,7 @@ export default function FriendsScreen() {
     if (!username.trim()) return setError("Enter a username");
 
     try {
-      const token = await getIdToken(auth.currentUser!, true);
+      const token = await getIdToken(firebaseAuth.currentUser!, true);
       await api.post(
         "/api/friends/request",
         { username: username.trim() },
@@ -73,7 +73,7 @@ export default function FriendsScreen() {
 
   /* -------- respond to incoming ---------- */
   const handleRespond = async (requestId: string, accept: boolean) => {
-    const token = await getIdToken(auth.currentUser!, true);
+    const token = await getIdToken(firebaseAuth.currentUser!, true);
     try {
       await api.post(
         "/api/friends/respond",
@@ -123,8 +123,8 @@ export default function FriendsScreen() {
             params: {
               friendUsername: name,
               myUsername:
-                auth.currentUser?.displayName ||
-                auth.currentUser?.email?.split("@")[0] ||
+                firebaseAuth.currentUser?.displayName ||
+                firebaseAuth.currentUser?.email?.split("@")[0] ||
                 "unknown",
             },
           })

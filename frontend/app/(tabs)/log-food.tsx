@@ -1,10 +1,10 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import { ScrollView, Button, StyleSheet, Text, TextInput, View } from "react-native";
 import { Card } from "react-native-paper";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import backend from "../backend";
-import { useAuth } from "../auth-context";
+import backend from "../../services/backend";
+import { useAuth } from "../../services/auth-context";
 
 interface Food {
   id: String;
@@ -78,87 +78,89 @@ export default function LogFood() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.titleText}>Log Food</Text>
-      <div style={{ paddingTop: 10, width: "25%" }}>
-        <Card mode="elevated">
-          <Card.Content style={styles.flexColumn}>
-            <div style={styles.searchBar}>
-              <div style={styles.customTextInput}>
-                <FontAwesome5 name="search" style={{ fontSize: 16 }} />
-                <TextInput
-                  placeholder={"Search for a food"}
-                  value={search}
-                  onChangeText={(text) => {
-                    // Call backend api to get list of foods that match the text.
-                    setSearch(text);
-                    text == "" ? searchFoods("all") : searchFoods(text);
-                  }}
-                  style={[styles.textInput, styles.heading3Text]}
-                />
-              </div>
-            </div>
-            <div>
-              <div style={styles.foodsContent}>
-                {foods.length == 0 ? (
-                  <View>
-                    <Text style={styles.heading2Text}>Foods</Text>
-                  </View>
-                ) : (
-                  <View style={styles.flexRowBaseline}>
-                    <Text style={styles.heading2Text}>Foods</Text>
-                    <div style={{ marginLeft: "auto", paddingLeft: 16 }}>
-                      <Button title="Add Food" onPress={redirectToAddFoodTab} />
-                    </div>
-                  </View>
-                )}
-              </div>
-              <div>
-                {/* Iterate through a list of Foods where we get it from the backend and show it all here. */}
-                {foods.length == 0 ? (
-                  <View>
-                    <div style={styles.flexColumnCenter}>
-                      <Text>See no foods? Add one!</Text>
-                      <Button title="Add Food" onPress={redirectToAddFoodTab} />
-                    </div>
-                  </View>
-                ) : (
-                  <View>
-                    <div style={styles.flexColumn}>
-                      {foods.map((food, idx) => (
-                        <View key={idx} style={styles.foodContainer}>
-                          <div style={styles.food}>
-                            <div style={styles.flexRowCenter}>
-                              <div style={styles.flexColumn}>
-                                <Text style={styles.heading2Text}>
-                                  {food.name}
-                                </Text>
-                                <Text>
-                                  {food.type}, {food.macros.calories} calories,{" "}
-                                  {food.servingSize} {food.servingUnit}
-                                </Text>
-                              </div>
-                              <div style={{ marginLeft: "auto" }}>
-                                <Button
-                                  title="Log Food"
-                                  onPress={() =>
-                                    redirectToAddFoodLogTab(food.id)
-                                  }
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </View>
-                      ))}
-                    </div>
-                  </View>
-                )}
-              </div>
-            </div>
-          </Card.Content>
-        </Card>
-      </div>
-    </View>
+    <ScrollView>
+      <View style={styles.container}>
+        <Text style={styles.titleText}>Log Food</Text>
+        <View style={{ width: "100%" }}>
+          <Card mode="elevated">
+            <Card.Content style={styles.flexColumn}>
+              <View style={styles.searchBar}>
+                <View style={styles.customTextInput}>
+                  <FontAwesome5 name="search" style={{ fontSize: 16 }} />
+                  <TextInput
+                    placeholder={"Search for a food"}
+                    value={search}
+                    onChangeText={(text) => {
+                      // Call backend api to get list of foods that match the text.
+                      setSearch(text);
+                      text == "" ? searchFoods("all") : searchFoods(text);
+                    }}
+                    style={[styles.textInput, styles.heading3Text]}
+                  />
+                </View>
+              </View>
+              <View>
+                <View style={styles.foodsContent}>
+                  {foods.length == 0 ? (
+                    <View>
+                      <Text style={styles.heading2Text}>Foods</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.flexRowBaseline}>
+                      <Text style={styles.heading2Text}>Foods</Text>
+                      <View style={{ marginLeft: "auto", paddingLeft: 16 }}>
+                        <Button title="Add Food" onPress={redirectToAddFoodTab} />
+                      </View>
+                    </View>
+                  )}
+                </View>
+                <View>
+                  {/* Iterate through a list of Foods where we get it from the backend and show it all here. */}
+                  {foods.length == 0 ? (
+                    <View>
+                      <View style={styles.flexColumnCenter}>
+                        <Text>See no foods? Add one!</Text>
+                        <Button title="Add Food" onPress={redirectToAddFoodTab} />
+                      </View>
+                    </View>
+                  ) : (
+                    <View>
+                      <View style={styles.flexColumn}>
+                        {foods.map((food, idx) => (
+                          <View key={idx} style={styles.foodContainer}>
+                            <View style={styles.food}>
+                              <View style={styles.flexRowCenter}>
+                                <View style={styles.flexColumn}>
+                                  <Text style={styles.heading2Text}>
+                                    {food.name}
+                                  </Text>
+                                  <Text>
+                                    {food.type}, {food.macros.calories} calories,{" "}
+                                    {food.servingSize} {food.servingUnit}
+                                  </Text>
+                                </View>
+                                <View style={{ marginLeft: "auto" }}>
+                                  <Button
+                                    title="Log Food"
+                                    onPress={() =>
+                                      redirectToAddFoodLogTab(food.id)
+                                    }
+                                  />
+                                </View>
+                              </View>
+                            </View>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </Card.Content>
+          </Card>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 

@@ -11,11 +11,11 @@ import {
   TextInput,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import backend from "../backend";
-import { storage } from "../firebase";
+import backend from "../../services/backend";
+import { storage } from "../../services/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Picker } from "@react-native-picker/picker";
-import { useAuth } from "../auth-context";
+import { useAuth } from "../../services/auth-context";
 import { useRouter } from "expo-router";
 
 // this is the AI response, will be latter used to log the food
