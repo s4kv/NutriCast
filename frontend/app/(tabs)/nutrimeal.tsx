@@ -12,10 +12,10 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Picker } from "@react-native-picker/picker";
-import backend from "../backend";
-import { storage } from "../firebase";
+import backend from "../../services/backend";
+import { storage } from "../../services/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { useAuth } from "../auth-context";
+import { useAuth } from "../../services/auth-context";
 import { useRouter } from "expo-router";
 
 interface NutriMealResponse {
@@ -479,7 +479,7 @@ export default function NutriMeal() {
                 {aiResponse.cholesterolInMg} g
               </Text>
             </View>
-            <Button title="Log Food" onPress={() => logFood()} />
+            <Button title="Log Food" onPress={() => logFood(1)} /> {/* Use 1 as default serving size, change it to where user can manually change this. */}
           </View>
         )}
       </ScrollView>

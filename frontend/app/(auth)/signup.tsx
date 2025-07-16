@@ -3,8 +3,8 @@ import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
-import { auth } from "../firebase"; // path: app/firebase.ts
-import api from "../backend"; // Axios instance (app/backend.ts)
+import { firebaseAuth } from "../../services/firebase"; // path: app/firebase.ts
+import api from "../../services/backend"; // Axios instance (app/backend.ts)
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -24,7 +24,7 @@ export default function Signup() {
       setLoading(true);
 
       // ① Firebase – creates account & e‑mail verification is optional
-      await createUserWithEmailAndPassword(auth, email.trim(), password);
+      await createUserWithEmailAndPassword(firebaseAuth, email.trim(), password);
 
       // ② Backend – register provisional Mongo user
       await api.post("/api/users/register-email", {
