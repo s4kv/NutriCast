@@ -102,7 +102,7 @@ export default function NutriMeal() {
   const router = useRouter();
 
   // new log foods option added here!
-  const logFood = async (serviceSize: number) => {
+  const logFood = async () => {
     // Check if user is authenticated
     if (!user) {
       console.error("User is not authenticated.");
