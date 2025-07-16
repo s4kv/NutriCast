@@ -89,6 +89,10 @@ export default function NutriMeal() {
     sugar: "Any",
     sodium: "Any",
   });
+  const [numberOfServings, setNumberOfServings] = useState<number>(1);
+  const [numberOfServingsInput, setNumberOfServingsInput] = useState(
+    numberOfServings.toString(),
+  );
 
   // permissions
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
@@ -119,7 +123,7 @@ export default function NutriMeal() {
       name: aiResponse.mealName,
       type: FoodType.MEAL,
       servingSize: 1, // Use the service size provided by the user
-      servingUnit: "grams", // Default unit, can be adjusted
+      servingUnit: "Serving", // Default unit, can be adjusted
       foodMacros: {
         calories: aiResponse.calories,
         protein: aiResponse.proteinInGrams,
@@ -360,10 +364,12 @@ export default function NutriMeal() {
               />
 
               <Text style={styles.label}>What is your meal goal?</Text>
-              <View style={styles.pickerContainer}>
+              <View style={{ width: "90%", alignItems: "center" }}>
                 <Picker
                   selectedValue={mealGoal}
                   onValueChange={(itemValue: string) => setMealGoal(itemValue)}
+                  mode="dropdown"
+                  style={{ width: 250 }}
                 >
                   <Picker.Item label="Weight Loss" value="Weight Loss" />
                   <Picker.Item label="Muscle Gain" value="Muscle Gain" />
@@ -375,7 +381,6 @@ export default function NutriMeal() {
                   <Picker.Item label="Quick & Easy" value="Quick & Easy" />
                 </Picker>
               </View>
-
               <Text style={styles.label}>Macro Details</Text>
               <View style={styles.macroGrid}>
                 {Object.keys(macroDetails).map((macro) => (
@@ -435,17 +440,14 @@ export default function NutriMeal() {
               <Text style={styles.bold}>Instructions:</Text>{" "}
               {aiResponse.instructions.join(" ")}
             </Text>
-
             <Text style={styles.responseText}>
               <Text style={styles.bold}>Serving Suggestions:</Text>{" "}
               {aiResponse.servingSuggestions.join(", ")}
             </Text>
-
             <Text style={styles.responseText}>
               <Text style={styles.bold}>Meal Analysis:</Text>{" "}
               {aiResponse.mealAnalysis}
             </Text>
-
             <View style={styles.nutritionGrid}>
               <Text style={styles.responseText}>
                 <Text style={styles.bold}>Calories:</Text> {aiResponse.calories}{" "}
@@ -479,7 +481,43 @@ export default function NutriMeal() {
                 {aiResponse.cholesterolInMg} g
               </Text>
             </View>
-            <Button title="Log Food" onPress={() => logFood(1)} /> {/* Use 1 as default serving size, change it to where user can manually change this. */}
+            {/* let change the serving size to the user */}
+            <View
+              style={{
+                width: "90%",
+                flexDirection: "row",
+                // align to the right
+                alignItems: "center",
+              }}
+            >
+              <Text style={styles.label}>Number of Servings:</Text>
+              <TextInput
+                style={[styles.input, { width: "10%", marginLeft: 10 }]}
+                keyboardType="numeric"
+                value={numberOfServingsInput}
+                onChangeText={(text) => {
+                  // Allow empty string for editing
+                  if (/^\d*$/.test(text)) {
+                    setNumberOfServingsInput(text);
+                    // Update numberOfServings only if valid number
+                    const num = parseInt(text, 10);
+                    if (!isNaN(num) && num >= 1 && num <= 20) {
+                      setNumberOfServings(num);
+                    } else if (num === 0) {
+                      setNumberOfServings(1); // Default to 1 if 0 is entered
+                    }
+                  }
+                }}
+                maxLength={2}
+                placeholder="1-20"
+              />
+              <View style={{ width: "40%" }}>
+                <Button
+                  title="Log Food"
+                  onPress={() => logFood(numberOfServings)}
+                />
+              </View>
+            </View>
           </View>
         )}
       </ScrollView>
@@ -506,7 +544,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#2c3e50",
+    color: "#000",
     marginBottom: 20,
   },
   image: {
@@ -530,7 +568,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#34495e",
+    color: "#000",
     marginBottom: 8,
     marginTop: 10,
   },
@@ -543,6 +581,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     width: "100%",
+    color: "#000",
   },
   pickerContainer: {
     backgroundColor: "#fff",
@@ -550,7 +589,7 @@ const styles = StyleSheet.create({
     borderColor: "#d1d5db",
     borderRadius: 8,
     width: "100%",
-    justifyContent: "center", // Center picker text on Android
+    justifyContent: "center",
   },
   macroGrid: {
     flexDirection: "row",
@@ -558,14 +597,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   macroItem: {
-    width: "48%", // Two items per row
+    width: "48%",
     marginBottom: 10,
   },
   macroLabel: {
     textAlign: "center",
     marginBottom: 5,
     fontSize: 14,
-    color: "#34495e",
+    color: "#000",
   },
   loadingContainer: {
     marginTop: 30,
@@ -574,12 +613,12 @@ const styles = StyleSheet.create({
   infoText: {
     marginTop: 10,
     fontSize: 16,
-    color: "#555",
+    color: "#000",
   },
   errorText: {
     marginTop: 20,
     fontSize: 16,
-    color: "#d9534f",
+    color: "#000",
     textAlign: "center",
   },
   responseContainer: {
@@ -597,17 +636,18 @@ const styles = StyleSheet.create({
   responseTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#34495e",
+    color: "#000",
     marginBottom: 10,
   },
   responseText: {
     fontSize: 16,
     lineHeight: 24,
-    color: "#34495e",
+    color: "#000",
     marginBottom: 8,
   },
   bold: {
     fontWeight: "bold",
+    color: "#000",
   },
   nutritionGrid: {
     marginTop: 10,
