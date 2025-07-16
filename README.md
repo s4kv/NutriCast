@@ -14,52 +14,51 @@
    ```
 5. Add the 'firebase-service-account.json' file under the resources folder in the backend.
 6. If you did steps 1 to 5, you can test the project locally from the terminal. But remember to change the BASE_URL constant in the backend.ts file to your local host server.
-7. (Optional) If you want to test the project on the phone, you have to do a couple more things:
-   7.1. Make sure you have a .mvn folder, mvnw file, mvnw.cmd file, and app.yaml file in the backend folder.
-   7.2. To install the .mvn folder, type the following code into the terminal:
-        ```
-        cd "backend"
-        mvn wrapper:wrapper
-        ```
-   7.3. Make sure that the BASE_URL constant in the backend.ts file is a https server (in our case, a server hosted by Google Cloud Platform (GCP)).
-   7.4. Make sure you have the expo application installed on your phone.
-   7.5. If you want to make changes to the backend and see your changes in the Google Cloud Platform server, you will have to the following steps:
-      7.5.1. Make sure you are in the nutricast GCP.
-      7.5.2. If this is your first time deploying the backend folder to the nutricast GCP, do the following code:
-             For Linux or macOS:
-             ```
-             cd "backend"
-             ./mvnw clean install -DskipTests
-             gcloud init
-             gcloud app deploy
-             gcloud app browse
-             ```
+7. (Optional) If you want to test the project on the phone, you have to do a couple more things:  
+8. Make sure you have a .mvn folder, mvnw file, mvnw.cmd file, and app.yaml file in the backend folder. To install the .mvn folder, type the following code into the terminal:  
+   ```
+   cd "backend"
+   mvn wrapper:wrapper
+   ```  
+9. Make sure that the BASE_URL constant in the backend.ts file is a https server (in our case, a server hosted by Google Cloud Platform (GCP)).  
+10. Make sure you have the expo application installed on your phone.  
+11. If you want to make changes to the backend and see your changes in the Google Cloud Platform server, you will have to the following steps:  
+12. Make sure you are in the nutricast GCP.  
+13. If this is your first time deploying the backend folder to the nutricast GCP, do the following code:
 
-             For Windows:
-             ```
-             cd "backend"
-             .\mvnw.cmd clean install -DskipTests
-             gcloud init
-             gcloud app deploy
-             gcloud app browse
-             ```
-      7.5.4. If this is not your first time deploying the backend folder to the nutricast GCP, do the following code:
-             For Linux or macOS:
-             ```
-             cd "backend"
-             ./mvnw clean install -DskipTests
-             gcloud app deploy
-             gcloud app browse
-             ```
+For Linux or macOS:  
+```  
+cd "backend"
+./mvnw clean install -DskipTests  
+gcloud init  
+gcloud app deploy  
+gcloud app browse  
+```  
+For Windows:  
+```  
+cd "backend"
+.\mvnw.cmd clean install -DskipTests
+gcloud init
+gcloud app deploy
+gcloud app browse
+```  
+14. If this is not your first time deploying the backend folder to the nutricast GCP, do the following code:  
 
-             For Windows:
-             ```
-             cd "backend"
-             .\mvnw.cmd clean install -DskipTests
-             gcloud app deploy
-             gcloud app browse
-             ```
-      7.5.3 Get the url from 'gcloud app deploy' or 'gcloud app browse' and put it in the backend.ts file in the frontend folder. Now you can start running the project from the phone.
+For Linux or macOS:  
+```  
+cd "backend"  
+./mvnw clean install -DskipTests  
+gcloud app deploy  
+gcloud app browse  
+```
+For Windows:
+```  
+cd "backend"  
+.\mvnw.cmd clean install -DskipTests
+gcloud app deploy  
+gcloud app browse  
+```         
+15. Get the url from 'gcloud app deploy' or 'gcloud app browse' and put it in the backend.ts file in the frontend folder. Now you can start running the project from the phone.  
 
 
 ## Run from the phone (https server)
@@ -70,14 +69,14 @@
    ```
 2. Use the phone to scan the barcode, which will open the development application on the expo app you installed on your phone.
 3. If you are making changes to the backend, don't forget that you have to compile the backend and add it to Google Cloud Platform.
-   For Linux or macOS:
+   For Linux or macOS:  
    ```
    cd "backend"
    ./mvnw clean install -DskipTests
    gcloud app deploy
    ```
 
-   For Windows:
+   For Windows:  
    ```
    cd "backend"
    .\mvnw.cmd clean install -DskipTests 
