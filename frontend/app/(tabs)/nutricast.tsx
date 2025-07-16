@@ -104,7 +104,7 @@ export default function NutriCast() {
       name: aiResponse.name_of_the_food,
       type: FoodType.MEAL,
       servingSize: 1, // Default serving size, can be adjusted maybe in the future
-      servingUnit: "grams", // Default unit, can be adjusted
+      servingUnit: "Serving", // Default unit, can be adjusted
       foodMacros: {
         calories: aiResponse.calories,
         protein: aiResponse.protein,
