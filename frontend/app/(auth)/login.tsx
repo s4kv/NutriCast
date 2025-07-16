@@ -6,7 +6,7 @@
 import React, { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet, Alert } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { firebaseAuth } from "../../services/firebase";
 import { useRouter } from "expo-router";
 
 export default function LoginScreen() {
@@ -17,7 +17,7 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(
-        auth,
+        firebaseAuth,
         email,
         password,
       );
