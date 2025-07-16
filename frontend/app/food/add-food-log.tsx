@@ -1,10 +1,10 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-import { useAuth } from "../auth-context";
+import { useAuth } from "../../services/auth-context";
 import { useState } from "react";
 import { Card } from "react-native-paper";
 import { Dropdown } from "react-native-element-dropdown";
-import backend from "../backend";
+import backend from "../../services/backend";
 
 // Attribute of FoodLog.java
 enum Meal {
@@ -49,10 +49,10 @@ export default function AddFoodLog() {
     return(
         <View style={styles.container}>
             <Text style={styles.titleText}>Log Food</Text>
-            <div style={{padding: 10}}>
+            <View style={{padding: 10}}>
                 <Card>
                     <Card.Content>
-                        <div style={styles.flexRowBaseline}>
+                        <View style={styles.flexRowBaseline}>
                             <Text style={styles.heading3Text}>Meal: </Text>
                             <Dropdown
                                 placeholder={'e.g, Lunch'}
@@ -67,8 +67,8 @@ export default function AddFoodLog() {
                                 itemTextStyle={styles.dropdownItemText}
                                 style={styles.dropdown}
                             />
-                        </div>
-                        <div style={styles.flexRowBaseline}>
+                        </View>
+                        <View style={styles.flexRowBaseline}>
                             <Text style={styles.heading3Text}>No Of Servings: </Text>
                             <TextInput
                                 placeholder={'e.g, 1'}
@@ -82,13 +82,13 @@ export default function AddFoodLog() {
                                 }}
                                 style={isNoOfServingsFocus ? styles.textInputFocus : styles.textInputBlur}
                             />
-                        </div>
-                        <div style={styles.saveButton}>
+                        </View>
+                        <View style={styles.saveButton}>
                             <Button title="Add Food" onPress={addFoodLog} />
-                        </div>
+                        </View>
                     </Card.Content>
                 </Card>
-            </div>
+            </View>
         </View>
     )
 }

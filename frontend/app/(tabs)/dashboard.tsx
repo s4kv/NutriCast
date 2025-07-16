@@ -37,8 +37,8 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, View, Text, StyleSheet } from "react-native";
 import { Button, Card } from "react-native-paper";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
-import { useAuth } from "../auth-context";
-import backend from "../backend";
+import { useAuth } from "../../services/auth-context";
+import backend from "../../services/backend";
 import { Circle } from "react-native-svg";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useRouter } from "expo-router";
@@ -78,54 +78,54 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    // Get the user's calories logged today
-    backend
-      .get(`/api/users/${user?.email}/nutrition/calories/today`)
-      .then((response) => setCaloriesConsumed(response.data))
-      .catch((error) => {
-        console.error(error);
-      });
+    if (user) {
+      // Get the user's calories logged today
+      backend
+        .get(`/api/users/${user?.email}/nutrition/calories/today`)
+        .then((response) => setCaloriesConsumed(response.data))
+        .catch((error) => {
+          console.error(error);
+        });
+      }
 
-    // Get the user's calorie goal
-    backend
-      .get(`/api/users/${user?.email}/nutrition/calories/goal`)
-      .then((response) => setCalorieGoal(response.data))
-      .catch((error) => {
-        console.error(error);
-      });
-
-    // Gets the user's foodLogs today
-    backend.get(`/api/users/${user?.email}/foods/logs/today`)
-      .then((response) => {
-        setFoodLogs(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-  });
+      // Get the user's calorie goal
+      backend
+        .get(`/api/users/${user?.email}/nutrition/calories/goal`)
+        .then((response) => setCalorieGoal(response.data))
+        .catch((error) => {
+          console.error(error);
+        });
+      
+      // Gets the user's foodLogs today
+      backend.get(`/api/users/${user?.email}/foods/logs/today`)
+        .then((response) => {
+          setFoodLogs(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+  }, [user]);
 
   return (
     <ScrollView>
       <View style={styles.container}>
         <Text style={styles.titleText}> {user?.email}'s NutriCast Dashboard</Text>
-        <div style={{ padding: 10 }}>
+        <View style={{ width: "90%"}}>
           <Text style={styles.heading1Text}>Today</Text>
-          <Card mode="elevated">
-            <div style={styles.flexRowBaseline}>
-              <Card.Title title="Daily Calorie Progress" />
-              <div style={{ marginLeft: "auto", paddingRight: 16 }}>
+          <Card mode="elevated"> 
+            <Card.Title title="Daily Calorie Progress"/>
+            <View style={styles.editButton}>
                 <Button onPress={redirectToEditCaloriesCard}>
                   <FontAwesome5 name="edit" /> Edit
                 </Button>
-              </div>
-            </div>
+              </View>
             <Card.Content style={styles.flexColumn}>
-              <div style={styles.circularProgress}>
+              <View style={styles.circularProgress}>
                 <AnimatedCircularProgress
                   size={200}
                   width={10}
                   fill={percentOfCalorieGoal}
-                  tintColor="LimeGreen"
+                  tintColor="green"
                   backgroundColor="grey"
                   rotation={0}
                   renderCap={({ center }) => (
@@ -134,148 +134,148 @@ export default function Dashboard() {
                   padding={5}
                 >
                   {() => (
-                    <div style={styles.flexColumnCenter}>
+                    <View style={styles.flexColumnCenter}>
                       <Text style={styles.heading1Text}>{caloriesRemaining}</Text>
                       <Text>Remaining</Text>
-                    </div>
+                    </View>
                   )}
                 </AnimatedCircularProgress>
-              </div>
-              <div style={styles.flexSpaceEvenly}>
-                <div style={styles.flexColumnCenter}>
+              </View>
+              <View style={styles.flexRowSpaceEvenly}>
+                <View style={styles.flexColumnCenter}>
                   <Text style={styles.heading3Text}>Goal:</Text>
                   <Text style={styles.heading1Text}>{calorieGoal} 🎯</Text>
-                </div>
-                <div style={styles.flexColumnCenter}>
+                </View>
+                <View style={styles.flexColumnCenter}>
                   <Text style={styles.heading3Text}>Consumed:</Text>
                   <Text style={styles.heading1Text}>{caloriesConsumed} 🍽️</Text>
-                </div>
-                <div style={styles.flexColumnCenter}>
+                </View>
+                <View style={styles.flexColumnCenter}>
                   <Text style={styles.heading3Text}>Burned:</Text>
                   <Text style={styles.heading1Text}>{caloriesBurned} 🔥</Text>
-                </div>
-              </div>
+                </View>
+              </View>
             </Card.Content>
           </Card>
-        </div>
-        <div style={{padding: 10}}>
+        </View>
+        <View style={{padding: 10}}>
           <Card>
             <Card.Content>
               <Card.Title title='Food Logged Today'/>
               <Card.Content style={styles.flexColumn}>
                   {foodLogs.length == 0 ?
                     <View>
-                      <div style={styles.flexColumn}>
-                        <div style={styles.foodLogContainer}>
-                          <div style={styles.mealContainer}>
+                      <View style={styles.flexColumn}>
+                        <View style={styles.foodLogContainer}>
+                          <View style={styles.mealContainer}>
                             <Text style={styles.customHeading2Text}>Breakfast</Text>
                             <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                          </div>
-                        </div>
-                        <div style={styles.foodLogContainer}>
-                          <div style={styles.mealContainer}>
+                          </View>
+                        </View>
+                        <View style={styles.foodLogContainer}>
+                          <View style={styles.mealContainer}>
                             <Text style={styles.customHeading2Text}>Lunch</Text>
                             <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                          </div>
-                        </div>
-                        <div style={styles.foodLogContainer}>
-                          <div style={styles.mealContainer}>
+                          </View>
+                        </View>
+                        <View style={styles.foodLogContainer}>
+                          <View style={styles.mealContainer}>
                             <Text style={styles.customHeading2Text}>Dinner</Text>
                             <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                          </div>
-                        </div>
-                        <div style={styles.foodLogContainer}>
-                          <div style={styles.mealContainer}>
+                          </View>
+                        </View>
+                        <View style={styles.foodLogContainer}>
+                          <View style={styles.mealContainer}>
                             <Text style={styles.customHeading2Text}>Snack</Text>
                             <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                          </div>
-                        </div>
-                      </div>
+                          </View>
+                        </View>
+                      </View>
                     </View>
                     :
                     <View>
                         <View>
-                          <div style={styles.flexColumn}>
-                            <div style={styles.foodLogContainer}>
-                              <div style={styles.mealContainer}>
+                          <View style={styles.flexColumn}>
+                            <View style={styles.foodLogContainer}>
+                              <View style={styles.mealContainer}>
                                 <Text style={styles.customHeading2Text}>Breakfast</Text>
                                 {foodLogs
                                   .filter((foodLog) => foodLog.meal === "BREAKFAST")
                                   .map((foodLog, idx) => (
-                                    <div key={idx} style={styles.flexRowCenter}>
-                                      <div>
+                                    <View key={idx} style={styles.flexRowCenter}>
+                                      <View>
                                         <Text>{JSON.stringify(foodLog)}</Text>
-                                      </div>
-                                      <div>
-                                      </div>
-                                    </div>
+                                      </View>
+                                      <View>
+                                      </View>
+                                    </View>
                                   ))
                                 }
                                 <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                              </div>
-                            </div>
-                            <div style={styles.foodLogContainer}>
-                              <div style={styles.mealContainer}>
+                              </View>
+                            </View>
+                            <View style={styles.foodLogContainer}>
+                              <View style={styles.mealContainer}>
                                 <Text style={styles.customHeading2Text}>Lunch</Text>
                                 {foodLogs
                                   .filter((foodLog) => foodLog.meal === "LUNCH")
                                   .map((foodLog, idx) => (
-                                    <div key={idx} style={styles.flexRowCenter}>
-                                      <div>
+                                    <View key={idx} style={styles.flexRowCenter}>
+                                      <View>
                                         <Text>{JSON.stringify(foodLog)}</Text>
-                                      </div>
-                                      <div>
-                                      </div>
-                                    </div>
+                                      </View>
+                                      <View>
+                                      </View>
+                                    </View>
                                   ))
                                 }
                                 <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                              </div>
-                            </div>
-                            <div style={styles.foodLogContainer}>
-                              <div style={styles.mealContainer}>
+                              </View>
+                            </View>
+                            <View style={styles.foodLogContainer}>
+                              <View style={styles.mealContainer}>
                                 <Text style={styles.customHeading2Text}>Dinner</Text>
                                 {foodLogs
                                   .filter((foodLog) => foodLog.meal === "DINNER")
                                   .map((foodLog, idx) => (
-                                    <div key={idx} style={styles.flexRowCenter}>
-                                      <div>
+                                    <View key={idx} style={styles.flexRowCenter}>
+                                      <View>
                                         <Text>{JSON.stringify(foodLog)}</Text>
-                                      </div>
-                                      <div>
-                                      </div>
-                                    </div>
+                                      </View>
+                                      <View>
+                                      </View>
+                                    </View>
                                   ))
                                 }
                                 <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                              </div>
-                            </div>
-                            <div style={styles.foodLogContainer}>
-                              <div style={styles.mealContainer}>
+                              </View>
+                            </View>
+                            <View style={styles.foodLogContainer}>
+                              <View style={styles.mealContainer}>
                                 <Text style={styles.customHeading2Text}>Snack</Text>
                                 {foodLogs
                                   .filter((foodLog) => foodLog.meal === "SNACK")
                                   .map((foodLog, idx) => (
-                                    <div key={idx} style={styles.flexRowCenter}>
-                                      <div>
+                                    <View key={idx} style={styles.flexRowCenter}>
+                                      <View>
                                         <Text>{JSON.stringify(foodLog)}</Text>
-                                      </div>
-                                      <div>
-                                      </div>
-                                    </div>
+                                      </View>
+                                      <View>
+                                      </View>
+                                    </View>
                                   ))
                                 }
                                 <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                              </div>
-                            </div>
-                          </div>
+                              </View>
+                            </View>
+                          </View>
                       </View>
                     </View>
                   }
               </Card.Content>
             </Card.Content>
           </Card>
-        </div>
+        </View>
       </View>
     </ScrollView>
   );
@@ -287,8 +287,7 @@ const styles = StyleSheet.create({
   container: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
-    padding: 20
+    alignItems: "center"
   },
   titleText: {
     fontSize: 26,
@@ -321,15 +320,16 @@ const styles = StyleSheet.create({
   flexRowBaseline: {
     display: "flex",
     flexDirection: "row",
-    alignItems: "baseline",
+    alignItems: "baseline"
   },
   flexRowCenter: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center"
   },
-  flexSpaceEvenly: {
+  flexRowSpaceEvenly: {
     display: "flex",
+    flexDirection: "row",
     justifyContent: "space-evenly",
   },
 
@@ -362,5 +362,10 @@ const styles = StyleSheet.create({
   logFood: {
     color: 'dodgerblue',
     textAlign: 'center'
+  },
+  editButton: {
+    position: 'absolute',
+    right: 0,
+    top: 0
   }
 });
