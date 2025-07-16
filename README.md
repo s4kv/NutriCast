@@ -1,20 +1,107 @@
 # NutriCast
 
-## Run from terminal (locally)
+## Before you can run the project, do the following things:
 1. Make a new branch from main.
 2. Clone the repository to any IDE.
-3. Install node_modules in the frontend folder.
+3. Make sure to switch to the branch you just created.
+   ```
+   git checkout {new_branch_name}
+   ```
+4. Install node_modules in the frontend folder.
    ```
    cd "frontend"
    npm install
    ```
-4. Run BackendApplication.java from backend folder.
-5. Run expo (frontend).
+5. Add the 'firebase-service-account.json' file under the resources folder in the backend.
+6. If you did steps 1 to 5, you can test the project locally from the terminal. But remember to change the BASE_URL constant in the backend.ts file to your local host server.
+7. (Optional) If you want to test the project on the phone, you have to do a couple more things:
+   7.1. Make sure you have a .mvn folder, mvnw file, mvnw.cmd file, and app.yaml file in the backend folder.
+   7.2. To install the .mvn folder, type the following code into the terminal:
+        ```
+        cd "backend"
+        mvn wrapper:wrapper
+        ```
+   7.3. Make sure that the BASE_URL constant in the backend.ts file is a https server (in our case, a server hosted by Google Cloud Platform (GCP)).
+   7.4. Make sure you have the expo application installed on your phone.
+   7.5. If you want to make changes to the backend and see your changes in the Google Cloud Platform server, you will have to the following steps:
+      7.5.1. Make sure you are in the nutricast GCP.
+      7.5.2. If this is your first time deploying the backend folder to the nutricast GCP, do the following code:
+             For Linux or macOS:
+             ```
+             cd "backend"
+             ./mvnw clean install -DskipTests
+             gcloud init
+             gcloud app deploy
+             gcloud app browse
+             ```
+
+             For Windows:
+             ```
+             cd "backend"
+             .\mvnw.cmd clean install -DskipTests
+             gcloud init
+             gcloud app deploy
+             gcloud app browse
+             ```
+      7.5.4. If this is not your first time deploying the backend folder to the nutricast GCP, do the following code:
+             For Linux or macOS:
+             ```
+             cd "backend"
+             ./mvnw clean install -DskipTests
+             gcloud app deploy
+             gcloud app browse
+             ```
+
+             For Windows:
+             ```
+             cd "backend"
+             .\mvnw.cmd clean install -DskipTests
+             gcloud app deploy
+             gcloud app browse
+             ```
+      7.5.3 Get the url from 'gcloud app deploy' or 'gcloud app browse' and put it in the backend.ts file in the frontend folder. Now you can start running the project from the phone.
+
+
+## Run from the phone (https server)
+1. Run expo (frontend).
    ```
    cd "frontend"
    npx expo start
    ```
-6. Open local web link from output.
+2. Use the phone to scan the barcode, which will open the development application on the expo app you installed on your phone.
+3. If you are making changes to the backend, don't forget that you have to compile the backend and add it to Google Cloud Platform.
+   For Linux or macOS:
+   ```
+   cd "backend"
+   ./mvnw clean install -DskipTests
+   gcloud app deploy
+   ```
+
+   For Windows:
+   ```
+   cd "backend"
+   .\mvnw.cmd clean install -DskipTests 
+   gcloud app deploy
+   ```
+4. Re-run expo (frontend) to see the changes made in the backend.
+   ```
+   cd "frontend"
+   npx expo start
+   ```
+5. (Optional) If you want to know if the backend controllers you just made are working, you should launch the gcloud server and test it before so that you know the backend is working and if it is not working in the frontend, it will be easier to debug the problem.
+   ```
+   cd "backend"
+   gcloud app browse
+   ```
+
+## Run from terminal (locally)
+1. Run BackendApplication.java from backend folder.
+2. Run expo (frontend).
+   ```
+   cd "frontend"
+   npx expo start
+   ```
+3. Open local web link from output.
 
 ## Run with docker
 
