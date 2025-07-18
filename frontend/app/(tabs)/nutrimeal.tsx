@@ -9,6 +9,7 @@ import {
   ScrollView,
   ActivityIndicator,
   TextInput,
+  TouchableOpacity,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Picker } from "@react-native-picker/picker";
@@ -69,6 +70,36 @@ enum FoodType {
 
 // def of macro levels
 const macroLevels = ["Any", "Low", "Medium", "High"];
+
+const mealGoals = [
+  "Weight Loss",
+  "Muscle Gain",
+  "Maintain Weight",
+  "High Energy",
+  "Quick & Easy",
+];
+
+/*** 𝙍𝙚𝙪𝙨𝙖𝙗𝙡𝙚 𝙐𝙄 ***/
+const Chip = ({
+  label,
+  selected,
+  onPress,
+}: {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+}) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={[styles.chipSelectable, selected && styles.chipSelected]}
+  >
+    <Text
+      style={[styles.chipSelectableText, selected && styles.chipSelectedText]}
+    >
+      {label}
+    </Text>
+  </TouchableOpacity>
+);
 
 export default function NutriMeal() {
   const [image, setImage] = useState<string | null>(null);
@@ -311,15 +342,15 @@ export default function NutriMeal() {
       >
         <Text style={styles.title}>NutriMeal</Text>
 
-        {/* Permission buttons */}
+        {/* Permissions */}
         {status?.granted === false && (
           <Button
             title="Grant Gallery Permission"
             onPress={requestPermission}
           />
         )}
-        {(Platform.OS === "android" || Platform.OS === "ios") &&
-          cameraStatus?.granted === false && (
+        {!cameraStatus?.granted &&
+          (Platform.OS === "android" || Platform.OS === "ios") && (
             <View style={styles.buttonSpacer}>
               <Button
                 title="Grant Camera Permission"
@@ -328,25 +359,25 @@ export default function NutriMeal() {
             </View>
           )}
 
-        {/* Image selection buttons */}
+        {/* Image Actions */}
         <View style={styles.centered}>
           {status?.granted && (
             <Button title="Pick an image" onPress={pickImage} />
           )}
           <View style={styles.buttonSpacer} />
-          {(Platform.OS === "android" || Platform.OS === "ios") &&
-            cameraStatus?.granted && (
+          {cameraStatus?.granted &&
+            (Platform.OS === "android" || Platform.OS === "ios") && (
               <Button title="Take a Photo" onPress={takePhoto} />
             )}
         </View>
 
-        {/* Display image and action buttons */}
+        {/* Main Form */}
         {image && (
           <View style={styles.centered}>
             <Image source={{ uri: image }} style={styles.image} />
 
-            {/* --- User Input Section --- */}
             <View style={styles.inputSection}>
+              {/* Additional ingredients */}
               <Text style={styles.label}>Any other ingredients you have?</Text>
               <TextInput
                 style={styles.input}
@@ -355,6 +386,7 @@ export default function NutriMeal() {
                 onChangeText={setAdditionalIngredients}
               />
 
+              {/* Preferences */}
               <Text style={styles.label}>Any preference for meal choices?</Text>
               <TextInput
                 style={styles.input}
@@ -363,52 +395,41 @@ export default function NutriMeal() {
                 onChangeText={setMealPreferences}
               />
 
+              {/* Meal Goal Chips */}
               <Text style={styles.label}>What is your meal goal?</Text>
-              <View style={{ width: "90%", alignItems: "center" }}>
-                <Picker
-                  selectedValue={mealGoal}
-                  onValueChange={(itemValue: string) => setMealGoal(itemValue)}
-                  mode="dropdown"
-                  style={{ width: 250 }}
-                >
-                  <Picker.Item label="Weight Loss" value="Weight Loss" />
-                  <Picker.Item label="Muscle Gain" value="Muscle Gain" />
-                  <Picker.Item
-                    label="Maintain Weight"
-                    value="Maintain Weight"
+              <View style={styles.chipWrap}>
+                {mealGoals.map((g) => (
+                  <Chip
+                    key={g}
+                    label={g}
+                    selected={mealGoal === g}
+                    onPress={() => setMealGoal(g)}
                   />
-                  <Picker.Item label="High Energy" value="High Energy" />
-                  <Picker.Item label="Quick & Easy" value="Quick & Easy" />
-                </Picker>
-              </View>
-              <Text style={styles.label}>Macro Details</Text>
-              <View style={styles.macroGrid}>
-                {Object.keys(macroDetails).map((macro) => (
-                  <View key={macro} style={styles.macroItem}>
-                    <Text style={styles.macroLabel}>
-                      {macro.charAt(0).toUpperCase() + macro.slice(1)}
-                    </Text>
-                    <View style={styles.pickerContainer}>
-                      <Picker
-                        selectedValue={
-                          macroDetails[macro as keyof typeof macroDetails]
-                        }
-                        onValueChange={(itemValue: string) =>
-                          handleMacroChange(macro, itemValue)
-                        }
-                      >
-                        {macroLevels.map((level) => (
-                          <Picker.Item
-                            key={level}
-                            label={level}
-                            value={level}
-                          />
-                        ))}
-                      </Picker>
-                    </View>
-                  </View>
                 ))}
               </View>
+
+              {/* Macro Details */}
+              <Text style={styles.label}>Macro Details</Text>
+              {Object.keys(macroDetails).map((macro) => (
+                <View key={macro} style={styles.macroRow}>
+                  <Text style={styles.macroLabelRow}>
+                    {macro.charAt(0).toUpperCase() + macro.slice(1)}
+                  </Text>
+                  <View style={styles.chipWrap}>
+                    {macroLevels.map((lvl) => (
+                      <Chip
+                        key={`${macro}-${lvl}`}
+                        label={lvl}
+                        selected={
+                          macroDetails[macro as keyof typeof macroDetails] ===
+                          lvl
+                        }
+                        onPress={() => handleMacroChange(macro, lvl)}
+                      />
+                    ))}
+                  </View>
+                </View>
+              ))}
             </View>
 
             <View style={styles.actionsContainer}>
@@ -417,7 +438,6 @@ export default function NutriMeal() {
           </View>
         )}
 
-        {/* Loading Indicator */}
         {isLoading && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#4a90e2" />
@@ -425,10 +445,9 @@ export default function NutriMeal() {
           </View>
         )}
 
-        {/* Error Message */}
         {error && <Text style={styles.errorText}>{error}</Text>}
 
-        {/* AI Response */}
+        {/* AI Response — unmodified UI section (chips already pretty) */}
         {aiResponse && (
           <View style={styles.responseContainer}>
             <Text style={styles.responseTitle}>{aiResponse.mealName}</Text>
@@ -470,37 +489,30 @@ export default function NutriMeal() {
                 </View>
               ))}
             </View>
-            {/* let change the serving size to the user */}
             <View
               style={{
                 width: "90%",
                 flexDirection: "row",
-                // align to the right
                 alignItems: "center",
               }}
             >
               <Text style={styles.label}>Number of Servings:</Text>
               <TextInput
-                style={[styles.input, { width: "10%", marginLeft: 10 }]}
+                style={[styles.input, { width: "15%", marginLeft: 10 }]}
                 keyboardType="numeric"
                 value={numberOfServingsInput}
                 onChangeText={(text) => {
-                  // Allow empty string for editing
                   if (/^\d*$/.test(text)) {
                     setNumberOfServingsInput(text);
-                    // Update numberOfServings only if valid number
                     const num = parseInt(text, 10);
-                    if (!isNaN(num) && num >= 1 && num <= 20) {
+                    if (!isNaN(num) && num >= 1 && num <= 20)
                       setNumberOfServings(num);
-                    } else if (num === 0) {
-                      setNumberOfServings(1); // Default to 1 if 0 is entered
-                    }
                   }
                 }}
                 maxLength={2}
                 placeholder="1-20"
               />
-              <View style={{ width: "40%" }}>
+              <View style={{ width: "45%" }}>
                 <Button
                   title="Log Food"
                   onPress={() => logFood(numberOfServings)}
@@ -514,66 +526,63 @@ export default function NutriMeal() {
   );
 }
 
+/*** 𝙎𝙩𝙮𝙡𝙚𝙨 ***/
 const PRIMARY = "#34495e"; // Soft indigo
+const ACCENT = "#4a90e2"; // Soft blue
+const CHIP_BG = "#e8f0fe"; // very light blue
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8f9fa",
-  },
-  scrollView: {
-    width: "100%",
-  },
+  container: { flex: 1, backgroundColor: "#fdfdfd" },
+  scrollView: { width: "100%" },
   contentContainer: {
     alignItems: "center",
     paddingVertical: 30,
     paddingHorizontal: 20,
   },
-  centered: {
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: PRIMARY,
-    marginBottom: 20,
-  },
-  image: {
-    width: 320,
-    height: 320,
-    borderRadius: 15,
-    marginBottom: 20,
-  },
-  actionsContainer: {
-    width: "80%",
-    marginTop: 10,
-  },
-  buttonSpacer: {
-    marginVertical: 5,
-  },
-  inputSection: {
-    width: "90%",
-    marginTop: 10,
-    marginBottom: 20,
-  },
+  centered: { alignItems: "center" },
+  title: { fontSize: 32, fontWeight: "bold", color: PRIMARY, marginBottom: 20 },
+  image: { width: 320, height: 320, borderRadius: 20, marginBottom: 20 },
+  actionsContainer: { width: "80%", marginTop: 10 },
+  buttonSpacer: { marginVertical: 5 },
+  inputSection: { width: "90%", marginTop: 10, marginBottom: 20 },
   label: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#000",
+    color: PRIMARY,
     marginBottom: 8,
     marginTop: 10,
   },
   input: {
     backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 8,
+    borderColor: "#dfe4ea",
+    borderRadius: 12,
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 16,
     width: "100%",
-    color: "#000",
+    color: PRIMARY,
   },
+  macroRow: { marginBottom: 14 },
+  macroLabelRow: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: PRIMARY,
+    marginBottom: 6,
+  },
+  chipWrap: { flexDirection: "row", flexWrap: "wrap" },
+  chipSelectable: {
+    backgroundColor: CHIP_BG,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    margin: 4,
+    borderWidth: 1,
+    borderColor: "transparent",
+  },
+  chipSelected: { backgroundColor: ACCENT + "20", borderColor: ACCENT },
+  chipSelectableText: { fontSize: 14, color: PRIMARY },
+  chipSelectedText: { color: ACCENT, fontWeight: "600" },
   pickerContainer: {
     backgroundColor: "#fff",
     borderWidth: 1,
@@ -581,66 +590,52 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     width: "100%",
     justifyContent: "center",
-  },
+  }, // retained for potential fallback
   macroGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-  macroItem: {
-    width: "48%",
-    marginBottom: 10,
-  },
+  macroItem: { width: "48%", marginBottom: 10 },
   macroLabel: {
     textAlign: "center",
     marginBottom: 5,
     fontSize: 14,
-    color: "#000",
+    color: PRIMARY,
   },
-  loadingContainer: {
-    marginTop: 30,
-    alignItems: "center",
-  },
-  infoText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: "#000",
-  },
+  loadingContainer: { marginTop: 30, alignItems: "center" },
+  infoText: { marginTop: 10, fontSize: 16, color: PRIMARY },
   errorText: {
     marginTop: 20,
     fontSize: 16,
-    color: "#000",
+    color: "#e74c3c",
     textAlign: "center",
   },
   responseContainer: {
     marginTop: 20,
     padding: 15,
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
     width: "100%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
   responseTitle: {
     fontSize: 22,
-    fontWeight: "bold",
-    color: "#000",
+    fontWeight: "700",
+    color: PRIMARY,
     marginBottom: 10,
   },
   responseText: {
     fontSize: 16,
     lineHeight: 24,
-    color: "#000",
+    color: PRIMARY,
     marginBottom: 8,
   },
-  bold: {
-    fontWeight: "bold",
-    color: "#000",
-  },
-  // Chips Grid
+  bold: { fontWeight: "bold", color: PRIMARY },
   nutritionGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -648,14 +643,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   chip: {
-    backgroundColor: "#e0ecff",
+    backgroundColor: CHIP_BG,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
     margin: 4,
   },
-  chipText: {
-    fontSize: 14,
-    color: PRIMARY,
-  },
+  chipText: { fontSize: 14, color: PRIMARY },
 });
