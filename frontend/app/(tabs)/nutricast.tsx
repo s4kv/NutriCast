@@ -9,6 +9,7 @@ import {
   ScrollView,
   ActivityIndicator,
   TextInput,
+  KeyboardAvoidingView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import backend from "../../services/backend";
@@ -265,10 +266,14 @@ export default function NutriCast() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={80} // si tienes un header fijo
+    >
       <ScrollView
-        style={{ width: "100%" }}
         contentContainerStyle={styles.contentContainer}
+        keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.title}>NutriCast</Text>
 
@@ -381,14 +386,11 @@ export default function NutriCast() {
           </View>
         )}
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
-// -----------------------------------------------------------------------------
-// 🎨  STYLES (Soft pastel palette & modern cards / chips)
-// -----------------------------------------------------------------------------
-
+/*** 𝙎𝙩𝙮𝙡𝙚𝙨 ***/
 const PRIMARY = "#34495e"; // Soft indigo
 const BG = "#f5f7fa"; // Light gray‑blue background
 const TEXT = "#34495e"; // Muted dark slate
