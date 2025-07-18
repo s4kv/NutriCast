@@ -1,4 +1,18 @@
 # NutriCast
+## Enviornment Setup 
+For this project, you will need to have this two API keys in your system enviornment variables.
+```text
+   OPENAI_API_KEY=your_gemini_api_key
+   MAPBOX_API_KEY=your_mapbox_api_key
+```
+
+Make sure to place this both keys in your PATH (Linux or macOS) or in your system environment variables (Windows).
+You should also create a `.env` file in the root directory of the project with the following content:
+
+```text
+OPENAI_API_KEY=your_gemini_api_key
+MAPBOX_API_KEY=your_mapbox_api_key
+```
 
 ## Before you can run the project, do the following things:
 1. Make a new branch from main.
@@ -115,13 +129,9 @@ gcloud app browse
 
    ```env
    OPENAI_API_KEY=your_gemini_api_key
-   ```
-4. Create a `.env` file in the root directory of the project with the following content:
-
-   ```env
    MAPBOX_API_KEY=your_mapbox_api_key
    ```
-   This key can be obtained from the mapbox console: https://console.mapbox.com/account/access-tokens/
+   This last key can be obtained from the mapbox console: https://console.mapbox.com/account/access-tokens/
 
 5. Run docker compose:
 
