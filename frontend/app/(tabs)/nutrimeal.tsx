@@ -449,37 +449,26 @@ export default function NutriMeal() {
               {aiResponse.mealAnalysis}
             </Text>
             <View style={styles.nutritionGrid}>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Calories:</Text> {aiResponse.calories}{" "}
-                kcal
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Protein:</Text>{" "}
-                {aiResponse.proteinInGrams} g
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Carbs:</Text>{" "}
-                {aiResponse.carbsInGrams} g
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Fat:</Text> {aiResponse.fatInGrams} g
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Fiber:</Text>{" "}
-                {aiResponse.fiberInGrams} g
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Sugar:</Text>{" "}
-                {aiResponse.sugarInGrams} g
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Sodium:</Text> {aiResponse.sodiumInMg}{" "}
-                mg
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>cholesterol:</Text>{" "}
-                {aiResponse.cholesterolInMg} g
-              </Text>
+              {[
+                { label: "Calories", value: `${aiResponse.calories} kcal` },
+                { label: "Protein", value: `${aiResponse.proteinInGrams} g` },
+                { label: "Carbs", value: `${aiResponse.carbsInGrams} g` },
+                { label: "Fat", value: `${aiResponse.fatInGrams} g` },
+                { label: "Fiber", value: `${aiResponse.fiberInGrams} g` },
+                { label: "Sugar", value: `${aiResponse.sugarInGrams} g` },
+                { label: "Sodium", value: `${aiResponse.sodiumInMg} mg` },
+                {
+                  label: "Cholesterol",
+                  value: `${aiResponse.cholesterolInMg} mg`,
+                },
+              ].map((item, idx) => (
+                <View key={idx} style={styles.chip}>
+                  <Text style={styles.chipText}>
+                    <Text style={styles.bold}>{item.label}: </Text>
+                    {item.value}
+                  </Text>
+                </View>
+              ))}
             </View>
             {/* let change the serving size to the user */}
             <View
@@ -525,6 +514,8 @@ export default function NutriMeal() {
   );
 }
 
+const PRIMARY = "#34495e"; // Soft indigo
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -544,7 +535,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#000",
+    color: PRIMARY,
     marginBottom: 20,
   },
   image: {
@@ -649,8 +640,22 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
   },
+  // Chips Grid
   nutritionGrid: {
-    marginTop: 10,
-    marginBottom: 10,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    marginVertical: 10,
+  },
+  chip: {
+    backgroundColor: "#e0ecff",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    margin: 4,
+  },
+  chipText: {
+    fontSize: 14,
+    color: PRIMARY,
   },
 });
