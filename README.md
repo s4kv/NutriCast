@@ -116,8 +116,14 @@ gcloud app browse
    ```env
    OPENAI_API_KEY=your_gemini_api_key
    ```
+4. Create a `.env` file in the root directory of the project with the following content:
 
-4. Run docker compose:
+   ```env
+   MAPBOX_API_KEY=your_mapbox_api_key
+   ```
+   This key can be obtained from the mapbox console: https://console.mapbox.com/account/access-tokens/
+
+5. Run docker compose:
 
    ```bash
    docker compose up --build
