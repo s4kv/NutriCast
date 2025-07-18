@@ -10,9 +10,10 @@ import {
   ActivityIndicator,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { Picker } from "@react-native-picker/picker";
+// import { Picker } from "@react-native-picker/picker";
 import backend from "../../services/backend";
 import { storage } from "../../services/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -335,10 +336,14 @@ export default function NutriMeal() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={80} // si tienes un header fijo
+    >
       <ScrollView
-        style={styles.scrollView}
         contentContainerStyle={styles.contentContainer}
+        keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.title}>NutriMeal</Text>
 
@@ -522,7 +527,7 @@ export default function NutriMeal() {
           </View>
         )}
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
