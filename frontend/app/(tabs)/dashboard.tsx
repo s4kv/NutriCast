@@ -34,13 +34,14 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { ScrollView, View, Text, StyleSheet } from "react-native";
-import { Button, Card } from "react-native-paper";
+import { ScrollView, View, Text, StyleSheet, Animated, Button, Pressable } from "react-native";
+import { Card } from "react-native-paper";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { useAuth } from "../../services/auth-context";
 import backend from "../../services/backend";
 import { Circle } from "react-native-svg";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import * as Emoji from "node-emoji";
 import { useRouter } from "expo-router";
 
 interface FoodLog {
@@ -66,6 +67,8 @@ export default function Dashboard() {
     calorieGoal > 0
       ? Math.min(Math.max((netCalories / calorieGoal) * 100, 0), 100)
       : 0; // User's percentage of completion to the calorie goal
+
+  const [isEditGoalButtonHovered, setIsEditGoalButtonHovered] = useState<Boolean>(false); // Whether the Edit Goal button is hovered on or not
 
   // Redirects the user to a new tab, edit-calories-card.
   const redirectToEditCaloriesCard = () => {
@@ -108,60 +111,183 @@ export default function Dashboard() {
 
   return (
     <ScrollView>
-      <View style={styles.container}>
-        <Text style={styles.titleText}> {user?.email}'s NutriCast Dashboard</Text>
-        <View style={{ width: "90%"}}>
-          <Text style={styles.heading1Text}>Today</Text>
-          <Card mode="elevated"> 
-            <Card.Title title="Daily Calorie Progress"/>
-            <View style={styles.editButton}>
-                <Button onPress={redirectToEditCaloriesCard}>
-                  <FontAwesome5 name="edit" /> Edit
-                </Button>
-              </View>
-            <Card.Content style={styles.flexColumn}>
-              <View style={styles.circularProgress}>
-                <AnimatedCircularProgress
-                  size={200}
-                  width={10}
-                  fill={percentOfCalorieGoal}
-                  tintColor="green"
-                  backgroundColor="grey"
-                  rotation={0}
-                  renderCap={({ center }) => (
-                    <Circle cx={center.x} cy={center.y} r="5" fill="LimeGreen" />
-                  )}
-                  padding={5}
-                >
-                  {() => (
-                    <View style={styles.flexColumnCenter}>
-                      <Text style={styles.heading1Text}>{caloriesRemaining}</Text>
-                      <Text>Remaining</Text>
-                    </View>
-                  )}
-                </AnimatedCircularProgress>
-              </View>
-              <View style={styles.flexRowSpaceEvenly}>
-                <View style={styles.flexColumnCenter}>
-                  <Text style={styles.heading3Text}>Goal:</Text>
-                  <Text style={styles.heading1Text}>{calorieGoal} 🎯</Text>
-                </View>
-                <View style={styles.flexColumnCenter}>
-                  <Text style={styles.heading3Text}>Consumed:</Text>
-                  <Text style={styles.heading1Text}>{caloriesConsumed} 🍽️</Text>
-                </View>
-                <View style={styles.flexColumnCenter}>
-                  <Text style={styles.heading3Text}>Burned:</Text>
-                  <Text style={styles.heading1Text}>{caloriesBurned} 🔥</Text>
-                </View>
-              </View>
-            </Card.Content>
-          </Card>
+      <View style={{
+        padding: 10,
+        backgroundColor: '#FCFDF7'
+      }}>
+        <View style={{
+          paddingBottom: 20
+        }}>
+          <Text style={{
+            fontFamily: 'Nunito-Bold',
+            fontSize: 26,
+            textAlign: 'center'
+          }}>Dashboard</Text>
+          <Text style={{
+            fontFamily: 'Nunito-Regular',
+            fontSize: 14,
+            textAlign: 'center',
+            color: '#6B7280'
+          }}>Your daily nutritional progress at a glance.</Text>
         </View>
-        <View style={{padding: 10}}>
+        <View style={{ width: '100%'}}>
+          <Text style={{
+            fontFamily: 'Nunito-Bold',
+            fontSize: 20,
+            paddingBottom: 15,
+            color: '#333333'
+            }}>Today</Text>
+          <View style={{
+            width: '100%',
+            borderStyle: 'solid',
+            borderWidth: 1,
+            borderRadius: 10,
+            borderColor: 'grey',
+            backgroundColor: '#FFFFFF'
+          }}>
+            <View style={{
+              padding: 10
+            }}>
+              <Text style={{
+                fontFamily: 'Nunito-Regular',
+                fontSize: 16
+              }}>Daily Calorie Progress</Text>
+              <Pressable onPress={redirectToEditCaloriesCard}
+                         onPressIn={() => {
+                          setIsEditGoalButtonHovered(true);
+                         }}
+                         onPressOut={() => {
+                          setIsEditGoalButtonHovered(false);
+                         }}
+                         onHoverIn={() => {
+                          setIsEditGoalButtonHovered(true);
+                         }}
+                         onHoverOut={() => {
+                          setIsEditGoalButtonHovered(false);
+                         }}
+                         style={{
+                          position: 'absolute',
+                          top: 10,
+                          right: 10
+              }}>
+                <Text style={
+                        isEditGoalButtonHovered ?
+                      {
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 16,
+                        color: '#6a8970'
+                      }
+                      :
+                      {
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 16,
+                        color: '#84a98c'
+                      }
+                }>Edit Goal</Text>
+              </Pressable>
+            </View>
+            <View style={{
+              paddingTop: 5,
+              paddingBottom: 5
+            }}>
+              <AnimatedCircularProgress
+                size={200}
+                width={10}
+                fill={percentOfCalorieGoal}
+                tintColor="#84a98c"
+                backgroundColor="#E0E0E0"
+                rotation={0}
+                renderCap={({ center }) => (
+                  <Circle cx={center.x} cy={center.y} r="5" fill="#84a98c" />
+                )}
+                style={{
+                  margin: 'auto',
+                }}
+              >
+                {() => (
+                  <View style={styles.flexColumnCenter}>
+                    <Text style={{
+                      fontFamily: 'Nunito-Bold',
+                      fontSize: 26
+                    }}>{caloriesRemaining}</Text>
+                    <Text style={{
+                      fontFamily: 'Nunito-Regular',
+                      fontSize: 14,
+                      color: '#6B7280'
+                    }}>Remaining</Text>
+                  </View>
+                )}
+              </AnimatedCircularProgress>
+            </View>
+            <View style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+              paddingTop: 10,
+              paddingBottom: 10
+            }}>
+              <View style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}>
+                <Text style={{
+                  fontSize: 20
+                }}>{Emoji.emojify(':dart:')}</Text>
+                <Text style={{
+                  fontFamily: 'Nunito-Bold',
+                  fontSize: 20
+                }}>{calorieGoal}</Text>
+                <Text style={{
+                  fontFamily: 'Nunito-Regular',
+                  fontSize: 14,
+                  color: '#6B7280'
+                }}>Goal</Text>
+              </View>
+              <View style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}>
+                <Text style={{
+                  fontSize: 20
+                }}>{Emoji.emojify(':fork_and_knife:')}</Text>
+                <Text style={{
+                  fontFamily: 'Nunito-Bold',
+                  fontSize: 20
+                }}>{caloriesConsumed}</Text>
+                <Text style={{
+                  fontFamily: 'Nunito-Regular',
+                  fontSize: 14,
+                  color: '#6B7280'
+                }}>Consumed</Text>
+              </View>
+              <View style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}>
+                <Text style={{
+                  fontSize: 20
+                }}>{Emoji.emojify(':fire:')}</Text>
+                <Text style={{
+                  fontFamily: 'Nunito-Bold',
+                  fontSize: 20
+                }}>{caloriesBurned}</Text>
+                <Text style={{
+                  fontFamily: 'Nunito-Regular',
+                  fontSize: 14,
+                  color: '#6B7280'
+                }}>Burned</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+        <View style={{width: '100%', paddingTop: 20}}>
+          <Text style={[styles.heading1Text, {paddingBottom: 10}]}>Food Logged</Text>
           <Card>
             <Card.Content>
-              <Card.Title title='Food Logged Today'/>
+              <Card.Title title='Daily Food Logs'/>
               <Card.Content style={styles.flexColumn}>
                   {foodLogs.length == 0 ?
                     <View>
@@ -287,22 +413,25 @@ const styles = StyleSheet.create({
   container: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: '#FCFDF7'
   },
   titleText: {
-    fontSize: 26,
-    fontWeight: "bold",
+    fontFamily: 'Nunito-Bold',
+    fontSize: 26
   },
   heading1Text: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: 'Nunito-Bold',
+    fontSize: 20
   },
   heading2Text: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: 'Nunito-Bold',
+    fontSize: 16
   },
   heading3Text: {
-    fontSize: 14,
+    fontFamily: 'Nunito-Regular',
+    fontSize: 14
   },
   flexColumn: {
     display: "flex",
