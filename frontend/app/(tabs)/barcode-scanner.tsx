@@ -10,71 +10,51 @@ import {
   ScrollView,
   Platform,
   Linking,
+  TextInput,
 } from 'react-native';
-import { Card } from 'react-native-paper'; // For consistent UI styling
+import { Card } from 'react-native-paper';
 import { launchCamera, launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
-import { Ionicons } from '@expo/vector-icons'; // For icons
+import { Ionicons } from '@expo/vector-icons';
 
-// Import your backend API service
-// Based on the provided file structure:
-// - project-root/frontend/app/barcode-scanner.tsx
-// - project-root/frontend/services/backend.ts
-import * as backend from '../../services/backend'; // CORRECTED PATH
-
-import axios from 'axios'; // Explicitly import axios for error handling
+import * as backend from '../../services/backend';
+import axios from 'axios';
 
 // --- TypeScript Interfaces (Imported from shared types.ts) ---
-// Assuming project structure:
-// - project-root/frontend/src/types.ts
-interface Food {
-  id: String;
-  userId: String;
-  name: String;
-  type: FoodType;
-  servingSize: number;
-  servingUnit: String;
-  macros: FoodMacros;
-}
-
-interface FoodMacros {
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  fiber: number;
-  sugar: number;
-  sodium: number;
-  cholesterol: number;
-}
+import { FoodMacros, FoodType, Food } from '../../src/types';
 
 // Define the structure for ScannedFoodItem, matching your ScannedFoodItem.java
 // This interface remains local if ScannedFoodItem is not used in other frontend files.
+// IMPORTANT: Changed 'nutritionalMacros' to 'nutritional_macros' to match backend @JsonProperty
 interface ScannedFoodItem {
-  name: string;
-  barcode: string; // Corresponds to @JsonProperty("barcode_scanned")
-  nutritionalMacros: FoodMacros; // Uses the imported FoodMacros
+  name_of_the_food: string;
+  barcode_scanned: string; // Corresponds to @JsonProperty("barcode_scanned")
+  nutritional_macros: FoodMacros; // <--- CHANGED THIS TO MATCH @JsonProperty
 }
 
-// Define the structure for BarcodeRequest, matching your BarcodeRequest.java
-// This interface remains local if BarcodeRequest is not used in other frontend files.
 interface BarcodeRequest {
-  barcode: string;
+  barcode_scanned: string;
 }
 
-enum FoodType {
-  ITEM,
-  MEAL,
-}
+// Define a default/empty FoodMacros object for fallback
+const defaultFoodMacros: FoodMacros = {
+  calories: 0,
+  protein: 0,
+  carbs: 0,
+  fat: 0,
+  fiber: 0,
+  sugar: 0,
+  sodium: 0,
+  cholesterol: 0,
+};
 
-// Main component for the barcode scanner screen
 function BarcodeScannerScreen() {
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [scannedBarcodeValue, setScannedBarcodeValue] = useState<string | null>(null);
   const [foodItemResult, setFoodItemResult] = useState<ScannedFoodItem | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<string>('Ready');
+  const [manualBarcodeInput, setManualBarcodeInput] = useState<string>('');
 
-  // Helper to process image picker response and initiate barcode scan
   const processImagePickerResponse = async (response: ImagePickerResponse) => {
     if (response.didCancel) {
       setStatusMessage('Image selection/capture cancelled');
@@ -94,13 +74,12 @@ function BarcodeScannerScreen() {
     } else if (response.assets && response.assets.length > 0) {
       const asset = response.assets[0];
       setSelectedImageUri(asset.uri || null);
-      setScannedBarcodeValue(null); // Clear previous barcode
-      setFoodItemResult(null); // Clear previous food item
+      setScannedBarcodeValue(null);
+      setFoodItemResult(null);
+      setManualBarcodeInput('');
 
       if (asset.uri) {
-        setStatusMessage('Image selected. Detecting barcode...');
-        // Call the simulated barcode detection
-        await detectBarcodeFromImage(asset.uri);
+        setStatusMessage('Image selected. Please enter barcode manually.');
       } else {
         setStatusMessage('Error: No image URI found.');
         Alert.alert('Error', 'Could not get image URI.');
@@ -108,76 +87,43 @@ function BarcodeScannerScreen() {
     }
   };
 
-  // Function to handle taking a picture using the device camera
   const handleTakePicture = () => {
     launchCamera({ mediaType: 'photo', quality: 0.8 }, processImagePickerResponse);
   };
 
-  // Function to handle selecting a picture from the device's gallery/photo library
   const handleSelectPicture = () => {
     launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, processImagePickerResponse);
   };
 
-  // Function to detect barcode from a given image URI (currently simulated)
-  const detectBarcodeFromImage = async (imageUri: string) => {
-    setLoading(true);
-    try {
-      // --- TEMPORARY WORKAROUND: Simulate barcode detection ---
-      Alert.prompt(
-        "Simulate Barcode Detection",
-        "Please enter the barcode value from the image:",
-        [
-          {
-            text: "Cancel",
-            onPress: () => {
-              setStatusMessage("Barcode detection cancelled.");
-              setLoading(false);
-            },
-            style: "cancel",
-          },
-          {
-            text: "OK",
-            onPress: async (inputBarcode) => {
-              if (inputBarcode && inputBarcode.trim() !== '') {
-                setScannedBarcodeValue(inputBarcode.trim());
-                setStatusMessage('Barcode detected. Sending to backend...');
-                await sendBarcodeToBackend(inputBarcode.trim());
-              } else {
-                setStatusMessage('No barcode entered. Please try again.');
-                setLoading(false);
-              }
-            },
-          },
-        ],
-        'plain-text',
-        '' // Default value
-      );
-      // --- END TEMPORARY WORKAROUND ---
-
-    } catch (error) {
-      console.error("Error detecting barcode from image:", error);
-      setStatusMessage("Error detecting barcode from image.");
-      Alert.alert("Barcode Detection Error", "Could not detect barcode from the image. Please try again or ensure the barcode is clear.");
-    } finally {
-      // setLoading(false); // Will be set by the Alert.prompt callback
+  const handleManualBarcodeSubmit = async () => {
+    if (manualBarcodeInput.trim() === '') {
+      Alert.alert('Input Required', 'Please enter a barcode value.');
+      return;
     }
+    setScannedBarcodeValue(manualBarcodeInput.trim());
+    setStatusMessage('Barcode entered. Sending to backend...');
+    await sendBarcodeToBackend(manualBarcodeInput.trim());
   };
 
-
-  // Function to send the extracted barcode string to the Spring Boot backend
   const sendBarcodeToBackend = async (barcode: string) => {
     setLoading(true);
-    setFoodItemResult(null); // Clear previous food item results
+    setFoodItemResult(null);
     setStatusMessage('Sending barcode to backend for analysis...');
 
     try {
-      // Call the helper function from your backend.ts service
       const responseData = await backend.sendBarcodeToBackend(barcode);
 
-      setFoodItemResult(responseData); // Set the received structured data
+      // Now, we expect responseData.nutritional_macros to contain the data
+      // and responseData.nutritionalMacros (camelCase) to be the empty one.
+      // We explicitly map to the one with underscore.
+      const finalFoodItemResult: ScannedFoodItem = {
+        ...responseData,
+        nutritional_macros: responseData.nutritional_macros || defaultFoodMacros, // <--- Use the underscore version
+      };
+
+      setFoodItemResult(finalFoodItemResult);
       setStatusMessage('Analysis complete!');
       Alert.alert('Success', 'Food analysis successful!');
-
     } catch (error: any) {
       console.error('API call error:', error);
       if (axios.isAxiosError(error) && error.response) {
@@ -188,13 +134,17 @@ function BarcodeScannerScreen() {
         Alert.alert('Network Error', error.message);
       }
     } finally {
-      setLoading(false); // Stop loading indicator
+      setLoading(false);
     }
   };
 
+  // Helper to safely access nutritional macros
+  // IMPORTANT: Now accesses 'nutritional_macros' (with underscore)
+  const currentMacros = foodItemResult?.nutritional_macros || defaultFoodMacros; // <--- CHANGED THIS LINE
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.titleText}>Barcode Scanner</Text>
+      <Text style={styles.titleText}>NutriCast Barcode/Food Analyzer</Text>
 
       <View style={{ width: "100%" }}>
         <Card mode="elevated">
@@ -218,14 +168,33 @@ function BarcodeScannerScreen() {
                 title="Take Picture of Barcode"
                 onPress={handleTakePicture}
                 disabled={loading}
-                color="#4CAF50" // Primary button color
+                color="#4CAF50"
               />
-              <View style={{ marginVertical: 10 }} /> {/* Spacer */}
+              <View style={{ marginVertical: 10 }} />
               <Button
                 title="Select Picture from Gallery"
                 onPress={handleSelectPicture}
                 disabled={loading}
-                color="#6c757d" // Secondary button color
+                color="#6c757d"
+              />
+            </View>
+
+            {/* Manual Barcode Input */}
+            <View style={styles.manualInputContainer}>
+              <Text style={styles.inputLabel}>Or Enter Barcode Manually:</Text>
+              <TextInput
+                style={styles.textInput}
+                placeholder="Enter barcode value"
+                value={manualBarcodeInput}
+                onChangeText={setManualBarcodeInput}
+                keyboardType="numeric"
+                editable={!loading}
+              />
+              <Button
+                title="Submit Barcode"
+                onPress={handleManualBarcodeSubmit}
+                disabled={loading}
+                color="#007bff"
               />
             </View>
 
@@ -240,11 +209,11 @@ function BarcodeScannerScreen() {
             {/* Status Message */}
             <Text style={styles.statusText}>Status: {statusMessage}</Text>
 
-            {/* Barcode Value Display (after client-side detection) */}
+            {/* Barcode Value Display (after client-side detection/input) */}
             {scannedBarcodeValue && !loading && (
               <View style={styles.scannedBarcodeContainer}>
                 <Text style={styles.scannedBarcodeText}>
-                  Detected Barcode: <Text style={styles.scannedBarcodeValue}>{scannedBarcodeValue}</Text>
+                  Entered Barcode: <Text style={styles.scannedBarcodeValue}>{scannedBarcodeValue}</Text>
                 </Text>
               </View>
             )}
@@ -253,18 +222,18 @@ function BarcodeScannerScreen() {
             {foodItemResult && (
               <View style={styles.resultContainer}>
                 <Text style={styles.heading2Text}>Analysis Result</Text>
-                <Text style={styles.resultText}><Text style={styles.label}>Name:</Text> {foodItemResult.name || 'Unknown'}</Text>
-                <Text style={styles.resultText}><Text style={styles.label}>Barcode:</Text> {foodItemResult.barcode || 'Not Found'}</Text>
+                <Text style={styles.resultText}><Text style={styles.label}>Name:</Text> {foodItemResult.name_of_the_food || 'Unknown'}</Text>
+                <Text style={styles.resultText}><Text style={styles.label}>Barcode:</Text> {foodItemResult.barcode_scanned || 'Not Found'}</Text>
                 <View style={styles.separator} />
                 <Text style={styles.resultText}><Text style={styles.label}>Nutritional Macros:</Text></Text>
-                <Text style={styles.resultText}><Text style={styles.label}>Calories:</Text> {foodItemResult.nutritionalMacros.calories || 0} kcal</Text>
-                <Text style={styles.resultText}><Text style={styles.label}>Protein:</Text> {foodItemResult.nutritionalMacros.protein || 0} g</Text>
-                <Text style={styles.resultText}><Text style={styles.label}>Carbs:</Text> {foodItemResult.nutritionalMacros.carbs || 0} g</Text>
-                <Text style={styles.resultText}><Text style={styles.label}>Fat:</Text> {foodItemResult.nutritionalMacros.fat || 0} g</Text>
-                <Text style={styles.resultText}><Text style={styles.label}>Fiber:</Text> {foodItemResult.nutritionalMacros.fiber || 0} g</Text>
-                <Text style={styles.resultText}><Text style={styles.label}>Sugar:</Text> {foodItemResult.nutritionalMacros.sugar || 0} g</Text>
-                <Text style={styles.resultText}><Text style={styles.label}>Sodium:</Text> {foodItemResult.nutritionalMacros.sodium || 0} mg</Text>
-                <Text style={styles.resultText}><Text style={styles.label}>Cholesterol:</Text> {foodItemResult.nutritionalMacros.cholesterol || 0} mg</Text>
+                <Text style={styles.resultText}><Text style={styles.label}>Calories:</Text> {currentMacros.calories || 0} kcal</Text>
+                <Text style={styles.resultText}><Text style={styles.label}>Protein:</Text> {currentMacros.protein || 0} g</Text>
+                <Text style={styles.resultText}><Text style={styles.label}>Carbs:</Text> {currentMacros.carbs || 0} g</Text>
+                <Text style={styles.resultText}><Text style={styles.label}>Fat:</Text> {currentMacros.fat || 0} g</Text>
+                <Text style={styles.resultText}><Text style={styles.label}>Fiber:</Text> {currentMacros.fiber || 0} g</Text>
+                <Text style={styles.resultText}><Text style={styles.label}>Sugar:</Text> {currentMacros.sugar || 0} g</Text>
+                <Text style={styles.resultText}><Text style={styles.label}>Sodium:</Text> {currentMacros.sodium || 0} mg</Text>
+                <Text style={styles.resultText}><Text style={styles.label}>Cholesterol:</Text> {currentMacros.cholesterol || 0} mg</Text>
               </View>
             )}
           </Card.Content>
@@ -275,7 +244,6 @@ function BarcodeScannerScreen() {
 }
 
 const styles = StyleSheet.create({
-  // General styling for all tabs (copied and adapted from LogFood example)
   container: {
     flexGrow: 1,
     alignItems: "center",
@@ -328,8 +296,6 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "space-evenly",
   },
-
-  // Specific styling for the barcode scanner tab
   imageContainer: {
     width: '80%',
     aspectRatio: 1,
@@ -373,6 +339,34 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 10,
   },
+  manualInputContainer: {
+    width: '90%',
+    marginTop: 20,
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  inputLabel: {
+    fontSize: 16,
+    marginBottom: 10,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  textInput: {
+    width: '95%',
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    backgroundColor: '#fff',
+    fontSize: 16,
+    textAlign: 'center',
+  },
   loadingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -403,7 +397,7 @@ const styles = StyleSheet.create({
   scannedBarcodeContainer: {
     marginTop: 20,
     padding: 10,
-    backgroundColor: '#e6ffe6', // Light green background
+    backgroundColor: '#e6ffe6',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#4CAF50',
@@ -417,7 +411,7 @@ const styles = StyleSheet.create({
   },
   scannedBarcodeValue: {
     fontSize: 16,
-    color: '#007bff', // Blue color for the value
+    color: '#007bff',
     fontWeight: 'normal',
   },
   resultContainer: {
