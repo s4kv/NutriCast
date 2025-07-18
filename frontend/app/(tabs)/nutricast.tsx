@@ -104,7 +104,7 @@ export default function NutriCast() {
       name: aiResponse.name_of_the_food,
       type: FoodType.MEAL,
       servingSize: 1, // Default serving size, can be adjusted maybe in the future
-      servingUnit: "Serving", // Default unit, can be adjusted
+      servingUnit: "Servings", // Default unit, can be adjusted
       foodMacros: {
         calories: aiResponse.calories,
         protein: aiResponse.protein,
@@ -272,13 +272,14 @@ export default function NutriCast() {
       >
         <Text style={styles.title}>NutriCast</Text>
 
-        {/* Display permission buttons if needed */}
+        {/* Permission Buttons */}
         {status?.granted === false && (
           <Button
             title="Grant Gallery Permission"
             onPress={requestPermission}
           />
         )}
+
         {(Platform.OS === "android" || Platform.OS === "ios") &&
           cameraStatus?.granted === false && (
             <View style={styles.buttonSpacer}>
@@ -289,7 +290,7 @@ export default function NutriCast() {
             </View>
           )}
 
-        {/* Initial state: Show image selection buttons */}
+        {/* Image Selection */}
         <View style={styles.centered}>
           {status?.granted && (
             <Button title="Pick an image" onPress={pickImage} />
@@ -301,7 +302,7 @@ export default function NutriCast() {
             )}
         </View>
 
-        {/* Display image and action buttons */}
+        {/* Image Preview & Actions */}
         {image && (
           <View style={styles.centered}>
             <Image source={{ uri: image }} style={styles.image} />
@@ -322,15 +323,15 @@ export default function NutriCast() {
           </View>
         )}
 
-        {/* Loading Indicator */}
+        {/* Loader */}
         {isLoading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#4a90e2" />
+            <ActivityIndicator size="large" color="#6c63ff" />
             <Text style={styles.infoText}>Processing...</Text>
           </View>
         )}
 
-        {/* Error Message */}
+        {/* Error */}
         {error && <Text style={styles.errorText}>{error}</Text>}
 
         {/* AI Response */}
@@ -339,6 +340,7 @@ export default function NutriCast() {
             <Text style={styles.responseTitle}>
               {aiResponse.name_of_the_food}
             </Text>
+
             <Text style={styles.responseText}>
               <Text style={styles.bold}>Response: </Text>
               {aiResponse.prompt_response}
@@ -347,40 +349,33 @@ export default function NutriCast() {
               <Text style={styles.bold}>Analysis: </Text>
               {aiResponse.analysis_of_contents_of_the_picture}
             </Text>
+
+            {/* Nutrition Chips */}
             <View style={styles.nutritionGrid}>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Calories:</Text> {aiResponse.calories}{" "}
-                kcal
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Protein:</Text> {aiResponse.protein} g
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Carbs:</Text> {aiResponse.carbs} g
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Fat:</Text> {aiResponse.fat} g
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Fiber:</Text> {aiResponse.fiber} g
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Sugar:</Text> {aiResponse.sugar} g
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>Sodium:</Text> {aiResponse.sodium} g
-              </Text>
-              <Text style={styles.responseText}>
-                <Text style={styles.bold}>cholesterol:</Text>{" "}
-                {aiResponse.cholesterol} g
-              </Text>
+              {[
+                { label: "Calories", value: `${aiResponse.calories} kcal` },
+                { label: "Protein", value: `${aiResponse.protein} g` },
+                { label: "Carbs", value: `${aiResponse.carbs} g` },
+                { label: "Fat", value: `${aiResponse.fat} g` },
+                { label: "Fiber", value: `${aiResponse.fiber} g` },
+                { label: "Sugar", value: `${aiResponse.sugar} g` },
+                { label: "Sodium", value: `${aiResponse.sodium} mg` },
+                { label: "Cholesterol", value: `${aiResponse.cholesterol} mg` },
+              ].map((item, idx) => (
+                <View key={idx} style={styles.chip}>
+                  <Text style={styles.chipText}>
+                    <Text style={styles.bold}>{item.label}: </Text>
+                    {item.value}
+                  </Text>
+                </View>
+              ))}
             </View>
+
             <Text style={styles.responseText}>
               <Text style={styles.bold}>Recommendation: </Text>
               {aiResponse.additional_recommendation}
             </Text>
 
-            {/* this is for the log food buttom */}
             <View style={styles.buttonSpacer} />
             <Button title="Log this food" onPress={logFood} />
           </View>
@@ -390,13 +385,18 @@ export default function NutriCast() {
   );
 }
 
+// -----------------------------------------------------------------------------
+// 🎨  STYLES (Soft pastel palette & modern cards / chips)
+// -----------------------------------------------------------------------------
+
+const PRIMARY = "#34495e"; // Soft indigo
+const BG = "#f5f7fa"; // Light gray‑blue background
+const TEXT = "#34495e"; // Muted dark slate
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
-  },
-  scrollView: {
-    width: "100%",
+    backgroundColor: BG,
   },
   contentContainer: {
     alignItems: "center",
@@ -409,13 +409,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#2c3e50",
+    color: PRIMARY,
     marginBottom: 20,
   },
   image: {
     width: 320,
     height: 320,
-    borderRadius: 15,
+    borderRadius: 20,
     marginBottom: 20,
   },
   actionsContainer: {
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   buttonSpacer: {
-    marginVertical: 5,
+    marginVertical: 6,
   },
   loadingContainer: {
     marginTop: 30,
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
   infoText: {
     marginTop: 10,
     fontSize: 16,
-    color: "#555",
+    color: TEXT,
   },
   errorText: {
     marginTop: 20,
@@ -442,40 +442,54 @@ const styles = StyleSheet.create({
   },
   responseContainer: {
     marginTop: 20,
-    padding: 15,
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    padding: 20,
+    backgroundColor: "#ffffff",
+    borderRadius: 15,
     width: "100%",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 3,
   },
   responseTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#34495e",
-    marginBottom: 10,
+    color: TEXT,
+    marginBottom: 12,
   },
   responseText: {
     fontSize: 16,
     lineHeight: 24,
-    color: "#34495e",
-    marginBottom: 8,
+    color: TEXT,
+    marginBottom: 10,
   },
   bold: {
     fontWeight: "bold",
   },
+  // Chips Grid
   nutritionGrid: {
-    marginTop: 10,
-    marginBottom: 10,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    marginVertical: 10,
+  },
+  chip: {
+    backgroundColor: "#e0ecff",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    margin: 4,
+  },
+  chipText: {
+    fontSize: 14,
+    color: TEXT,
   },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     borderWidth: 1,
     borderColor: "#d1d5db",
-    borderRadius: 8,
+    borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 16,
@@ -483,17 +497,9 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: "500",
-    color: "#34495e",
+    fontWeight: "600",
+    color: TEXT,
     marginBottom: 8,
     marginTop: 10,
-  },
-  pickerContainer: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 8,
-    width: "100%",
-    justifyContent: "center", // Center picker text on Android
   },
 });
