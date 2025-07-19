@@ -60,6 +60,7 @@ export default function Dashboard() {
   const [caloriesConsumed, setCaloriesConsumed] = useState(0); // User's calories consumed today
   const [caloriesBurned, setCaloriesBurned] = useState(0); // User's calories burned from exercise today
   const [foodLogs, setFoodLogs] = useState<FoodLog[]>([]); // User's foodLogs today
+  const [foodLogMealTypes, setFoodLogMealTypes] = useState<String[]>(["BREAKFAST", "LUNCH", "DINNER", "SNACK"]); // Types of food log meal types
 
   const caloriesRemaining = calorieGoal - caloriesConsumed + caloriesBurned; // User's remaining calories for the day
   const netCalories = caloriesConsumed - caloriesBurned; // User's net calorie intake
@@ -69,6 +70,7 @@ export default function Dashboard() {
       : 0; // User's percentage of completion to the calorie goal
 
   const [isEditGoalButtonHovered, setIsEditGoalButtonHovered] = useState<Boolean>(false); // Whether the Edit Goal button is hovered on or not
+  const [hoveredMealButton, setHoveredMealButton] = useState<String | null>(null); // Checks which + Log Food button is being hovered on
 
   // Redirects the user to a new tab, edit-calories-card.
   const redirectToEditCaloriesCard = () => {
@@ -205,7 +207,11 @@ export default function Dashboard() {
                 }}
               >
                 {() => (
-                  <View style={styles.flexColumnCenter}>
+                  <View style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center'
+                  }}>
                     <Text style={{
                       fontFamily: 'Nunito-Bold',
                       fontSize: 26
@@ -283,124 +289,140 @@ export default function Dashboard() {
             </View>
           </View>
         </View>
-        <View style={{width: '100%', paddingTop: 20}}>
-          <Text style={[styles.heading1Text, {paddingBottom: 10}]}>Food Logged</Text>
-          <Card>
-            <Card.Content>
-              <Card.Title title='Daily Food Logs'/>
-              <Card.Content style={styles.flexColumn}>
-                  {foodLogs.length == 0 ?
-                    <View>
-                      <View style={styles.flexColumn}>
-                        <View style={styles.foodLogContainer}>
-                          <View style={styles.mealContainer}>
-                            <Text style={styles.customHeading2Text}>Breakfast</Text>
-                            <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                          </View>
-                        </View>
-                        <View style={styles.foodLogContainer}>
-                          <View style={styles.mealContainer}>
-                            <Text style={styles.customHeading2Text}>Lunch</Text>
-                            <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                          </View>
-                        </View>
-                        <View style={styles.foodLogContainer}>
-                          <View style={styles.mealContainer}>
-                            <Text style={styles.customHeading2Text}>Dinner</Text>
-                            <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                          </View>
-                        </View>
-                        <View style={styles.foodLogContainer}>
-                          <View style={styles.mealContainer}>
-                            <Text style={styles.customHeading2Text}>Snack</Text>
-                            <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                          </View>
-                        </View>
-                      </View>
+        <View style={{ paddingTop: 10 }}>
+          <View style={{
+            width: '100%',
+            borderStyle: 'solid',
+            borderWidth: 1,
+            borderRadius: 10,
+            borderColor: 'grey',
+            backgroundColor: '#FFFFFF',
+          }}>
+            <View style={{ padding: 10 }}>
+              <Text style={{
+                fontFamily: 'Nunito-Regular',
+                fontSize: 16
+              }}>Food Logs Today</Text>
+            </View>
+            <View style={{
+              paddingBottom: 10,
+              paddingLeft: 10,
+              paddingRight: 10
+            }}>
+              {foodLogMealTypes.map((mealType, index) => (
+                <View key={index} style={{
+                  paddingTop: 10
+                }}>
+                  <View style={{
+                    width: '100%',
+                    shadowColor: '#000',
+                    shadowOffset: {
+                      width: 0,
+                      height: 2
+                    },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 4,
+                    elevation: 3,
+                    borderRadius: 5,
+                    backgroundColor: '#FCFDF7',
+                  }}>
+                    <View style={{
+                      padding: 10
+                    }}>
+                      <Text style={{
+                        fontFamily: 'Nunito-Bold',
+                        fontSize: 14
+                      }}>{mealType}</Text>
+                      <Pressable onPress={redirectToLogFoodTab}
+                                onPressIn={() => {
+                                  setHoveredMealButton(mealType);
+                                }}
+                                onPressOut={() => {
+                                  setHoveredMealButton(null);
+                                }}
+                                onHoverIn={() => {
+                                  setHoveredMealButton(mealType);
+                                }}
+                                onHoverOut={() => {
+                                  setHoveredMealButton(null);
+                                }}
+                                style={{
+                                  position: 'absolute',
+                                  top: 10,
+                                  right: 10
+                      }}>
+                        <Text style={
+                                hoveredMealButton == mealType ?
+                              {
+                                fontFamily: 'Nunito-Regular',
+                                fontSize: 14,
+                                color: '#6a8970'
+                              }
+                              :
+                              {
+                                fontFamily: 'Nunito-Regular',
+                                fontSize: 14,
+                                color: '#84a98c'
+                              }
+                        }>+ Log Food</Text>
+                      </Pressable>
                     </View>
-                    :
-                    <View>
-                        <View>
-                          <View style={styles.flexColumn}>
-                            <View style={styles.foodLogContainer}>
-                              <View style={styles.mealContainer}>
-                                <Text style={styles.customHeading2Text}>Breakfast</Text>
-                                {foodLogs
-                                  .filter((foodLog) => foodLog.meal === "BREAKFAST")
-                                  .map((foodLog, idx) => (
-                                    <View key={idx} style={styles.flexRowCenter}>
-                                      <View>
-                                        <Text>{JSON.stringify(foodLog)}</Text>
-                                      </View>
-                                      <View>
-                                      </View>
-                                    </View>
-                                  ))
-                                }
-                                <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                              </View>
+                    <View style={{
+                      paddingBottom: 10,
+                      paddingLeft: 10,
+                      paddingRight: 10
+                    }}>
+                      {(() => {
+                        const filteredFoodLogs = foodLogs.filter((foodLog) => foodLog.meal === `${mealType}`)
+                        if (filteredFoodLogs.length == 0) {
+                          return (
+                            <View style={{
+                              paddingTop: 5
+                            }}>
+                              <Text style={{
+                                fontFamily: 'Nunito-Regular',
+                                fontSize: 14,
+                                textAlign: 'center',
+                                color: '#6B7280'
+                              }}>No food logs for this meal.</Text>
                             </View>
-                            <View style={styles.foodLogContainer}>
-                              <View style={styles.mealContainer}>
-                                <Text style={styles.customHeading2Text}>Lunch</Text>
-                                {foodLogs
-                                  .filter((foodLog) => foodLog.meal === "LUNCH")
-                                  .map((foodLog, idx) => (
-                                    <View key={idx} style={styles.flexRowCenter}>
-                                      <View>
-                                        <Text>{JSON.stringify(foodLog)}</Text>
-                                      </View>
-                                      <View>
-                                      </View>
-                                    </View>
-                                  ))
-                                }
-                                <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                              </View>
-                            </View>
-                            <View style={styles.foodLogContainer}>
-                              <View style={styles.mealContainer}>
-                                <Text style={styles.customHeading2Text}>Dinner</Text>
-                                {foodLogs
-                                  .filter((foodLog) => foodLog.meal === "DINNER")
-                                  .map((foodLog, idx) => (
-                                    <View key={idx} style={styles.flexRowCenter}>
-                                      <View>
-                                        <Text>{JSON.stringify(foodLog)}</Text>
-                                      </View>
-                                      <View>
-                                      </View>
-                                    </View>
-                                  ))
-                                }
-                                <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                              </View>
-                            </View>
-                            <View style={styles.foodLogContainer}>
-                              <View style={styles.mealContainer}>
-                                <Text style={styles.customHeading2Text}>Snack</Text>
-                                {foodLogs
-                                  .filter((foodLog) => foodLog.meal === "SNACK")
-                                  .map((foodLog, idx) => (
-                                    <View key={idx} style={styles.flexRowCenter}>
-                                      <View>
-                                        <Text>{JSON.stringify(foodLog)}</Text>
-                                      </View>
-                                      <View>
-                                      </View>
-                                    </View>
-                                  ))
-                                }
-                                <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                              </View>
-                            </View>
-                          </View>
-                      </View>
-                    </View>
-                  }
-              </Card.Content>
-            </Card.Content>
-          </Card>
+                          )
+                        } else {
+                          return filteredFoodLogs.map((foodLog, index) => (
+                            <View key={index} style={{
+                              paddingTop: 5
+                            }}>
+                              <View style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center'
+                              }}>
+                                <Text style={{
+                                  fontFamily: 'Nunito-Regular',
+                                  fontSize: 14,
+                                  width: '80%',
+                                  wordWrap: 'break-word',
+                                  textAlign: 'left'
+                                }}>{foodLog.foodId}</Text>
+                                <Text style={{
+                                  fontFamily: 'Nunito-Regular',
+                                  fontSize: 14,
+                                  width: '20%',
+                                  wordWrap: 'break-word',
+                                  textAlign: 'right',
+                                  verticalAlign: 'middle'
+                                }}>{foodLog.noOfServings} kcal</Text>
+                              </View> 
+                            </View> 
+                          ))
+                        }
+                      })()}
+                    </View>  
+                  </View>
+                </View>  
+              ))}
+            </View>
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -408,93 +430,6 @@ export default function Dashboard() {
 }
 
 // Style sheet for the dashboard screen.
+// TODO: Input all the styles used above into a stylesheet for readability purposes.
 const styles = StyleSheet.create({
-  // General styling for all tabs.
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    padding: 10,
-    backgroundColor: '#FCFDF7'
-  },
-  titleText: {
-    fontFamily: 'Nunito-Bold',
-    fontSize: 26
-  },
-  heading1Text: {
-    fontFamily: 'Nunito-Bold',
-    fontSize: 20
-  },
-  heading2Text: {
-    fontFamily: 'Nunito-Bold',
-    fontSize: 16
-  },
-  heading3Text: {
-    fontFamily: 'Nunito-Regular',
-    fontSize: 14
-  },
-  flexColumn: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  flexColumnCenter: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  flexRow: {
-    display: "flex",
-    flexDirection: "row",
-  },
-  flexRowBaseline: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "baseline"
-  },
-  flexRowCenter: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center"
-  },
-  flexRowSpaceEvenly: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-  },
-
-  // Specific styling for the tab.
-  circularProgress: {
-    paddingLeft: 50,
-    paddingRight: 50,
-    paddingBottom: 10,
-    margin: "auto",
-  },
-  foodLogContainer: {
-    paddingTop: 10
-  },
-  mealContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    backgroundColor: 'lightgrey',
-    padding: 10,
-    borderStyle: 'solid',
-    borderRadius: 10,
-    borderWidth: 0
-  },
-  customHeading2Text: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    width: '100%',
-    borderStyle: 'solid',
-    borderBottomWidth: 1
-  },
-  logFood: {
-    color: 'dodgerblue',
-    textAlign: 'center'
-  },
-  editButton: {
-    position: 'absolute',
-    right: 0,
-    top: 0
-  }
 });
