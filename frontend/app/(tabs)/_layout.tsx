@@ -64,6 +64,12 @@ export default function TabLayout() {
           title: "Log Food",
         }}
       />
+      <Tabs.Screen
+        name="barcode-scanner"
+        options={{
+          title: "Barcode Scanner"
+        }}
+      />
     </Tabs>
   );
 }
