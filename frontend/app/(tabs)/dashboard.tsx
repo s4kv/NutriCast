@@ -34,13 +34,14 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { ScrollView, View, Text, StyleSheet } from "react-native";
-import { Button, Card } from "react-native-paper";
+import { ScrollView, View, Text, StyleSheet, Animated, Button, Pressable } from "react-native";
+import { Card } from "react-native-paper";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
-import { useAuth } from "../auth-context";
-import backend from "../backend";
+import { useAuth } from "../../services/auth-context";
+import backend from "../../services/backend";
 import { Circle } from "react-native-svg";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import * as Emoji from "node-emoji";
 import { useRouter } from "expo-router";
 
 interface FoodLog {
@@ -59,6 +60,7 @@ export default function Dashboard() {
   const [caloriesConsumed, setCaloriesConsumed] = useState(0); // User's calories consumed today
   const [caloriesBurned, setCaloriesBurned] = useState(0); // User's calories burned from exercise today
   const [foodLogs, setFoodLogs] = useState<FoodLog[]>([]); // User's foodLogs today
+  const [foodLogMealTypes, setFoodLogMealTypes] = useState<String[]>(["BREAKFAST", "LUNCH", "DINNER", "SNACK"]); // Types of food log meal types
 
   const caloriesRemaining = calorieGoal - caloriesConsumed + caloriesBurned; // User's remaining calories for the day
   const netCalories = caloriesConsumed - caloriesBurned; // User's net calorie intake
@@ -66,6 +68,9 @@ export default function Dashboard() {
     calorieGoal > 0
       ? Math.min(Math.max((netCalories / calorieGoal) * 100, 0), 100)
       : 0; // User's percentage of completion to the calorie goal
+
+  const [isEditGoalButtonHovered, setIsEditGoalButtonHovered] = useState<Boolean>(false); // Whether the Edit Goal button is hovered on or not
+  const [hoveredMealButton, setHoveredMealButton] = useState<String | null>(null); // Checks which + Log Food button is being hovered on
 
   // Redirects the user to a new tab, edit-calories-card.
   const redirectToEditCaloriesCard = () => {
@@ -78,289 +83,353 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    // Get the user's calories logged today
-    backend
-      .get(`/api/users/${user?.email}/nutrition/calories/today`)
-      .then((response) => setCaloriesConsumed(response.data))
-      .catch((error) => {
-        console.error(error);
-      });
+    if (user) {
+      // Get the user's calories logged today
+      backend
+        .get(`/api/users/${user?.email}/nutrition/calories/today`)
+        .then((response) => setCaloriesConsumed(response.data))
+        .catch((error) => {
+          console.error(error);
+        });
+      }
 
-    // Get the user's calorie goal
-    backend
-      .get(`/api/users/${user?.email}/nutrition/calories/goal`)
-      .then((response) => setCalorieGoal(response.data))
-      .catch((error) => {
-        console.error(error);
-      });
-
-    // Gets the user's foodLogs today
-    backend.get(`/api/users/${user?.email}/foods/logs/today`)
-      .then((response) => {
-        setFoodLogs(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-  });
+      // Get the user's calorie goal
+      backend
+        .get(`/api/users/${user?.email}/nutrition/calories/goal`)
+        .then((response) => setCalorieGoal(response.data))
+        .catch((error) => {
+          console.error(error);
+        });
+      
+      // Gets the user's foodLogs today
+      backend.get(`/api/users/${user?.email}/foods/logs/today`)
+        .then((response) => {
+          setFoodLogs(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+  }, [user]);
 
   return (
     <ScrollView>
-      <View style={styles.container}>
-        <Text style={styles.titleText}> {user?.email}'s NutriCast Dashboard</Text>
-        <div style={{ padding: 10 }}>
-          <Text style={styles.heading1Text}>Today</Text>
-          <Card mode="elevated">
-            <div style={styles.flexRowBaseline}>
-              <Card.Title title="Daily Calorie Progress" />
-              <div style={{ marginLeft: "auto", paddingRight: 16 }}>
-                <Button onPress={redirectToEditCaloriesCard}>
-                  <FontAwesome5 name="edit" /> Edit
-                </Button>
-              </div>
-            </div>
-            <Card.Content style={styles.flexColumn}>
-              <div style={styles.circularProgress}>
-                <AnimatedCircularProgress
-                  size={200}
-                  width={10}
-                  fill={percentOfCalorieGoal}
-                  tintColor="LimeGreen"
-                  backgroundColor="grey"
-                  rotation={0}
-                  renderCap={({ center }) => (
-                    <Circle cx={center.x} cy={center.y} r="5" fill="LimeGreen" />
-                  )}
-                  padding={5}
-                >
-                  {() => (
-                    <div style={styles.flexColumnCenter}>
-                      <Text style={styles.heading1Text}>{caloriesRemaining}</Text>
-                      <Text>Remaining</Text>
-                    </div>
-                  )}
-                </AnimatedCircularProgress>
-              </div>
-              <div style={styles.flexSpaceEvenly}>
-                <div style={styles.flexColumnCenter}>
-                  <Text style={styles.heading3Text}>Goal:</Text>
-                  <Text style={styles.heading1Text}>{calorieGoal} 🎯</Text>
-                </div>
-                <div style={styles.flexColumnCenter}>
-                  <Text style={styles.heading3Text}>Consumed:</Text>
-                  <Text style={styles.heading1Text}>{caloriesConsumed} 🍽️</Text>
-                </div>
-                <div style={styles.flexColumnCenter}>
-                  <Text style={styles.heading3Text}>Burned:</Text>
-                  <Text style={styles.heading1Text}>{caloriesBurned} 🔥</Text>
-                </div>
-              </div>
-            </Card.Content>
-          </Card>
-        </div>
-        <div style={{padding: 10}}>
-          <Card>
-            <Card.Content>
-              <Card.Title title='Food Logged Today'/>
-              <Card.Content style={styles.flexColumn}>
-                  {foodLogs.length == 0 ?
-                    <View>
-                      <div style={styles.flexColumn}>
-                        <div style={styles.foodLogContainer}>
-                          <div style={styles.mealContainer}>
-                            <Text style={styles.customHeading2Text}>Breakfast</Text>
-                            <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                          </div>
-                        </div>
-                        <div style={styles.foodLogContainer}>
-                          <div style={styles.mealContainer}>
-                            <Text style={styles.customHeading2Text}>Lunch</Text>
-                            <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                          </div>
-                        </div>
-                        <div style={styles.foodLogContainer}>
-                          <div style={styles.mealContainer}>
-                            <Text style={styles.customHeading2Text}>Dinner</Text>
-                            <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                          </div>
-                        </div>
-                        <div style={styles.foodLogContainer}>
-                          <div style={styles.mealContainer}>
-                            <Text style={styles.customHeading2Text}>Snack</Text>
-                            <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                          </div>
-                        </div>
-                      </div>
+      <View style={{
+        padding: 10,
+        backgroundColor: '#FCFDF7'
+      }}>
+        <View style={{
+          paddingBottom: 20
+        }}>
+          <Text style={{
+            fontFamily: 'Nunito-Bold',
+            fontSize: 26,
+            textAlign: 'center'
+          }}>Dashboard</Text>
+          <Text style={{
+            fontFamily: 'Nunito-Regular',
+            fontSize: 14,
+            textAlign: 'center',
+            color: '#6B7280'
+          }}>Your daily nutritional progress at a glance.</Text>
+        </View>
+        <View style={{ width: '100%'}}>
+          <Text style={{
+            fontFamily: 'Nunito-Bold',
+            fontSize: 20,
+            paddingBottom: 15,
+            color: '#333333'
+            }}>Today</Text>
+          <View style={{
+            width: '100%',
+            borderStyle: 'solid',
+            borderWidth: 1,
+            borderRadius: 10,
+            borderColor: 'grey',
+            backgroundColor: '#FFFFFF'
+          }}>
+            <View style={{
+              padding: 10
+            }}>
+              <Text style={{
+                fontFamily: 'Nunito-Regular',
+                fontSize: 16
+              }}>Daily Calorie Progress</Text>
+              <Pressable onPress={redirectToEditCaloriesCard}
+                         onPressIn={() => {
+                          setIsEditGoalButtonHovered(true);
+                         }}
+                         onPressOut={() => {
+                          setIsEditGoalButtonHovered(false);
+                         }}
+                         onHoverIn={() => {
+                          setIsEditGoalButtonHovered(true);
+                         }}
+                         onHoverOut={() => {
+                          setIsEditGoalButtonHovered(false);
+                         }}
+                         style={{
+                          position: 'absolute',
+                          top: 10,
+                          right: 10
+              }}>
+                <Text style={
+                        isEditGoalButtonHovered ?
+                      {
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 16,
+                        color: '#6a8970'
+                      }
+                      :
+                      {
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 16,
+                        color: '#84a98c'
+                      }
+                }>Edit Goal</Text>
+              </Pressable>
+            </View>
+            <View style={{
+              paddingTop: 5,
+              paddingBottom: 5
+            }}>
+              <AnimatedCircularProgress
+                size={200}
+                width={10}
+                fill={percentOfCalorieGoal}
+                tintColor="#84a98c"
+                backgroundColor="#E0E0E0"
+                rotation={0}
+                renderCap={({ center }) => (
+                  <Circle cx={center.x} cy={center.y} r="5" fill="#84a98c" />
+                )}
+                style={{
+                  margin: 'auto',
+                }}
+              >
+                {() => (
+                  <View style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center'
+                  }}>
+                    <Text style={{
+                      fontFamily: 'Nunito-Bold',
+                      fontSize: 26
+                    }}>{caloriesRemaining}</Text>
+                    <Text style={{
+                      fontFamily: 'Nunito-Regular',
+                      fontSize: 14,
+                      color: '#6B7280'
+                    }}>Remaining</Text>
+                  </View>
+                )}
+              </AnimatedCircularProgress>
+            </View>
+            <View style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+              paddingTop: 10,
+              paddingBottom: 10
+            }}>
+              <View style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}>
+                <Text style={{
+                  fontSize: 20
+                }}>{Emoji.emojify(':dart:')}</Text>
+                <Text style={{
+                  fontFamily: 'Nunito-Bold',
+                  fontSize: 20
+                }}>{calorieGoal}</Text>
+                <Text style={{
+                  fontFamily: 'Nunito-Regular',
+                  fontSize: 14,
+                  color: '#6B7280'
+                }}>Goal</Text>
+              </View>
+              <View style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}>
+                <Text style={{
+                  fontSize: 20
+                }}>{Emoji.emojify(':fork_and_knife:')}</Text>
+                <Text style={{
+                  fontFamily: 'Nunito-Bold',
+                  fontSize: 20
+                }}>{caloriesConsumed}</Text>
+                <Text style={{
+                  fontFamily: 'Nunito-Regular',
+                  fontSize: 14,
+                  color: '#6B7280'
+                }}>Consumed</Text>
+              </View>
+              <View style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}>
+                <Text style={{
+                  fontSize: 20
+                }}>{Emoji.emojify(':fire:')}</Text>
+                <Text style={{
+                  fontFamily: 'Nunito-Bold',
+                  fontSize: 20
+                }}>{caloriesBurned}</Text>
+                <Text style={{
+                  fontFamily: 'Nunito-Regular',
+                  fontSize: 14,
+                  color: '#6B7280'
+                }}>Burned</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+        <View style={{ paddingTop: 10 }}>
+          <View style={{
+            width: '100%',
+            borderStyle: 'solid',
+            borderWidth: 1,
+            borderRadius: 10,
+            borderColor: 'grey',
+            backgroundColor: '#FFFFFF',
+          }}>
+            <View style={{ padding: 10 }}>
+              <Text style={{
+                fontFamily: 'Nunito-Regular',
+                fontSize: 16
+              }}>Food Logs Today</Text>
+            </View>
+            <View style={{
+              paddingBottom: 10,
+              paddingLeft: 10,
+              paddingRight: 10
+            }}>
+              {foodLogMealTypes.map((mealType, index) => (
+                <View key={index} style={{
+                  paddingTop: 10
+                }}>
+                  <View style={{
+                    width: '100%',
+                    shadowColor: '#000',
+                    shadowOffset: {
+                      width: 0,
+                      height: 2
+                    },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 4,
+                    elevation: 3,
+                    borderRadius: 5,
+                    backgroundColor: '#FCFDF7',
+                  }}>
+                    <View style={{
+                      padding: 10
+                    }}>
+                      <Text style={{
+                        fontFamily: 'Nunito-Bold',
+                        fontSize: 14
+                      }}>{mealType}</Text>
+                      <Pressable onPress={redirectToLogFoodTab}
+                                onPressIn={() => {
+                                  setHoveredMealButton(mealType);
+                                }}
+                                onPressOut={() => {
+                                  setHoveredMealButton(null);
+                                }}
+                                onHoverIn={() => {
+                                  setHoveredMealButton(mealType);
+                                }}
+                                onHoverOut={() => {
+                                  setHoveredMealButton(null);
+                                }}
+                                style={{
+                                  position: 'absolute',
+                                  top: 10,
+                                  right: 10
+                      }}>
+                        <Text style={
+                                hoveredMealButton == mealType ?
+                              {
+                                fontFamily: 'Nunito-Regular',
+                                fontSize: 14,
+                                color: '#6a8970'
+                              }
+                              :
+                              {
+                                fontFamily: 'Nunito-Regular',
+                                fontSize: 14,
+                                color: '#84a98c'
+                              }
+                        }>+ Log Food</Text>
+                      </Pressable>
                     </View>
-                    :
-                    <View>
-                        <View>
-                          <div style={styles.flexColumn}>
-                            <div style={styles.foodLogContainer}>
-                              <div style={styles.mealContainer}>
-                                <Text style={styles.customHeading2Text}>Breakfast</Text>
-                                {foodLogs
-                                  .filter((foodLog) => foodLog.meal === "BREAKFAST")
-                                  .map((foodLog, idx) => (
-                                    <div key={idx} style={styles.flexRowCenter}>
-                                      <div>
-                                        <Text>{JSON.stringify(foodLog)}</Text>
-                                      </div>
-                                      <div>
-                                      </div>
-                                    </div>
-                                  ))
-                                }
-                                <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                              </div>
-                            </div>
-                            <div style={styles.foodLogContainer}>
-                              <div style={styles.mealContainer}>
-                                <Text style={styles.customHeading2Text}>Lunch</Text>
-                                {foodLogs
-                                  .filter((foodLog) => foodLog.meal === "LUNCH")
-                                  .map((foodLog, idx) => (
-                                    <div key={idx} style={styles.flexRowCenter}>
-                                      <div>
-                                        <Text>{JSON.stringify(foodLog)}</Text>
-                                      </div>
-                                      <div>
-                                      </div>
-                                    </div>
-                                  ))
-                                }
-                                <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                              </div>
-                            </div>
-                            <div style={styles.foodLogContainer}>
-                              <div style={styles.mealContainer}>
-                                <Text style={styles.customHeading2Text}>Dinner</Text>
-                                {foodLogs
-                                  .filter((foodLog) => foodLog.meal === "DINNER")
-                                  .map((foodLog, idx) => (
-                                    <div key={idx} style={styles.flexRowCenter}>
-                                      <div>
-                                        <Text>{JSON.stringify(foodLog)}</Text>
-                                      </div>
-                                      <div>
-                                      </div>
-                                    </div>
-                                  ))
-                                }
-                                <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                              </div>
-                            </div>
-                            <div style={styles.foodLogContainer}>
-                              <div style={styles.mealContainer}>
-                                <Text style={styles.customHeading2Text}>Snack</Text>
-                                {foodLogs
-                                  .filter((foodLog) => foodLog.meal === "SNACK")
-                                  .map((foodLog, idx) => (
-                                    <div key={idx} style={styles.flexRowCenter}>
-                                      <div>
-                                        <Text>{JSON.stringify(foodLog)}</Text>
-                                      </div>
-                                      <div>
-                                      </div>
-                                    </div>
-                                  ))
-                                }
-                                <Text onPress={redirectToLogFoodTab} style={styles.logFood}>Log Food</Text>
-                              </div>
-                            </div>
-                          </div>
-                      </View>
-                    </View>
-                  }
-              </Card.Content>
-            </Card.Content>
-          </Card>
-        </div>
+                    <View style={{
+                      paddingBottom: 10,
+                      paddingLeft: 10,
+                      paddingRight: 10
+                    }}>
+                      {(() => {
+                        const filteredFoodLogs = foodLogs.filter((foodLog) => foodLog.meal === `${mealType}`)
+                        if (filteredFoodLogs.length == 0) {
+                          return (
+                            <View style={{
+                              paddingTop: 5
+                            }}>
+                              <Text style={{
+                                fontFamily: 'Nunito-Regular',
+                                fontSize: 14,
+                                textAlign: 'center',
+                                color: '#6B7280'
+                              }}>No food logs for this meal.</Text>
+                            </View>
+                          )
+                        } else {
+                          return filteredFoodLogs.map((foodLog, index) => (
+                            <View key={index} style={{
+                              paddingTop: 5
+                            }}>
+                              <View style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center'
+                              }}>
+                                <Text style={{
+                                  fontFamily: 'Nunito-Regular',
+                                  fontSize: 14,
+                                  width: '80%',
+                                  wordWrap: 'break-word',
+                                  textAlign: 'left'
+                                }}>{foodLog.foodId}</Text>
+                                <Text style={{
+                                  fontFamily: 'Nunito-Regular',
+                                  fontSize: 14,
+                                  width: '20%',
+                                  wordWrap: 'break-word',
+                                  textAlign: 'right',
+                                  verticalAlign: 'middle'
+                                }}>{foodLog.noOfServings} kcal</Text>
+                              </View> 
+                            </View> 
+                          ))
+                        }
+                      })()}
+                    </View>  
+                  </View>
+                </View>  
+              ))}
+            </View>
+          </View>
+        </View>
       </View>
     </ScrollView>
   );
 }
 
 // Style sheet for the dashboard screen.
+// TODO: Input all the styles used above into a stylesheet for readability purposes.
 const styles = StyleSheet.create({
-  // General styling for all tabs.
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    padding: 20
-  },
-  titleText: {
-    fontSize: 26,
-    fontWeight: "bold",
-  },
-  heading1Text: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  heading2Text: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  heading3Text: {
-    fontSize: 14,
-  },
-  flexColumn: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  flexColumnCenter: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  flexRow: {
-    display: "flex",
-    flexDirection: "row",
-  },
-  flexRowBaseline: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "baseline",
-  },
-  flexRowCenter: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center"
-  },
-  flexSpaceEvenly: {
-    display: "flex",
-    justifyContent: "space-evenly",
-  },
-
-  // Specific styling for the tab.
-  circularProgress: {
-    paddingLeft: 50,
-    paddingRight: 50,
-    paddingBottom: 10,
-    margin: "auto",
-  },
-  foodLogContainer: {
-    paddingTop: 10
-  },
-  mealContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    backgroundColor: 'lightgrey',
-    padding: 10,
-    borderStyle: 'solid',
-    borderRadius: 10,
-    borderWidth: 0
-  },
-  customHeading2Text: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    width: '100%',
-    borderStyle: 'solid',
-    borderBottomWidth: 1
-  },
-  logFood: {
-    color: 'dodgerblue',
-    textAlign: 'center'
-  }
 });
