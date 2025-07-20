@@ -32,3 +32,9 @@ backend/.mvn
 # firebase
 # --------------------------------
 **/firebase-service-account.json 
+
+
+# --------------------------------
+# setIsPro
+# --------------------------------
+setIsPro/
