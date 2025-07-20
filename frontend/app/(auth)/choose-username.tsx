@@ -3,8 +3,8 @@ import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { getIdToken } from "firebase/auth";
 
-import { auth } from "../firebase"; // path: app/firebase.ts
-import api from "../backend"; // Axios instance (app/backend.ts)
+import { firebaseAuth } from "../../services/firebase"; // path: app/firebase.ts
+import api from "../../services/backend"; // Axios instance (app/backend.ts)
 
 export default function ChooseUsername() {
   const [username, setUsername] = useState("");
@@ -21,7 +21,7 @@ export default function ChooseUsername() {
 
     try {
       setLoading(true);
-      const token = await getIdToken(auth.currentUser!, true);
+      const token = await getIdToken(firebaseAuth.currentUser!, true);
 
       await api.post(
         "/api/users/username",

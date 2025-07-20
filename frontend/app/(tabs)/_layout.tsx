@@ -1,8 +1,20 @@
-import { Tabs } from "expo-router";
+import {  Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
+import { useFonts } from 'expo-font';
+import { Nunito_400Regular, Nunito_700Bold } from '@expo-google-fonts/nunito';
 
 export default function TabLayout() {
+  // Font styles
+  const [fontsLoaded, fontError] = useFonts({
+    'Nunito-Regular': Nunito_400Regular,
+    'Nunito-Bold': Nunito_700Bold
+  });
+
+  // If fonts are not loaded, then don't render anything.
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
   return (
     <Tabs
       screenOptions={{
@@ -50,6 +62,12 @@ export default function TabLayout() {
         name="log-food"
         options={{
           title: "Log Food",
+        }}
+      />
+      <Tabs.Screen
+        name="barcode-scanner"
+        options={{
+          title: "Barcode Scanner"
         }}
       />
     </Tabs>
