@@ -8,31 +8,37 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
-  Platform,
+  Platform, // Import Platform
   Linking,
   TextInput,
 } from 'react-native';
 import { Card } from 'react-native-paper';
 import { launchCamera, launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
 import { Ionicons } from '@expo/vector-icons';
+import * as FileSystem from 'expo-file-system'; // Needed to read image file as Base64
 
+// Import your backend API service
 import * as backend from '../../services/backend';
 import axios from 'axios';
 
 // --- TypeScript Interfaces (Imported from shared types.ts) ---
 import { FoodMacros, FoodType, Food } from '../src/types';
 
-// Define the structure for ScannedFoodItem, matching your ScannedFoodItem.java
-// This interface remains local if ScannedFoodItem is not used in other frontend files.
-// IMPORTANT: Changed 'nutritionalMacros' to 'nutritional_macros' to match backend @JsonProperty
+// Define the structure for ScannedFoodItem, matching your Backend's actual JSON output.
 interface ScannedFoodItem {
   name_of_the_food: string;
-  barcode_scanned: string; // Corresponds to @JsonProperty("barcode_scanned")
-  nutritional_macros: FoodMacros; // <--- CHANGED THIS TO MATCH @JsonProperty
+  barcode_scanned: string;
+  nutritional_macros: FoodMacros; // Corrected: Using camelCase as observed in actual JSON response
 }
 
+// New interface for the request body that sends the Base64 image to the backend
+interface ImageBarcodeRequest {
+  imageUri: string;
+}
+
+// Define the structure for BarcodeRequest, matching your BarcodeRequest.java
 interface BarcodeRequest {
-  barcode_scanned: string;
+  barcode: string; // Corrected: This should be 'barcode', not 'barcode_scanned' for the request body
 }
 
 // Define a default/empty FoodMacros object for fallback
@@ -73,13 +79,21 @@ function BarcodeScannerScreen() {
       }
     } else if (response.assets && response.assets.length > 0) {
       const asset = response.assets[0];
-      setSelectedImageUri(asset.uri || null);
-      setScannedBarcodeValue(null);
-      setFoodItemResult(null);
-      setManualBarcodeInput('');
+      setSelectedImageUri(asset.uri || null); // Display the image preview
+      setScannedBarcodeValue(null); // Clear previous barcode
+      setFoodItemResult(null); // Clear previous food item
+      setManualBarcodeInput(''); // Clear manual input when a new image is selected/taken
 
       if (asset.uri) {
-        setStatusMessage('Image selected. Please enter barcode manually.');
+        // --- Added Platform Check Here ---
+        if (Platform.OS === 'web') {
+          setStatusMessage('Image selected. Image-to-barcode scanning is not supported on web. Please use the manual barcode input instead, or run the app on a mobile device.');
+          Alert.alert('Feature Not Available', 'Image-to-barcode scanning is not supported when running on a web browser. Please use the manual barcode input instead, or run the app on a mobile device.');
+          setLoading(false); // Stop loading if on web and feature is not supported
+        } else {
+          setStatusMessage('Image selected. Preparing for backend analysis...');
+          await convertImageToBase64AndSend(asset.uri); // Call the function to convert and send image
+        }
       } else {
         setStatusMessage('Error: No image URI found.');
         Alert.alert('Error', 'Could not get image URI.');
@@ -102,23 +116,84 @@ function BarcodeScannerScreen() {
     }
     setScannedBarcodeValue(manualBarcodeInput.trim());
     setStatusMessage('Barcode entered. Sending to backend...');
-    await sendBarcodeToBackend(manualBarcodeInput.trim());
+    await sendBarcodeStringOnlyToBackend(manualBarcodeInput.trim());
   };
 
-  const sendBarcodeToBackend = async (barcode: string) => {
+  const convertImageToBase64AndSend = async (imageUri: string) => {
+    setLoading(true);
+    setStatusMessage("Converting image to Base64...");
+    try {
+      // Read the image file as Base64
+      const base64 = await FileSystem.readAsStringAsync(imageUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Construct the data URI format (important for some backend parsers)
+      const dataUri = `data:image/jpeg;base64,${base64}`; // Assuming JPEG, adjust if needed
+
+      setStatusMessage("Sending image to backend for barcode extraction...");
+      await sendImageToBackendForBarcodeExtraction(dataUri); // Call the new backend service
+    } catch (error: any) {
+      console.error("Error converting image to Base64 or sending:", error);
+      setStatusMessage(`Image processing error: ${error.message}`);
+      Alert.alert("Image Error", `Failed to process image: ${error.message}`);
+      setLoading(false);
+    }
+  };
+
+  const sendImageToBackendForBarcodeExtraction = async (base64Image: string) => {
+    setLoading(true);
+    setFoodItemResult(null);
+    setStatusMessage('Sending image to backend for barcode extraction and analysis...');
+
+    try {
+      // The new backend endpoint will receive the Base64 image and return ScannedFoodItem
+      const requestBody: ImageBarcodeRequest = { imageUri: base64Image };
+
+      // Call the new helper function from your backend.ts service
+      const responseData = await backend.sendImageForBarcodeExtraction(requestBody);
+
+      // Set the detected barcode value from the backend's response
+      setScannedBarcodeValue(responseData.barcode_scanned);
+
+      const finalFoodItemResult: ScannedFoodItem = {
+        name_of_the_food: responseData.name_of_the_food,
+        barcode_scanned: responseData.barcode_scanned,
+        nutritional_macros: responseData.nutritional_macros || defaultFoodMacros,
+      };
+
+      setFoodItemResult(finalFoodItemResult);
+      setStatusMessage('Analysis complete!');
+      Alert.alert('Success', 'Food analysis successful!');
+    } catch (error: any) {
+      console.error('Backend image processing error:', error);
+      if (axios.isAxiosError(error) && error.response) {
+        setStatusMessage(`Backend error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
+        Alert.alert('Backend Error', `Status: ${error.response.status}\nData: ${JSON.stringify(error.response.data)}`);
+      } else {
+        setStatusMessage(`Network error: ${error.message}`);
+        Alert.alert('Network Error', error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendBarcodeStringOnlyToBackend = async (barcode: string) => {
     setLoading(true);
     setFoodItemResult(null);
     setStatusMessage('Sending barcode to backend for analysis...');
 
     try {
-      const responseData = await backend.sendBarcodeToBackend(barcode);
+      const requestBody: BarcodeRequest = { barcode: barcode };
+      const responseData = await backend.sendBarcodeToBackend(requestBody);
 
-      // Now, we expect responseData.nutritional_macros to contain the data
-      // and responseData.nutritionalMacros (camelCase) to be the empty one.
-      // We explicitly map to the one with underscore.
+      setScannedBarcodeValue(responseData.barcode_scanned);
+
       const finalFoodItemResult: ScannedFoodItem = {
-        ...responseData,
-        nutritional_macros: responseData.nutritional_macros || defaultFoodMacros, // <--- Use the underscore version
+        name_of_the_food: responseData.name_of_the_food,
+        barcode_scanned: responseData.barcode_scanned,
+        nutritional_macros: responseData.nutritional_macros || defaultFoodMacros,
       };
 
       setFoodItemResult(finalFoodItemResult);
@@ -138,9 +213,7 @@ function BarcodeScannerScreen() {
     }
   };
 
-  // Helper to safely access nutritional macros
-  // IMPORTANT: Now accesses 'nutritional_macros' (with underscore)
-  const currentMacros = foodItemResult?.nutritional_macros || defaultFoodMacros; // <--- CHANGED THIS LINE
+  const currentMacros = foodItemResult?.nutritional_macros || defaultFoodMacros;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -209,11 +282,11 @@ function BarcodeScannerScreen() {
             {/* Status Message */}
             <Text style={styles.statusText}>Status: {statusMessage}</Text>
 
-            {/* Barcode Value Display (after client-side detection/input) */}
+            {/* Barcode Value Display (after backend extraction/manual input) */}
             {scannedBarcodeValue && !loading && (
               <View style={styles.scannedBarcodeContainer}>
                 <Text style={styles.scannedBarcodeText}>
-                  Entered Barcode: <Text style={styles.scannedBarcodeValue}>{scannedBarcodeValue}</Text>
+                  Detected Barcode: <Text style={styles.scannedBarcodeValue}>{scannedBarcodeValue}</Text>
                 </Text>
               </View>
             )}
