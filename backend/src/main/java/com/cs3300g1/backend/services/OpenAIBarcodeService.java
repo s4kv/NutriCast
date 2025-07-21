@@ -47,6 +47,7 @@ public class OpenAIBarcodeService {
             .model(ChatModel.GPT_4_1) // Use the same model as your other service
             .responseFormat(ScannedFoodItem.class) // <-- IMPORTANT: Target the new wrapper DTO
             .addUserMessageOfArrayOfContentParts(List.of(userMessagePart))
+            .temperature(0.0) // needed to keep answers consistent
             .build();
 
     // Send the request to OpenAI
@@ -65,8 +66,8 @@ public class OpenAIBarcodeService {
 
     // Optional: Ensure the barcode is set, especially if OpenAI might sometimes miss it in the
     // structured output
-    if (response.getBarcode() == null) {
-      response.setBarcode(barcode);
+    if (response.getBarcode_scanned() == null) {
+      response.setBarcode_scanned(barcode);
     }
 
     System.out.println("Response from OpenAI (ScannedFoodItem): " + response.toString());
