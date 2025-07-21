@@ -1,0 +1,27 @@
+name: ESLint Check (Frontend Only)
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Run ESLint in frontend
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Expo Lint
+        run: npm run lint
