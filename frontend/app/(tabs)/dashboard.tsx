@@ -8,12 +8,12 @@ import * as Emoji from "node-emoji";
 import { useRouter } from "expo-router";
 
 interface FoodLog {
-  id: String,
-  userId: String,
-  foodId: String,
-  meal: String,
+  id: string,
+  userId: string,
+  foodId: string,
+  meal: string,
   noOfServings: number,
-  timeStamp: String
+  timeStamp: string
 }
 
 export default function Dashboard() {
@@ -23,7 +23,7 @@ export default function Dashboard() {
   const [caloriesConsumed, setCaloriesConsumed] = useState(0); // User's calories consumed today
   const [caloriesBurned, setCaloriesBurned] = useState(0); // User's calories burned from exercise today
   const [foodLogs, setFoodLogs] = useState<FoodLog[]>([]); // User's foodLogs today
-  const [foodLogMealTypes, setFoodLogMealTypes] = useState<String[]>(["BREAKFAST", "LUNCH", "DINNER", "SNACK"]); // Types of food log meal types
+  const [foodLogMealTypes, setFoodLogMealTypes] = useState<string[]>(["BREAKFAST", "LUNCH", "DINNER", "SNACK"]); // Types of food log meal types
 
   const caloriesRemaining = calorieGoal - caloriesConsumed + caloriesBurned; // User's remaining calories for the day
   const netCalories = caloriesConsumed - caloriesBurned; // User's net calorie intake
@@ -32,8 +32,8 @@ export default function Dashboard() {
       ? Math.min(Math.max((netCalories / calorieGoal) * 100, 0), 100)
       : 0; // User's percentage of completion to the calorie goal
 
-  const [isEditGoalButtonHovered, setIsEditGoalButtonHovered] = useState<Boolean>(false); // Whether the Edit Goal button is hovered on or not
-  const [hoveredMealButton, setHoveredMealButton] = useState<String | null>(null); // Checks which + Log Food button is being hovered on
+  const [isEditGoalButtonHovered, setIsEditGoalButtonHovered] = useState<boolean>(false); // Whether the Edit Goal button is hovered on or not
+  const [hoveredMealButton, setHoveredMealButton] = useState<string | null>(null); // Checks which + Log Food button is being hovered on
 
   // Redirects the user to a new tab, edit-calories-card.
   const redirectToEditCaloriesCard = () => {
@@ -317,7 +317,7 @@ export default function Dashboard() {
                                   right: 10
                       }}>
                         <Text style={
-                                hoveredMealButton == mealType ?
+                                hoveredMealButton === mealType ?
                               {
                                 fontFamily: 'Nunito-Regular',
                                 fontSize: 14,
@@ -339,7 +339,7 @@ export default function Dashboard() {
                     }}>
                       {(() => {
                         const filteredFoodLogs = foodLogs.filter((foodLog) => foodLog.meal === `${mealType}`)
-                        if (filteredFoodLogs.length == 0) {
+                        if (filteredFoodLogs.length === 0) {
                           return (
                             <View style={{
                               paddingTop: 5
