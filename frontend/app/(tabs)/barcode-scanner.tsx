@@ -22,7 +22,7 @@ import * as backend from '../../services/backend';
 import axios from 'axios';
 
 // --- TypeScript Interfaces (Imported from shared types.ts) ---
-import { FoodMacros, FoodType, Food } from '../src/types';
+import { FoodMacros, FoodType, Food } from '../../services/types';
 
 // Define the structure for ScannedFoodItem, matching your Backend's actual JSON output.
 interface ScannedFoodItem {
