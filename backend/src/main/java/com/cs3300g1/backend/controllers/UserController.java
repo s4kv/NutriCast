@@ -8,6 +8,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -122,5 +123,24 @@ public class UserController {
                   ResponseEntity.status(HttpStatus.NOT_FOUND)
                       .body(Map.of("error", "user-not-found")));
     }
+
+
+    @GetMapping("/username-from-uid/{uid}")
+      public ResponseEntity<?> getUsernameFromUid(@PathVariable("uid") String uid) {
+
+      //   Optional<User> user = userService.findByAuthUid(uid);
+      //   if (user.isEmpty()) {
+      //     return ResponseEntity.status(HttpStatus.NOT_FOUND)
+      //         .body(Map.of("error", "user-not-found"));
+      //   }
+      //   return ResponseEntity.ok(user.get().getUsername());
+      // }
+
+
+      User user = userService.findByAuthUid(uid).orElseThrow(() -> new RuntimeException("No user with authUid: " + uid));
+      return new ResponseEntity<>(user.getUsername(), HttpStatus.OK);
+  
+  }
+
 
 }
