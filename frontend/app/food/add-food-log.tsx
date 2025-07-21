@@ -24,7 +24,7 @@ export default function AddFoodLog() {
     const { foodId } = useLocalSearchParams<{ foodId: string }>();
     const [meal, setMeal] = useState<Meal | null>(null); // Type of Meal (e.g, BREAKFAST, LUNCH, DINNER, SNACK)
     const [noOfServings, setNoOfServings] = useState(''); // No of servings
-    const [isNoOfServingsFocus, setIsNoOfServingsFocus] = useState<Boolean>(false); // Whether the text input of noOfServings is on focus or not
+    const [isNoOfServingsFocus, setIsNoOfServingsFocus] = useState<boolean>(false); // Whether the text input of noOfServings is on focus or not
 
     // Sends all the data to the backend to save the food log on mongoDB.
     const addFoodLog = async () => {
@@ -75,10 +75,10 @@ export default function AddFoodLog() {
                                 value={noOfServings}
                                 onChangeText={(text) => {
                                     setNoOfServings(text);
-                                    setIsNoOfServingsFocus(text != '');
+                                    setIsNoOfServingsFocus(text !== '');
                                 }}
                                 onBlur={(event) => {
-                                    setIsNoOfServingsFocus(event.nativeEvent.text != '');
+                                    setIsNoOfServingsFocus(event.nativeEvent.text !== '');
                                 }}
                                 style={isNoOfServingsFocus ? styles.textInputFocus : styles.textInputBlur}
                             />
