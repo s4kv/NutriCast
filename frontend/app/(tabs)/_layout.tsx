@@ -59,6 +59,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="pro-advice"
+        options={{
+          title: "Professional Advice",
+        }}
+      />
+      <Tabs.Screen
         name="log-food"
         options={{
           title: "Log Food",
