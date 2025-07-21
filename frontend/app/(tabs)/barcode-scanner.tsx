@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,14 +8,14 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
-  Platform, // Import Platform
+  Platform,
   Linking,
   TextInput,
 } from 'react-native';
 import { Card } from 'react-native-paper';
 import { launchCamera, launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
 import { Ionicons } from '@expo/vector-icons';
-import * as FileSystem from 'expo-file-system'; // Needed to read image file as Base64
+import * as FileSystem from 'expo-file-system'; // Needed to read image file as Base64 on native
 
 // Import your backend API service
 import * as backend from '../../services/backend';
@@ -28,7 +28,7 @@ import { FoodMacros, FoodType, Food } from '../src/types';
 interface ScannedFoodItem {
   name_of_the_food: string;
   barcode_scanned: string;
-  nutritional_macros: FoodMacros; // Corrected: Using camelCase as observed in actual JSON response
+  nutritional_macros: FoodMacros; // Using camelCase as observed in actual JSON response
 }
 
 // New interface for the request body that sends the Base64 image to the backend
@@ -38,7 +38,7 @@ interface ImageBarcodeRequest {
 
 // Define the structure for BarcodeRequest, matching your BarcodeRequest.java
 interface BarcodeRequest {
-  barcode: string; // Corrected: This should be 'barcode', not 'barcode_scanned' for the request body
+  barcode: string; // This should be 'barcode', not 'barcode_scanned' for the request body
 }
 
 // Define a default/empty FoodMacros object for fallback
@@ -58,15 +58,33 @@ function BarcodeScannerScreen() {
   const [scannedBarcodeValue, setScannedBarcodeValue] = useState<string | null>(null);
   const [foodItemResult, setFoodItemResult] = useState<ScannedFoodItem | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [statusMessage, setStatusMessage] = useState<string>('Ready');
+  // Initial status message adjusted for web vs. native
+  const [statusMessage, setStatusMessage] = useState<string>(
+    Platform.OS === 'web' ? 'Enter barcode manually to get started.' : 'Ready'
+  );
   const [manualBarcodeInput, setManualBarcodeInput] = useState<string>('');
 
+  // Ref for the hidden file input on web (still needed in case we add a specific "upload image" button for web later)
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Unified image processing response handler (only called on native now)
+  const processImage = async (uri: string, base64?: string) => {
+    setSelectedImageUri(uri); // Display the image preview
+    setScannedBarcodeValue(null); // Clear previous barcode
+    setFoodItemResult(null); // Clear previous food item
+    setManualBarcodeInput(''); // Clear manual input when a new image is selected/taken
+
+    setStatusMessage('Image selected. Preparing for backend analysis...');
+    await convertImageToBase64AndSend(uri, base64);
+  };
+
+  // Handles response from react-native-image-picker (native only)
   const processImagePickerResponse = async (response: ImagePickerResponse) => {
     if (response.didCancel) {
-      setStatusMessage('Image selection/capture cancelled');
+      setStatusMessage('Picture taking cancelled');
     } else if (response.errorMessage) {
-      setStatusMessage(`Error: ${response.errorMessage}`);
-      Alert.alert('Error', response.errorMessage);
+      setStatusMessage(`Error taking picture: ${response.errorMessage}`);
+      Alert.alert('Camera Error', response.errorMessage);
       if (response.errorMessage.includes('permission')) {
         Alert.alert(
           'Permission Required',
@@ -79,21 +97,8 @@ function BarcodeScannerScreen() {
       }
     } else if (response.assets && response.assets.length > 0) {
       const asset = response.assets[0];
-      setSelectedImageUri(asset.uri || null); // Display the image preview
-      setScannedBarcodeValue(null); // Clear previous barcode
-      setFoodItemResult(null); // Clear previous food item
-      setManualBarcodeInput(''); // Clear manual input when a new image is selected/taken
-
       if (asset.uri) {
-        // --- Added Platform Check Here ---
-        if (Platform.OS === 'web') {
-          setStatusMessage('Image selected. Image-to-barcode scanning is not supported on web. Please use the manual barcode input instead, or run the app on a mobile device.');
-          Alert.alert('Feature Not Available', 'Image-to-barcode scanning is not supported when running on a web browser. Please use the manual barcode input instead, or run the app on a mobile device.');
-          setLoading(false); // Stop loading if on web and feature is not supported
-        } else {
-          setStatusMessage('Image selected. Preparing for backend analysis...');
-          await convertImageToBase64AndSend(asset.uri); // Call the function to convert and send image
-        }
+        await processImage(asset.uri, asset.base64);
       } else {
         setStatusMessage('Error: No image URI found.');
         Alert.alert('Error', 'Could not get image URI.');
@@ -102,11 +107,37 @@ function BarcodeScannerScreen() {
   };
 
   const handleTakePicture = () => {
-    launchCamera({ mediaType: 'photo', quality: 0.8 }, processImagePickerResponse);
+    // This button is now only rendered on native platforms
+    launchCamera({ mediaType: 'photo', quality: 0.8, includeBase64: true }, processImagePickerResponse);
   };
 
   const handleSelectPicture = () => {
-    launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, processImagePickerResponse);
+    // This button is now only rendered on native platforms
+    launchImageLibrary({ mediaType: 'photo', quality: 0.8, includeBase64: true }, processImagePickerResponse);
+  };
+
+  // handleWebFileChange is still needed if we later add a specific web-only image upload button
+  // For now, it's not directly triggered by a visible button.
+  const handleWebFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Uri = reader.result as string;
+        // This part is for web-specific image handling if re-enabled
+        // For now, the image upload buttons are hidden on web.
+        // If you re-enable image upload for web, uncomment the call to processImage here.
+        // await processImage(base64Uri, base64Uri.split(',')[1]);
+      };
+      reader.onerror = (error) => {
+        console.error("FileReader error:", error);
+        setStatusMessage("Error reading file.");
+        Alert.alert("File Error", "Could not read the selected file.");
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setStatusMessage('No file selected.');
+    }
   };
 
   const handleManualBarcodeSubmit = async () => {
@@ -119,20 +150,25 @@ function BarcodeScannerScreen() {
     await sendBarcodeStringOnlyToBackend(manualBarcodeInput.trim());
   };
 
-  const convertImageToBase64AndSend = async (imageUri: string) => {
+  // This function is now only called on native platforms
+  const convertImageToBase64AndSend = async (imageUri: string, providedBase64?: string) => {
     setLoading(true);
     setStatusMessage("Converting image to Base64...");
-    try {
-      // Read the image file as Base64
-      const base64 = await FileSystem.readAsStringAsync(imageUri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+    let dataUri = imageUri;
 
-      // Construct the data URI format (important for some backend parsers)
-      const dataUri = `data:image/jpeg;base64,${base64}`; // Assuming JPEG, adjust if needed
+    try {
+      if (!providedBase64) {
+        // This block will only run on native if base64 wasn't provided by image-picker
+        const base64 = await FileSystem.readAsStringAsync(imageUri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        dataUri = `data:image/jpeg;base64,${base64}`;
+      } else {
+        dataUri = `data:image/jpeg;base64,${providedBase64}`;
+      }
 
       setStatusMessage("Sending image to backend for barcode extraction...");
-      await sendImageToBackendForBarcodeExtraction(dataUri); // Call the new backend service
+      await sendImageToBackendForBarcodeExtraction(dataUri);
     } catch (error: any) {
       console.error("Error converting image to Base64 or sending:", error);
       setStatusMessage(`Image processing error: ${error.message}`);
@@ -147,13 +183,9 @@ function BarcodeScannerScreen() {
     setStatusMessage('Sending image to backend for barcode extraction and analysis...');
 
     try {
-      // The new backend endpoint will receive the Base64 image and return ScannedFoodItem
       const requestBody: ImageBarcodeRequest = { imageUri: base64Image };
-
-      // Call the new helper function from your backend.ts service
       const responseData = await backend.sendImageForBarcodeExtraction(requestBody);
 
-      // Set the detected barcode value from the backend's response
       setScannedBarcodeValue(responseData.barcode_scanned);
 
       const finalFoodItemResult: ScannedFoodItem = {
@@ -219,40 +251,45 @@ function BarcodeScannerScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.titleText}>NutriCast Barcode/Food Analyzer</Text>
 
-      <View style={{ width: "30%" }}>
+      {/* Main content view, now with responsive width */}
+      <View style={styles.mainContentWidth}>
         <Card mode="elevated">
           <Card.Content style={styles.flexColumn}>
-            {/* Image Preview Area */}
-            <View style={styles.imageContainer}>
-              {selectedImageUri ? (
-                <Image source={{ uri: selectedImageUri }} style={styles.image} />
-              ) : (
-                <View style={styles.placeholder}>
-                  <Ionicons name="image-outline" size={80} color="#bbb" />
-                  <Text style={styles.placeholderText}>No image selected</Text>
-                  <Text style={styles.placeholderTextSmall}>(Take or select a picture of a food item or barcode)</Text>
-                </View>
-              )}
-            </View>
+            {/* Image Preview Area - Only shown on native platforms */}
+            {Platform.OS !== 'web' && (
+              <View style={styles.imageContainer}>
+                {selectedImageUri ? (
+                  <Image source={{ uri: selectedImageUri }} style={styles.image} />
+                ) : (
+                  <View style={styles.placeholder}>
+                    <Ionicons name="image-outline" size={80} color="#bbb" />
+                    <Text style={styles.placeholderText}>No image selected</Text>
+                    <Text style={styles.placeholderTextSmall}>(Take or select a picture of a food item or barcode)</Text>
+                  </View>
+                )}
+              </View>
+            )}
 
-            {/* Action Buttons */}
-            <View style={styles.buttonContainer}>
-              <Button
-                title="Take Picture of Barcode"
-                onPress={handleTakePicture}
-                disabled={loading}
-                color="#4CAF50"
-              />
-              <View style={{ marginVertical: 10 }} />
-              <Button
-                title="Select Picture from Gallery"
-                onPress={handleSelectPicture}
-                disabled={loading}
-                color="#6c757d"
-              />
-            </View>
+            {/* Action Buttons - Only shown on native platforms */}
+            {Platform.OS !== 'web' && (
+              <View style={styles.buttonContainer}>
+                <Button
+                  title="Take Picture of Barcode"
+                  onPress={handleTakePicture}
+                  disabled={loading}
+                  color="#4CAF50"
+                />
+                <View style={{ marginVertical: 10 }} />
+                <Button
+                  title="Select Picture from Gallery"
+                  onPress={handleSelectPicture}
+                  disabled={loading}
+                  color="#6c757d"
+                />
+              </View>
+            )}
 
-            {/* Manual Barcode Input */}
+            {/* Manual Barcode Input - Always shown */}
             <View style={styles.manualInputContainer}>
               <Text style={styles.inputLabel}>Or Enter Barcode Manually:</Text>
               <TextInput
@@ -317,26 +354,27 @@ function BarcodeScannerScreen() {
 }
 
 const styles = StyleSheet.create({
+  // General styling for all tabs (copied from LogFood example)
   container: {
     flexGrow: 1,
     alignItems: "center",
     padding: 20,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#f8f8f8', // Added background for consistency
   },
   titleText: {
     fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 20,
-    color: '#2c3e50',
+    marginBottom: 20, // Added margin for spacing
+    color: '#2c3e50', // Added color for consistency
   },
   heading1Text: {
     fontSize: 20,
     fontWeight: "bold",
   },
   heading2Text: {
-    fontSize: 20,
+    fontSize: 20, // Increased for better visibility in result card
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 10, // Added for spacing
     color: '#333',
   },
   heading3Text: {
@@ -369,22 +407,31 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "space-evenly",
   },
+
+  // NEW: Responsive width for the main content card to prevent squishing
+  mainContentWidth: {
+    width: '100%', // Take full width on small screens
+    maxWidth: 500, // Max width on larger screens (e.g., tablets/desktops)
+    alignItems: 'center', // Center content horizontally within this view
+  },
+
+  // Specific styling for the barcode scanner tab
   imageContainer: {
-    width: '80%',
-    aspectRatio: 1,
+    width: '95%', // Increased width to give more space
+    aspectRatio: 1, // Makes it a square
     borderRadius: 15,
     backgroundColor: '#eef2f5',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 20, // Adjusted margin
     overflow: 'hidden',
-    borderWidth: 1,
+    borderWidth: 1, // Adjusted border width
     borderColor: '#d0d8e0',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
+    shadowOffset: { width: 0, height: 3 }, // Adjusted shadow
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 4,
+    elevation: 4, // Android shadow
   },
   image: {
     width: '100%',
@@ -409,11 +456,11 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   buttonContainer: {
-    width: '100%',
-    paddingHorizontal: 10,
+    width: '100%', // Ensure buttons take full width within card content
+    // Removed paddingHorizontal: 10, to allow buttons to stretch more
   },
   manualInputContainer: {
-    width: '90%',
+    width: '95%', // Increased width for better spacing
     marginTop: 20,
     alignItems: 'center',
     padding: 10,
@@ -492,13 +539,13 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
     borderRadius: 15,
-    width: '100%',
+    width: '100%', // Take full width of card content
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 6,
-    marginBottom: 10,
+    marginBottom: 10, // Adjust for ScrollView
   },
   resultTitle: {
     fontSize: 22,
