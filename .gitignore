@@ -18,7 +18,7 @@ frontend/expo-env.d.ts
 # backend
 # --------------------------------
 backend/.settings
-backend/target 
+backend/target
 backend/.mvn
 
 # --------------------------------
@@ -27,12 +27,10 @@ backend/.mvn
 .expo
 .expo-env.d.ts
 
-
 # --------------------------------
 # firebase
 # --------------------------------
 **/firebase-service-account.json 
-
 
 # --------------------------------
 # setIsPro
