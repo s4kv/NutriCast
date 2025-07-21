@@ -1,6 +1,6 @@
 import axios from "axios";
 
-//const BASE_URL = "https://nutricast-462020.ue.r.appspot.com/"; // Adjust this URL as needed
+// const BASE_URL = "https://nutricast-462020.ue.r.appspot.com/"; // Adjust this URL as needed
 const BASE_URL = "http://localhost:8080";
 
 const api = axios.create({
