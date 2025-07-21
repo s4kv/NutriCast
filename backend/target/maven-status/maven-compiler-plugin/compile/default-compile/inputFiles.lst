@@ -1,46 +1,53 @@
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\BackendApplication.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\config\OpenAIConfig.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\config\WebConfig.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\BarcodeController.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\ChatController.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\ChatOpenAIController.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\FoodController.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\FoodLogController.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\FriendRequestController.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\NutriMealController.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\NutritionController.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\UserController.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\dto\MessageDTO.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\BarcodeRequest.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\Chat.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\Food.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\FoodLog.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\FoodLogRequest.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\FoodMacros.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\FoodRequest.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\FoodType.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\FriendRequest.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\Meal.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\Message.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\NutriCastPictureRequest.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\NutriCastPictureResponse.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\NutriMealRequest.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\NutriMealResponse.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\ScannedFoodItem.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\User.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\UserSignUpRequest.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\repositories\ChatRepository.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\repositories\FoodLogRepository.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\repositories\FoodRepository.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\repositories\FriendRequestRepository.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\repositories\UserRepository.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\ChatService.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\FirebaseAuthService.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\FoodLogService.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\FoodService.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\FriendRequestService.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\NutritionService.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\OpenAIBarcodeService.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\OpenAIChatService.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\OpenAINutriMealService.java
-D:\School\Georgia Tech\SUMMER 2025\CS3300\Project\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\UserService.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\BackendApplication.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\config\OpenAIConfig.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\config\WebConfig.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\BarcodeController.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\ChatController.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\ChatOpenAIController.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\FoodController.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\FoodLogController.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\FriendRequestController.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\NutriMealController.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\NutritionController.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\RestaurantController.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\controllers\UserController.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\dto\MessageDTO.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\BarcodeRequest.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\Chat.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\Food.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\FoodLog.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\FoodLogRequest.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\FoodMacros.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\FoodRequest.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\FoodType.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\FriendRequest.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\Geometry.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\GeometryDeserializer.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\Meal.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\Message.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\NutriCastPictureRequest.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\NutriCastPictureResponse.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\NutriMealRequest.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\NutriMealResponse.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\Properties.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\Restaurant.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\ScannedFoodItem.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\State.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\User.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\models\UserSignUpRequest.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\repositories\ChatRepository.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\repositories\FoodLogRepository.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\repositories\FoodRepository.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\repositories\FriendRequestRepository.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\repositories\StateRepository.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\repositories\UserRepository.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\ChatService.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\FirebaseAuthService.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\FoodLogService.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\FoodService.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\FriendRequestService.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\NutritionService.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\OpenAIBarcodeService.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\OpenAIChatService.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\OpenAINutriMealService.java
+C:\Users\cabrinho\Documents\NutriCast\NutriCast\backend\src\main\java\com\cs3300g1\backend\services\UserService.java
