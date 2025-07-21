@@ -29,24 +29,24 @@ export default function AddFood() {
   const [foodFat, setFoodFat] = useState(""); // Total fat of the food (g)
   const [foodCarb, setFoodCarb] = useState(""); // Total carbohydrates of the food (g)
   const [foodProtein, setFoodProtein] = useState(""); // Total protein of the food (g)
-  const [isFoodNameFocus, setIsFoodNameFocus] = useState<Boolean>(false); // Whether the text input of name is focus or not
+  const [isFoodNameFocus, setIsFoodNameFocus] = useState<boolean>(false); // Whether the text input of name is focus or not
   const [isFoodServingSizeFocus, setIsFoodServingSizeFocus] =
-    useState<Boolean>(false); // Whether the text input of serving size is focus or not
+    useState<boolean>(false); // Whether the text input of serving size is focus or not
   const [isFoodServingSizeUnitFocus, setIsFoodServingSizeUnitFocus] =
-    useState<Boolean>(false); // Whether the text input of serving size unit is focus or not
-  const [isFoodCalorieFocus, setIsFoodCalorieFocus] = useState<Boolean>(false); // Whether the text input of calories is focus or not
-  const [isFoodFatFocus, setIsFoodFatFocus] = useState<Boolean>(false); // Whether the text input of fat is focus or not
-  const [isFoodCarbFocus, setIsFoodCarbFocus] = useState<Boolean>(false); // Whether the text input of carbohyrdates is focus or not
-  const [isFoodProteinFocus, setIsFoodProteinFocus] = useState<Boolean>(false); // Whether the text input of protein is focus or not
-  var [isFoodNameEmpty, setIsFoodNameEmpty] = useState<Boolean>(); // Makes the food name field required
-  var [isFoodTypeEmpty, setIsFoodTypeEmpty] = useState<Boolean>(); // Makes the food type field required
-  var [isFoodServingSizeEmpty, setIsFoodServingSizeEmpty] = useState<Boolean>(); // Makes the food serving size required
-  var [isFoodServingSizeUnitEmpty, setIsFoodServingSizeUnitEmpty] =
-    useState<Boolean>(); // Makes the food serving size unit field required
-  var [isFoodCalorieEmpty, setIsFoodCalorieEmpty] = useState<Boolean>(); // Makes the food calories field required
-  var [isFoodFatEmpty, setIsFoodFatEmpty] = useState<Boolean>(); // Makes the food fat field required
-  var [isFoodCarbEmpty, setIsFoodCarbEmpty] = useState<Boolean>(); // Makes the food carb field required
-  var [isFoodProteinEmpty, setIsFoodProteinEmpty] = useState<Boolean>(); // Makes the food protein field required
+    useState<boolean>(false); // Whether the text input of serving size unit is focus or not
+  const [isFoodCalorieFocus, setIsFoodCalorieFocus] = useState<boolean>(false); // Whether the text input of calories is focus or not
+  const [isFoodFatFocus, setIsFoodFatFocus] = useState<boolean>(false); // Whether the text input of fat is focus or not
+  const [isFoodCarbFocus, setIsFoodCarbFocus] = useState<boolean>(false); // Whether the text input of carbohyrdates is focus or not
+  const [isFoodProteinFocus, setIsFoodProteinFocus] = useState<boolean>(false); // Whether the text input of protein is focus or not
+  let [isFoodNameEmpty, setIsFoodNameEmpty] = useState<boolean>(); // Makes the food name field required
+  let [isFoodTypeEmpty, setIsFoodTypeEmpty] = useState<boolean>(); // Makes the food type field required
+  let [isFoodServingSizeEmpty, setIsFoodServingSizeEmpty] = useState<boolean>(); // Makes the food serving size required
+  let [isFoodServingSizeUnitEmpty, setIsFoodServingSizeUnitEmpty] =
+    useState<boolean>(); // Makes the food serving size unit field required
+  let [isFoodCalorieEmpty, setIsFoodCalorieEmpty] = useState<boolean>(); // Makes the food calories field required
+  let [isFoodFatEmpty, setIsFoodFatEmpty] = useState<boolean>(); // Makes the food fat field required
+  let [isFoodCarbEmpty, setIsFoodCarbEmpty] = useState<boolean>(); // Makes the food carb field required
+  let [isFoodProteinEmpty, setIsFoodProteinEmpty] = useState<boolean>(); // Makes the food protein field required
 
   // Sends all the data to the backend to save the food on mongoDb.
   const addFood = async () => {
@@ -88,14 +88,14 @@ export default function AddFood() {
   // If any of the fields are empty, then tell the user that the field that is empty is required.
   // If all the fields are not empty, then continue with the POST action.
   const checkForm = () => {
-    isFoodNameEmpty = foodName.trim() == "";
+    isFoodNameEmpty = foodName.trim() === "";
     isFoodTypeEmpty = foodType == null;
-    isFoodServingSizeEmpty = foodServingSize.trim() == "";
-    isFoodServingSizeUnitEmpty = foodServingSizeUnit.trim() == "";
-    isFoodCalorieEmpty = foodCalorie.trim() == "";
-    isFoodFatEmpty = foodFat.trim() == "";
-    isFoodCarbEmpty = foodCarb.trim() == "";
-    isFoodProteinEmpty = foodProtein.trim() == "";
+    isFoodServingSizeEmpty = foodServingSize.trim() === "";
+    isFoodServingSizeUnitEmpty = foodServingSizeUnit.trim() === "";
+    isFoodCalorieEmpty = foodCalorie.trim() === "";
+    isFoodFatEmpty = foodFat.trim() === "";
+    isFoodCarbEmpty = foodCarb.trim() === "";
+    isFoodProteinEmpty = foodProtein.trim() === "";
     setIsFoodNameEmpty(isFoodNameEmpty);
     setIsFoodTypeEmpty(isFoodTypeEmpty);
     setIsFoodServingSizeEmpty(isFoodServingSizeEmpty);
@@ -129,10 +129,10 @@ export default function AddFood() {
                 value={foodName}
                 onChangeText={(text) => {
                   setFoodName(text);
-                  setIsFoodNameFocus(text != "");
+                  setIsFoodNameFocus(text !== "");
                 }}
                 onBlur={(event) => {
-                  setIsFoodNameFocus(event.nativeEvent.text != "");
+                  setIsFoodNameFocus(event.nativeEvent.text !== "");
                 }}
                 style={
                   isFoodNameFocus ? styles.textInputFocus : styles.textInputBlur
@@ -168,10 +168,10 @@ export default function AddFood() {
                 value={foodServingSize}
                 onChangeText={(text) => {
                   setFoodServingSize(text);
-                  setIsFoodServingSizeFocus(text != "");
+                  setIsFoodServingSizeFocus(text !== "");
                 }}
                 onBlur={(event) => {
-                  setIsFoodServingSizeFocus(event.nativeEvent.text != "");
+                  setIsFoodServingSizeFocus(event.nativeEvent.text !== "");
                 }}
                 keyboardType="numeric"
                 style={
@@ -191,10 +191,10 @@ export default function AddFood() {
                 value={foodServingSizeUnit}
                 onChangeText={(text) => {
                   setFoodServingSizeUnit(text);
-                  setIsFoodServingSizeUnitFocus(text != "");
+                  setIsFoodServingSizeUnitFocus(text !== "");
                 }}
                 onBlur={(event) => {
-                  setIsFoodServingSizeUnitFocus(event.nativeEvent.text != "");
+                  setIsFoodServingSizeUnitFocus(event.nativeEvent.text !== "");
                 }}
                 style={
                   isFoodServingSizeUnitFocus
@@ -216,10 +216,10 @@ export default function AddFood() {
                 value={foodCalorie}
                 onChangeText={(text) => {
                   setFoodCalorie(text);
-                  setIsFoodCalorieFocus(text != "");
+                  setIsFoodCalorieFocus(text !== "");
                 }}
                 onBlur={(event) => {
-                  setIsFoodCalorieFocus(event.nativeEvent.text != "");
+                  setIsFoodCalorieFocus(event.nativeEvent.text !== "");
                 }}
                 keyboardType="numeric"
                 style={
@@ -239,10 +239,10 @@ export default function AddFood() {
                 value={foodFat}
                 onChangeText={(text) => {
                   setFoodFat(text);
-                  setIsFoodFatFocus(text != "");
+                  setIsFoodFatFocus(text !== "");
                 }}
                 onBlur={(event) => {
-                  setIsFoodFatFocus(event.nativeEvent.text != "");
+                  setIsFoodFatFocus(event.nativeEvent.text !== "");
                 }}
                 keyboardType="numeric"
                 style={
@@ -260,10 +260,10 @@ export default function AddFood() {
                 value={foodCarb}
                 onChangeText={(text) => {
                   setFoodCarb(text);
-                  setIsFoodCarbFocus(text != "");
+                  setIsFoodCarbFocus(text !== "");
                 }}
                 onBlur={(event) => {
-                  setIsFoodCarbFocus(event.nativeEvent.text != "");
+                  setIsFoodCarbFocus(event.nativeEvent.text !== "");
                 }}
                 keyboardType="numeric"
                 style={
@@ -281,10 +281,10 @@ export default function AddFood() {
                 value={foodProtein}
                 onChangeText={(text) => {
                   setFoodProtein(text);
-                  setIsFoodProteinFocus(text != "");
+                  setIsFoodProteinFocus(text !== "");
                 }}
                 onBlur={(event) => {
-                  setIsFoodProteinFocus(event.nativeEvent.text != "");
+                  setIsFoodProteinFocus(event.nativeEvent.text !== "");
                 }}
                 keyboardType="numeric"
                 style={
