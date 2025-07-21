@@ -9,12 +9,12 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 interface FoodLog {
-  id: String,
-  userId: String,
-  foodId: String,
-  meal: String,
+  id: string,
+  userId: string,
+  foodId: string,
+  meal: string,
   noOfServings: number,
-  timeStamp: String
+  timeStamp: string
 }
 
 export default function FriendProfile() {
@@ -63,7 +63,7 @@ export default function FriendProfile() {
   return (
     <ScrollView>
           <View style={styles.container}>
-            <Text style={styles.titleText}> {friendEmail}'s NutriCast Dashboard</Text>
+            <Text style={styles.titleText}> {friendEmail}&apos;s NutriCast Dashboard</Text>
             <div style={{ padding: 10 }}>
               <Text style={styles.heading1Text}>Today</Text>
               <Card mode="elevated">
@@ -114,7 +114,7 @@ export default function FriendProfile() {
                 <Card.Content>
                   <Card.Title title='Food Logged Today'/>
                   <Card.Content style={styles.flexColumn}>
-                      {foodLogs.length == 0 ?
+                      {foodLogs.length === 0 ?
                         <View>
                           <div style={styles.flexColumn}>
                             <div style={styles.foodLogContainer}>
@@ -147,7 +147,7 @@ export default function FriendProfile() {
                                 <div style={styles.foodLogContainer}>
                                   <div style={styles.mealContainer}>
                                     <Text style={styles.customHeading2Text}>Breakfast</Text>
-                                    {foodLog.meal == "BREAKFAST" &&
+                                    {foodLog.meal === "BREAKFAST" &&
                                       <div style={styles.flexRowCenter}>
                                         <div>
                                           <Text>{JSON.stringify(foodLog)}</Text>
@@ -161,7 +161,7 @@ export default function FriendProfile() {
                                 <div style={styles.foodLogContainer}>
                                   <div style={styles.mealContainer}>
                                     <Text style={styles.customHeading2Text}>Lunch</Text>
-                                    {foodLog.meal == "LUNCH" &&
+                                    {foodLog.meal === "LUNCH" &&
                                       <div style={styles.flexRowCenter}>
                                         <div>
                                           <Text>{JSON.stringify(foodLog)}</Text>
@@ -175,7 +175,7 @@ export default function FriendProfile() {
                                 <div style={styles.foodLogContainer}>
                                   <div style={styles.mealContainer}>
                                     <Text style={styles.customHeading2Text}>Dinner</Text>
-                                    {foodLog.meal == "DINNER" &&
+                                    {foodLog.meal === "DINNER" &&
                                       <div style={styles.flexRowCenter}>
                                         <div>
                                           <Text>{JSON.stringify(foodLog)}</Text>
@@ -189,7 +189,7 @@ export default function FriendProfile() {
                                 <div style={styles.foodLogContainer}>
                                   <div style={styles.mealContainer}>
                                     <Text style={styles.customHeading2Text}>Snack</Text>
-                                    {foodLog.meal == "SNACK" &&
+                                    {foodLog.meal === "SNACK" &&
                                       <div style={styles.flexRowCenter}>
                                         <div>
                                           <Text>{JSON.stringify(foodLog)}</Text>

@@ -7,12 +7,12 @@ import backend from "../../services/backend";
 import { useAuth } from "../../services/auth-context";
 
 interface Food {
-  id: String;
-  userId: String;
-  name: String;
+  id: string;
+  userId: string;
+  name: string;
   type: FoodType;
   servingSize: number;
-  servingUnit: String;
+  servingUnit: string;
   macros: FoodMacros;
 }
 
@@ -37,15 +37,15 @@ export default function LogFood() {
   const router = useRouter(); // To redirect to other tabs
   const [search, setSearch] = useState(""); // What the user searches for
   const [foods, setFoods] = useState<Food[]>([]); // List of foods that the user adds
-  const [isSearchFocus, setIsSearchFocus] = useState<Boolean>(false);
-  const [isAddFoodButtonHovered, setIsAddFoodButtonHovered] = useState<Boolean>(false);
-  const [hoveredFoodId, setHoveredFoodId] = useState<String | null>(null);
+  const [isSearchFocus, setIsSearchFocus] = useState<boolean>(false);
+  const [isAddFoodButtonHovered, setIsAddFoodButtonHovered] = useState<boolean>(false);
+  const [hoveredFoodId, setHoveredFoodId] = useState<string | null>(null);
 
   const redirectToAddFoodTab = () => {
     router.push("/food/add-food");
   };
 
-  const redirectToAddFoodLogTab = (foodId: String) => {
+  const redirectToAddFoodLogTab = (foodId: string) => {
     router.push({
       pathname: "/food/add-food-log",
       params: { foodId: String(foodId) },
@@ -57,7 +57,7 @@ export default function LogFood() {
   // TODO: So, we need to implement the backend where it can get the user's added foods without
   // TODO: searching for the food with the exact name. It should be able to get "Chicken Breast"
   // TODO: if the user searches "Chicken" in the search bar.
-  const searchFoods = async (text: String) => {
+  const searchFoods = async (text: string) => {
     try {
       console.log(`/api/users/${user?.email}/foods/${text}`);
       const response = await backend.get(
@@ -144,7 +144,7 @@ export default function LogFood() {
                 value={search}
                 onChangeText={(text) => {
                   setSearch(text);
-                  text == "" ? searchFoods('all') : searchFoods(text);
+                  text === "" ? searchFoods('all') : searchFoods(text);
                 }}
                 onFocus={() => {
                   setIsSearchFocus(true);
@@ -222,7 +222,7 @@ export default function LogFood() {
         <ScrollView style={{
           height: '100%'
         }}>
-          {foods.length == 0 ?
+          {foods.length === 0 ?
             (
               <View style={{
                 paddingTop: 10
@@ -303,7 +303,7 @@ export default function LogFood() {
                             onHoverOut={() => {
                               setHoveredFoodId(null);
                             }}
-                            style={ hoveredFoodId == foods.id ?
+                            style={ hoveredFoodId === foods.id ?
                               {
                                 borderRadius: 10,
                                 backgroundColor: '#D1EAE2'
