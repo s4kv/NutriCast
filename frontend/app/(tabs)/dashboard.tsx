@@ -1,46 +1,9 @@
-/**
- * This file is responsible for the dashboard screen of NutriCast.
- * It will include:
- * - a circular progress bar of the calories consumed today by default with the amount of calories consumed from food and burned from exercise.
- * - goals for the day like number of steps and calories burned from exercise where the user can set their own personalized goals.
- * - a line chart of the user's weight and number of steps over days.
- *
- * GOALS:
- * - Implement the circular progress bar to show calories consumed in the day. (In Progress)
- * - Implement the daily goals.
- * - Implement the line chart to show the user's weight.
- *
-  * TODO:
- * - Implement the circular progress bar to show calories consumed in the day.
- * 
- * COMPLETED:
- * - When a user makes an account from firebase, it also adds the user's account information to mongoDB.
- * - User can change their calorie goal
- * - Made UI for log food tab.
- * - Make addFood.tsx frontend file.
- * - Update Food.java model to include the userId of the user adding the food.
- * - Update FoodRepository.java to include a method called findByNameAndUserId.
- * - Test it on BackendApplication.java to make sure all methods in FoodRepository.java work.
- * - Make FoodService.java to handle all business logic.
- * - Make FoodController.java to handle all api endpoints.
- *    - Make @PostMapping method in FoodController.java which saves the food into mongoDB.
- *    - Make @GetMapping method in FoodController.java which shows the list of foods from mongoDB.
- * - Update log-food.tsx file to use the backend to get the food data.
- * - Users can add food seamlessly in the application.
- * - Users can log food seamlessly in the application.
- * - Change dashboard UI.
- * - fix [friendEmail].tsx
- * - Make a page where the user can add food manually and log food manually.
- */
-
 import React, { useEffect, useState } from "react";
-import { ScrollView, View, Text, StyleSheet, Animated, Button, Pressable } from "react-native";
-import { Card } from "react-native-paper";
+import { ScrollView, View, Text, StyleSheet, Pressable } from "react-native";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { useAuth } from "../../services/auth-context";
 import backend from "../../services/backend";
-import { Circle } from "react-native-svg";
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import { Circle } from "react-native-svg"; 
 import * as Emoji from "node-emoji";
 import { useRouter } from "expo-router";
 
