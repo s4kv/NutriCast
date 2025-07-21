@@ -1,11 +1,11 @@
 /* app/chat/[friendUsername].tsx */
-import React, { useCallback, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View, FlatList, TextInput, Pressable,
   KeyboardAvoidingView, Platform, StyleSheet
 } from "react-native";
-import { Stack, useLocalSearchParams, useFocusEffect } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";        /* ← icon import */
+import { Stack, useLocalSearchParams } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { firebaseAuth } from "../../services/firebase";
 import { getIdToken } from "firebase/auth";
 import api from "../../services/backend";
@@ -22,30 +22,38 @@ type Message = {
 
 export default function ChatScreen() {
   const { friendUsername } = useLocalSearchParams<{ friendUsername: string }>();
-
   const flatRef = useRef<FlatList>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
 
-  /* -------- load on every focus -------- */
-  useFocusEffect(
-    useCallback(() => {
-      const load = async () => {
-        try {
-          const token = await getIdToken(firebaseAuth.currentUser!, true);
-          const { data } = await api.get<Message[]>(
-            `/api/friends/chats/with/${friendUsername}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
+  /* -------- polling -------- */
+  useEffect(() => {
+    let isMounted = true;
+
+    const load = async () => {
+      try {
+        const token = await getIdToken(firebaseAuth.currentUser!, true);
+        const { data } = await api.get<Message[]>(
+          `/api/friends/chats/with/${friendUsername}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (isMounted) {
           setMessages(data);
-          setTimeout(() => flatRef.current?.scrollToEnd({ animated: false }), 0);
-        } catch (e) {
-          console.error("Chat load error", e);
+          flatRef.current?.scrollToEnd({ animated: true });
         }
-      };
-      load();
-    }, [friendUsername])
-  );
+      } catch (e) {
+        console.error("Polling error", e);
+      }
+    };
+
+    load(); // initial load
+    const interval = setInterval(load, 3000); // fetch every 3 seconds
+
+    return () => {
+      clearInterval(interval);
+      isMounted = false;
+    };
+  }, [friendUsername]);
 
   /* -------- send -------- */
   const send = async () => {
@@ -115,6 +123,6 @@ const styles = StyleSheet.create({
   sendBtn: {
     width: 48, height: 48, marginLeft: 8,
     borderRadius: 24, backgroundColor: "#007aff",
-    justifyContent: "center", alignItems: "center",   /* centered icon */
+    justifyContent: "center", alignItems: "center",
   },
 });
