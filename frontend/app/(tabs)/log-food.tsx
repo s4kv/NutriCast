@@ -39,7 +39,7 @@ export default function LogFood() {
   const [foods, setFoods] = useState<Food[]>([]); // List of foods that the user adds
   const [isSearchFocus, setIsSearchFocus] = useState<Boolean>(false);
   const [isAddFoodButtonHovered, setIsAddFoodButtonHovered] = useState<Boolean>(false);
-  const [isLogFoodButtonHovered, setIsLogFoodButtonHovered] = useState<Boolean>(false);
+  const [hoveredFoodId, setHoveredFoodId] = useState<String | null>(null);
 
   const redirectToAddFoodTab = () => {
     router.push("/food/add-food");
@@ -242,7 +242,8 @@ export default function LogFood() {
               }}>
                 {foods.map((foods, index) => (
                   <View key={index} style={{
-                    paddingTop: 10,
+                    paddingTop: 5,
+                    paddingBottom: 5
                   }}>
                     <View style={{
                       shadowColor: '#000',
@@ -291,18 +292,18 @@ export default function LogFood() {
                               redirectToAddFoodLogTab(foods.id)
                             }}
                             onPressIn={() => {
-                              setIsLogFoodButtonHovered(true);
+                              setHoveredFoodId(foods.id);
                             }}
                             onPressOut={() => {
-                              setIsLogFoodButtonHovered(false);
+                              setHoveredFoodId(null);
                             }}
                             onHoverIn={() => {
-                              setIsLogFoodButtonHovered(true);
+                              setHoveredFoodId(foods.id);
                             }}
                             onHoverOut={() => {
-                              setIsLogFoodButtonHovered(false);
+                              setHoveredFoodId(null);
                             }}
-                            style={ isLogFoodButtonHovered ?
+                            style={ hoveredFoodId == foods.id ?
                               {
                                 borderRadius: 10,
                                 backgroundColor: '#D1EAE2'

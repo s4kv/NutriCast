@@ -50,10 +50,12 @@ export default function editCalorieGoalCard() {
   });
 
   return (
-    <ScrollView>
-      <View style={{ 
+    <ScrollView style={{
+      height: '100%',
+      backgroundColor: '#FCFDF7'
+    }}>
+      <View style={{
         padding: 10,
-        backgroundColor: '#FCFDF7'
       }}>
         <View style={{
           display: 'flex',
