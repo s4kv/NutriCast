@@ -18,27 +18,27 @@ import lombok.Setter;
 public class ScannedFoodItem {
 
   @JsonProperty("name_of_the_food") // Field name expected from OpenAI
-  private String name;
+  private String name_of_the_food;
 
   @JsonProperty("barcode_scanned") // Field name expected from OpenAI
-  private String barcode;
+  private String barcode_scanned;
 
   // This will map the nested JSON object from OpenAI to your FoodMacros class
   @JsonProperty("nutritional_macros") // A descriptive name for the nested macros object
-  private FoodMacros nutritionalMacros;
+  private FoodMacros nutritional_macros;
 
   // Optionally, for logging/debugging:
   @Override
   public String toString() {
     return "ScannedFoodItem{"
         + "name='"
-        + name
+        + name_of_the_food
         + '\''
         + ", barcode='"
-        + barcode
+        + barcode_scanned
         + '\''
-        + ", nutritionalMacros="
-        + nutritionalMacros
+        + ", nutritional_macros="
+        + nutritional_macros
         + '}';
   }
 }
