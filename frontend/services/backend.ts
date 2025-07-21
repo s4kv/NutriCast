@@ -1,7 +1,7 @@
 import axios from "axios";
 
-//const BASE_URL = "https://nutricast-462020.ue.r.appspot.com/"; // Adjust this URL as needed
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = "https://nutricast-462020.ue.r.appspot.com/"; // Adjust this URL as needed
+// const BASE_URL = "http://localhost:8080";
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -79,8 +79,28 @@ interface BarcodeRequest {
   barcode: string;
 }
 
-export async function sendBarcodeToBackend(barcode: string): Promise<ScannedFoodItem> {
-  const requestBody: BarcodeRequest = { barcode: barcode };
+/* ------------------------------------------------------------------
+   Helper: Send barcode string to backend for analysis (for manual input)
+   ------------------------------------------------------------------ */
+interface BarcodeRequest {
+  barcode: string; // This matches the 'barcode' property expected by the backend
+}
+
+// CRITICAL FIX: Changed parameter type from 'string' to 'BarcodeRequest' object
+export async function sendBarcodeToBackend(requestBody: BarcodeRequest): Promise<ScannedFoodItem> {
   const response = await api.post<ScannedFoodItem>("/api/barcode/scan", requestBody);
+  return response.data;
+}
+
+/* ------------------------------------------------------------------
+   NEW HELPER: Send Base64 image to backend for barcode extraction and analysis
+   ------------------------------------------------------------------ */
+interface ImageBarcodeRequest {
+  imageUri: string; // Base64 string
+}
+
+export async function sendImageForBarcodeExtraction(requestBody: ImageBarcodeRequest): Promise<ScannedFoodItem> {
+  // This is the new endpoint on your backend that will handle image processing
+  const response = await api.post<ScannedFoodItem>("/api/barcode/extract-and-scan", requestBody);
   return response.data;
 }
