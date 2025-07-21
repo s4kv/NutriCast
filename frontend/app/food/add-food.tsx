@@ -31,27 +31,27 @@ export default function AddFood() {
   const [foodFat, setFoodFat] = useState(""); // Total fat of the food (g)
   const [foodCarb, setFoodCarb] = useState(""); // Total carbohydrates of the food (g)
   const [foodProtein, setFoodProtein] = useState(""); // Total protein of the food (g)
-  const [isFoodNameFocus, setIsFoodNameFocus] = useState<Boolean>(false); // Whether the text input of name is focus or not
-  const [isFoodTypeFocus, setIsFoodTypeFocus] = useState<Boolean>(false);
+  const [isFoodNameFocus, setIsFoodNameFocus] = useState<boolean>(false); // Whether the text input of name is focus or not
+  const [isFoodTypeFocus, setIsFoodTypeFocus] = useState<boolean>(false);
   const [isFoodServingSizeFocus, setIsFoodServingSizeFocus] =
-    useState<Boolean>(false); // Whether the text input of serving size is focus or not
+    useState<boolean>(false); // Whether the text input of serving size is focus or not
   const [isFoodServingSizeUnitFocus, setIsFoodServingSizeUnitFocus] =
-    useState<Boolean>(false); // Whether the text input of serving size unit is focus or not
-  const [isFoodCalorieFocus, setIsFoodCalorieFocus] = useState<Boolean>(false); // Whether the text input of calories is focus or not
-  const [isFoodFatFocus, setIsFoodFatFocus] = useState<Boolean>(false); // Whether the text input of fat is focus or not
-  const [isFoodCarbFocus, setIsFoodCarbFocus] = useState<Boolean>(false); // Whether the text input of carbohyrdates is focus or not
-  const [isFoodProteinFocus, setIsFoodProteinFocus] = useState<Boolean>(false); // Whether the text input of protein is focus or not
-  const [isAddFoodButtonHovered, setIsAddFoodButtonHovered] = useState<Boolean>(false);
+    useState<boolean>(false); // Whether the text input of serving size unit is focus or not
+  const [isFoodCalorieFocus, setIsFoodCalorieFocus] = useState<boolean>(false); // Whether the text input of calories is focus or not
+  const [isFoodFatFocus, setIsFoodFatFocus] = useState<boolean>(false); // Whether the text input of fat is focus or not
+  const [isFoodCarbFocus, setIsFoodCarbFocus] = useState<boolean>(false); // Whether the text input of carbohyrdates is focus or not
+  const [isFoodProteinFocus, setIsFoodProteinFocus] = useState<boolean>(false); // Whether the text input of protein is focus or not
+  const [isAddFoodButtonHovered, setIsAddFoodButtonHovered] = useState<boolean>(false);
 
-  var [isFoodNameEmpty, setIsFoodNameEmpty] = useState<Boolean>(); // Makes the food name field required
-  var [isFoodTypeEmpty, setIsFoodTypeEmpty] = useState<Boolean>(); // Makes the food type field required
-  var [isFoodServingSizeEmpty, setIsFoodServingSizeEmpty] = useState<Boolean>(); // Makes the food serving size required
-  var [isFoodServingSizeUnitEmpty, setIsFoodServingSizeUnitEmpty] =
-    useState<Boolean>(); // Makes the food serving size unit field required
-  var [isFoodCalorieEmpty, setIsFoodCalorieEmpty] = useState<Boolean>(); // Makes the food calories field required
-  var [isFoodFatEmpty, setIsFoodFatEmpty] = useState<Boolean>(); // Makes the food fat field required
-  var [isFoodCarbEmpty, setIsFoodCarbEmpty] = useState<Boolean>(); // Makes the food carb field required
-  var [isFoodProteinEmpty, setIsFoodProteinEmpty] = useState<Boolean>(); // Makes the food protein field required
+  let [isFoodNameEmpty, setIsFoodNameEmpty] = useState<boolean>(); // Makes the food name field required
+  let [isFoodTypeEmpty, setIsFoodTypeEmpty] = useState<boolean>(); // Makes the food type field required
+  let [isFoodServingSizeEmpty, setIsFoodServingSizeEmpty] = useState<boolean>(); // Makes the food serving size required
+  let [isFoodServingSizeUnitEmpty, setIsFoodServingSizeUnitEmpty] =
+    useState<boolean>(); // Makes the food serving size unit field required
+  let [isFoodCalorieEmpty, setIsFoodCalorieEmpty] = useState<boolean>(); // Makes the food calories field required
+  let [isFoodFatEmpty, setIsFoodFatEmpty] = useState<boolean>(); // Makes the food fat field required
+  let [isFoodCarbEmpty, setIsFoodCarbEmpty] = useState<boolean>(); // Makes the food carb field required
+  let [isFoodProteinEmpty, setIsFoodProteinEmpty] = useState<boolean>(); // Makes the food protein field required
 
   const [data, setData] = useState([
     { label: "Item", value: FoodType.ITEM },
@@ -99,14 +99,14 @@ export default function AddFood() {
   // If any of the fields are empty, then tell the user that the field that is empty is required.
   // If all the fields are not empty, then continue with the POST action.
   const checkForm = () => {
-    isFoodNameEmpty = foodName.trim() == "";
-    isFoodTypeEmpty = foodType == null;
-    isFoodServingSizeEmpty = foodServingSize.trim() == "";
-    isFoodServingSizeUnitEmpty = foodServingSizeUnit.trim() == "";
-    isFoodCalorieEmpty = foodCalorie.trim() == "";
-    isFoodFatEmpty = foodFat.trim() == "";
-    isFoodCarbEmpty = foodCarb.trim() == "";
-    isFoodProteinEmpty = foodProtein.trim() == "";
+    isFoodNameEmpty = foodName.trim() === "";
+    isFoodTypeEmpty = foodType === null;
+    isFoodServingSizeEmpty = foodServingSize.trim() === "";
+    isFoodServingSizeUnitEmpty = foodServingSizeUnit.trim() === "";
+    isFoodCalorieEmpty = foodCalorie.trim() === "";
+    isFoodFatEmpty = foodFat.trim() === "";
+    isFoodCarbEmpty = foodCarb.trim() === "";
+    isFoodProteinEmpty = foodProtein.trim() === "";
     setIsFoodNameEmpty(isFoodNameEmpty);
     setIsFoodTypeEmpty(isFoodTypeEmpty);
     setIsFoodServingSizeEmpty(isFoodServingSizeEmpty);
