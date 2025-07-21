@@ -75,10 +75,12 @@ export default function Dashboard() {
   }, [user]);
 
   return (
-    <ScrollView>
+    <ScrollView style={{
+      height: '100%',
+      backgroundColor: '#FCFDF7'
+    }}>
       <View style={{
-        padding: 10,
-        backgroundColor: '#FCFDF7'
+        padding: 10
       }}>
         <View style={{
           paddingBottom: 20
