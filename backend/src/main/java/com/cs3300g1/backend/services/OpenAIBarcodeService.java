@@ -47,6 +47,7 @@ public class OpenAIBarcodeService {
             .model(ChatModel.GPT_4_1) // Use the same model as your other service
             .responseFormat(ScannedFoodItem.class) // <-- IMPORTANT: Target the new wrapper DTO
             .addUserMessageOfArrayOfContentParts(List.of(userMessagePart))
+            .temperature(0.0) // needed to keep answers consistent
             .build();
 
     // Send the request to OpenAI
