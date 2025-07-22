@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect} from 'react';
 import { View, Button, StyleSheet } from 'react-native';
 import MapboxGL from '@rnmapbox/maps'
@@ -6,7 +5,7 @@ import MapboxGL from '@rnmapbox/maps'
 //import FilterModal from './FilterModal'; // custom hook
 import * as dotenv from 'dotenv';
 import * as Location from 'expo-location';
-
+import backend from "../../services/backend"; 
 MapboxGL.setAccessToken(process.env.MAPBOX_API_KEY);
 
 type Restaurant = {
@@ -60,11 +59,16 @@ export default function MapScreen() {
   // get restaurants
   useEffect(() => {
     if (!stateName) return;
-    (async () => {
-      const res = await fetch(`http://localhost:8080/api/restaurants/by-state?state=${stateName}`);
-      const data = await res.json();
-      setRestaurants(data);
-    })();
+    backend.get(`/api/restaurants/by-state`, {
+      params: { state: stateName }
+    })
+    .then((res) => {
+      setRestaurants(Array.isArray(res.data) ? res.data : []);
+    })
+    .catch((error) => {
+      console.error("Error fetching restaurants:", error);
+      setRestaurants([]);
+    });
   }, [stateName]);
 
     useEffect(() => {
