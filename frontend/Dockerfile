@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 RUN <<EOF 
-npm install 
+npm install expo-localization --legacy-peer-deps
 npm install -g expo-cli@6.0.0
 EOF
 
