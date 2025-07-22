@@ -44,31 +44,60 @@ export default function Dashboard() {
   const router = useRouter();
   const { user, logout } = useAuth(); // Get the authenticated user from the auth context
   const [calorieGoal, setCalorieGoal] = useState(0); // User's goal for daily calorie intake
+  const [proteinGoal, setProteinGoal] = useState(0); // User's goal for daily protein intake
+  const [carbGoal, setCarbGoal] = useState(0); // User's goal for daily carb intake
+  const [fatGoal, setFatGoal] = useState(0); // User's goal for daily fat carb intake
   const [caloriesConsumed, setCaloriesConsumed] = useState(0); // User's calories consumed today
   const [caloriesBurned, setCaloriesBurned] = useState(0); // User's calories burned from exercise today
+  const [proteinConsumed, setProteinConsumed] = useState(0);
+  const [carbConsumed, setCarbConsumed] = useState(0);
+  const [fatConsumed, setFatConsumed] = useState(0);
   const [foodLogs, setFoodLogs] = useState<FoodLogDetailsDto[]>([]); // User's foodLogs today
-  const [foodLogMealTypes, setFoodLogMealTypes] = useState<string[]>(["BREAKFAST", "LUNCH", "DINNER", "SNACK"]); // Types of food log meal types
-
-  // gemini
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [response, setResponse] = useState<String | null>(null);
-
+  const [foodLogMealTypes] = useState<string[]>(["BREAKFAST", "LUNCH", "DINNER", "SNACK"]); // Types of food log meal types
+  const [isDashboardLoading, setIsDashboardLoading] = useState<Boolean>(false);
   const caloriesRemaining = calorieGoal - caloriesConsumed + caloriesBurned; // User's remaining calories for the day
   const netCalories = caloriesConsumed - caloriesBurned; // User's net calorie intake
   const percentOfCalorieGoal =
     calorieGoal > 0
       ? Math.min(Math.max((netCalories / calorieGoal) * 100, 0), 100)
       : 0; // User's percentage of completion to the calorie goal
-
-  const [isEditGoalButtonHovered, setIsEditGoalButtonHovered] =
-    useState<boolean>(false); // Whether the Edit Goal button is hovered on or not
+  const proteinRemaining = proteinGoal - proteinConsumed;
+  const percentOfProteinGoal =
+    proteinGoal > 0
+    ?
+    Math.min(Math.max((proteinConsumed / proteinGoal) * 100, 0), 100)
+    :
+    0;
+  const carbRemaining = carbGoal - carbConsumed;
+  const percentOfCarbGoal =
+    carbGoal > 0
+    ?
+    Math.min(Math.max((carbConsumed / carbGoal) * 100, 0), 100)
+    :
+    0;
+  const fatRemaining = fatGoal - fatConsumed;
+  const percentOfFatGoal =
+    fatGoal > 0
+    ?
+    Math.min(Math.max((fatConsumed / fatGoal) * 100, 0), 100)
+    :
+    0;
+  const [hoveredEditGoalButton, setHoveredEditGoalButton] = useState<string | null>(null);
   const [hoveredMealButton, setHoveredMealButton] = useState<string | null>(
-    null,
-  ); // Checks which + Log Food button is being hovered on
+    null
+  );
+  // gemini
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [response, setResponse] = useState<String | null>(null);
 
-  // Redirects the user to a new tab, edit-calories-card.
-  const redirectToEditCaloriesCard = () => {
-    router.push("/Nutrition/edit-calorie-goal-card");
+  // Redirects the user to the edit goal card tab.
+  const redirectToEditGoalCard = (nutrition: string) => {
+    router.push({
+      pathname: '/Nutrition/[nutrition]',
+      params: {
+        nutrition: nutrition
+      }
+    });
   };
 
   // Redirects the user to the log-food.tsx tab.
@@ -78,12 +107,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (user) {
+      setIsDashboardLoading(true);
       const userTimeZone = Localization.getCalendars()[0].timeZone;
 
-      // Get the user's calories logged today
+      // Get the user's nutritions logged today
       backend
         .get(
-          `/api/users/${user?.email}/nutrition/calories/today`, 
+          `/api/users/${user?.email}/nutrition/today`, 
           {
             headers: {
               'X-User-Time-Zone': userTimeZone
@@ -91,16 +121,26 @@ export default function Dashboard() {
           }
         )
         .then((response) => {
-          setCaloriesConsumed(response.data)
+          const nutritionData = response.data;
+          setCaloriesConsumed(nutritionData.calorie || 0);
+          setProteinConsumed(nutritionData.protein || 0);
+          setCarbConsumed(nutritionData.carbs || 0);
+          setFatConsumed(nutritionData.fat || 0);
         })
         .catch((error) => {
           console.error(error);
-        });
+        })
       
-      // Get the user's calorie goal
+      // Get the user's nutrition goal
       backend
-        .get(`/api/users/${user?.email}/nutrition/calories/goal`)
-        .then((response) => setCalorieGoal(response.data))
+        .get(`/api/users/${user?.email}/nutrition/goal`)
+        .then((response) => {
+          const nutritionGoalData = response.data;
+          setCalorieGoal(nutritionGoalData.calorie || 0);
+          setProteinGoal(nutritionGoalData.protein || 0);
+          setCarbGoal(nutritionGoalData.carbs || 0);
+          setFatGoal(nutritionGoalData.fat || 0);
+        })
         .catch((error) => {
           console.error(error);
         });
@@ -120,18 +160,26 @@ export default function Dashboard() {
         })
         .catch((error) => {
           console.error(error);
-        });
+        })
+        .finally(() => {
+          setIsDashboardLoading(false);
+        })
     }
   }, [user]);
 
-  // TODO: you should change this rex
   const gemini_analytics = async () => {
     if (!user) {
       console.error("User is not authenticated");
       return;
     }
     setIsLoading(true);
-    const message = `User ${user?.email} has logged ${caloriesConsumed} calories today, with a goal of ${calorieGoal} calories. The user has consumed ${netCalories} net calories. Based on this data, suggest a healthy meal plan for the user to meet their daily nutritional needs.`;
+    const message = 
+    `User ${user?.email} has logged ${caloriesConsumed} calories today, with a goal of ${calorieGoal} calories. 
+    The user has consumed ${netCalories} net calories. 
+    The user has logged ${proteinConsumed} grams of protein today, with a goal of ${proteinGoal} grams of protein.
+    The user has logged ${fatConsumed} grams of fat today, with a goal of ${fatGoal} grams of fat.
+    The user has logged ${carbConsumed} grams of carbohydrates today, with a goal of ${carbGoal} grams of carbohydrates.
+    Based on this data, suggest a meal plan for the user to meet their daily nutritional needs.`;
     const requestBody = {
       userMessage: message, // Use the argument
     };
@@ -147,497 +195,1178 @@ export default function Dashboard() {
   };
 
   return (
-    <ScrollView
+    <View
       style={{
-        height: "100%",
-        backgroundColor: "#FCFDF7",
+        flex: 1
       }}
     >
-      <View
+      <ScrollView
         style={{
-          padding: 10,
+          height: "100%",
+          backgroundColor: "#FCFDF7"
         }}
       >
         <View
           style={{
-            paddingBottom: 20,
+            padding: 10,
           }}
         >
-          <Text
-            style={{
-              fontFamily: "Nunito-Bold",
-              fontSize: 26,
-              textAlign: "center",
-            }}
-          >
-            Dashboard
-          </Text>
-          <Text
-            style={{
-              fontFamily: "Nunito-Regular",
-              fontSize: 14,
-              textAlign: "center",
-              color: "#6B7280",
-            }}
-          >
-            Your daily nutritional progress at a glance.
-          </Text>
-        </View>
-        <View style={{ width: "100%" }}>
-          <Text
-            style={{
-              fontFamily: "Nunito-Bold",
-              fontSize: 20,
-              paddingBottom: 15,
-              color: "#333333",
-            }}
-          >
-            Today
-          </Text>
           <View
             style={{
-              width: "100%",
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderRadius: 10,
-              borderColor: "grey",
-              backgroundColor: "#FFFFFF",
-            }}
-          >
-            <View
-              style={{
-                padding: 10,
-              }}
-            >
-              <Text
-                style={{
-                  fontFamily: "Nunito-Regular",
-                  fontSize: 16,
-                }}
-              >
-                Daily Calorie Progress
-              </Text>
-              <Pressable
-                onPress={redirectToEditCaloriesCard}
-                onPressIn={() => {
-                  setIsEditGoalButtonHovered(true);
-                }}
-                onPressOut={() => {
-                  setIsEditGoalButtonHovered(false);
-                }}
-                onHoverIn={() => {
-                  setIsEditGoalButtonHovered(true);
-                }}
-                onHoverOut={() => {
-                  setIsEditGoalButtonHovered(false);
-                }}
-                style={{
-                  position: "absolute",
-                  top: 10,
-                  right: 10,
-                }}
-              >
-                <Text
-                  style={
-                    isEditGoalButtonHovered
-                      ? {
-                          fontFamily: "Nunito-Regular",
-                          fontSize: 16,
-                          color: "#6a8970",
-                        }
-                      : {
-                          fontFamily: "Nunito-Regular",
-                          fontSize: 16,
-                          color: "#84a98c",
-                        }
-                  }
-                >
-                  Edit Goal
-                </Text>
-              </Pressable>
-            </View>
-            <View
-              style={{
-                paddingTop: 5,
-                paddingBottom: 5,
-              }}
-            >
-              <AnimatedCircularProgress
-                size={200}
-                width={10}
-                fill={percentOfCalorieGoal}
-                tintColor="#84a98c"
-                backgroundColor="#E0E0E0"
-                rotation={0}
-                renderCap={({ center }) => (
-                  <Circle cx={center.x} cy={center.y} r="5" fill="#84a98c" />
-                )}
-                style={{
-                  margin: "auto",
-                }}
-              >
-                {() => (
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: "Nunito-Bold",
-                        fontSize: 26,
-                      }}
-                    >
-                      {caloriesRemaining}
-                    </Text>
-                    <Text
-                      style={{
-                        fontFamily: "Nunito-Regular",
-                        fontSize: 14,
-                        color: "#6B7280",
-                      }}
-                    >
-                      Remaining
-                    </Text>
-                  </View>
-                )}
-              </AnimatedCircularProgress>
-            </View>
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-evenly",
-                paddingTop: 10,
-                paddingBottom: 10,
-              }}
-            >
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 20,
-                  }}
-                >
-                  {Emoji.emojify(":dart:")}
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: "Nunito-Bold",
-                    fontSize: 20,
-                  }}
-                >
-                  {calorieGoal}
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: "Nunito-Regular",
-                    fontSize: 14,
-                    color: "#6B7280",
-                  }}
-                >
-                  Goal
-                </Text>
-              </View>
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 20,
-                  }}
-                >
-                  {Emoji.emojify(":fork_and_knife:")}
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: "Nunito-Bold",
-                    fontSize: 20,
-                  }}
-                >
-                  {caloriesConsumed}
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: "Nunito-Regular",
-                    fontSize: 14,
-                    color: "#6B7280",
-                  }}
-                >
-                  Consumed
-                </Text>
-              </View>
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 20,
-                  }}
-                >
-                  {Emoji.emojify(":fire:")}
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: "Nunito-Bold",
-                    fontSize: 20,
-                  }}
-                >
-                  {caloriesBurned}
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: "Nunito-Regular",
-                    fontSize: 14,
-                    color: "#6B7280",
-                  }}
-                >
-                  Burned
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-        <View style={{ paddingTop: 10 }}>
-          <View
-            style={{
-              width: "100%",
-              borderStyle: "solid",
-              borderWidth: 1,
-              borderRadius: 10,
-              borderColor: "grey",
-              backgroundColor: "#FFFFFF",
-            }}
-          >
-            <View style={{ padding: 10 }}>
-              <Text
-                style={{
-                  fontFamily: "Nunito-Regular",
-                  fontSize: 16,
-                }}
-              >
-                Food Logs Today
-              </Text>
-            </View>
-            <View
-              style={{
-                paddingBottom: 10,
-                paddingLeft: 10,
-                paddingRight: 10,
-              }}
-            >
-              {foodLogMealTypes.map((mealType, index) => (
-                <View
-                  key={index}
-                  style={{
-                    paddingTop: 10,
-                  }}
-                >
-                  <View
-                    style={{
-                      width: "100%",
-                      shadowColor: "#000",
-                      shadowOffset: {
-                        width: 0,
-                        height: 2,
-                      },
-                      shadowOpacity: 0.1,
-                      shadowRadius: 4,
-                      elevation: 3,
-                      borderRadius: 5,
-                      backgroundColor: "#FCFDF7",
-                    }}
-                  >
-                    <View
-                      style={{
-                        padding: 10,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontFamily: "Nunito-Bold",
-                          fontSize: 14,
-                        }}
-                      >
-                        {mealType}
-                      </Text>
-                      <Pressable
-                        onPress={redirectToLogFoodTab}
-                        onPressIn={() => {
-                          setHoveredMealButton(mealType);
-                        }}
-                        onPressOut={() => {
-                          setHoveredMealButton(null);
-                        }}
-                        onHoverIn={() => {
-                          setHoveredMealButton(mealType);
-                        }}
-                        onHoverOut={() => {
-                          setHoveredMealButton(null);
-                        }}
-                        style={{
-                          position: "absolute",
-                          top: 10,
-                          right: 10,
-                        }}
-                      >
-                        <Text
-                          style={
-                            hoveredMealButton === mealType
-                              ? {
-                                  fontFamily: "Nunito-Regular",
-                                  fontSize: 14,
-                                  color: "#6a8970",
-                                }
-                              : {
-                                  fontFamily: "Nunito-Regular",
-                                  fontSize: 14,
-                                  color: "#84a98c",
-                                }
-                          }
-                        >
-                          + Log Food
-                        </Text>
-                      </Pressable>
-                    </View>
-                    <View
-                      style={{
-                        paddingBottom: 10,
-                        paddingLeft: 10,
-                        paddingRight: 10,
-                      }}
-                    >
-                      {(() => {
-                        const filteredFoodLogs = foodLogs.filter(
-                          (foodLog) => foodLog.meal === `${mealType}`,
-                        );
-                        if (filteredFoodLogs.length === 0) {
-                          return (
-                            <View
-                              style={{
-                                paddingTop: 5,
-                              }}
-                            >
-                              <Text
-                                style={{
-                                  fontFamily: "Nunito-Regular",
-                                  fontSize: 14,
-                                  textAlign: "center",
-                                  color: "#6B7280",
-                                }}
-                              >
-                                No food logs for this meal.
-                              </Text>
-                            </View>
-                          );
-                        } else {
-                          return filteredFoodLogs.map((foodLog, index) => (
-                            <View key={index} style={{
-                              paddingTop: 5
-                            }}>
-                              <View style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center'
-                              }}>
-                                <Text style={{
-                                  fontFamily: 'Nunito-Regular',
-                                  fontSize: 14,
-                                  width: '80%',
-                                  wordWrap: 'break-word',
-                                  textAlign: 'left'
-                                }}>{foodLog.name}</Text>
-                                <Text style={{
-                                  fontFamily: 'Nunito-Regular',
-                                  fontSize: 14,
-                                  width: '20%',
-                                  wordWrap: 'break-word',
-                                  textAlign: 'right',
-                                  verticalAlign: 'middle'
-                                }}>{foodLog.macros.calories} kcal</Text>
-                              </View> 
-                            </View> 
-                          ))
-                        }
-                      })()}
-                    </View>
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.container}>
-          {/* Button to trigger gemini analytics */}
-          <Pressable
-            onPress={gemini_analytics}
-            style={{
-              backgroundColor: "#6c63ff",
-              padding: 10,
-              borderRadius: 5,
-              marginTop: 20,
-              alignItems: "center",
-              justifyContent: "center",
-              shadowColor: "#000",
-              shadowOffset: {
-                width: 0,
-                height: 2,
-              },
-              shadowOpacity: 0.1,
-              shadowRadius: 4,
-              elevation: 3,
+              paddingBottom: 20,
             }}
           >
             <Text
               style={{
                 fontFamily: "Nunito-Bold",
-                fontSize: 16,
-                color: "#FFFFFF",
+                fontSize: 26,
+                textAlign: "center",
               }}
             >
-              Get Analytics with AI
+              Dashboard
             </Text>
-          </Pressable>
-
-          {/* Loader */}
-          {isLoading && (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#6c63ff" />
-              <Text style={styles.infoText}>Processing...</Text>
-            </View>
-          )}
-
-          {response && (
             <Text
               style={{
                 fontFamily: "Nunito-Regular",
-                fontSize: 16,
-                color: TEXT,
-                marginTop: 20,
+                fontSize: 14,
+                textAlign: "center",
+                color: "#6B7280",
               }}
             >
-              {response}
+              Your daily nutritional progress at a glance.
             </Text>
-          )}
+          </View>
+          <View style={{ width: "100%" }}>
+            <Text
+              style={{
+                fontFamily: "Nunito-Bold",
+                fontSize: 20,
+                paddingBottom: 15,
+                color: "#333333",
+              }}
+            >
+              Today
+            </Text>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'space-evenly',
+                  paddingBottom: 10
+                }}
+              >
+                <View
+                  style={{
+                    width: "45%",
+                    borderStyle: "solid",
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    borderColor: "grey",
+                    backgroundColor: "#FFFFFF",
+                  }}
+                >
+                  <View
+                    style={{
+                      padding: 10,
+                    }}
+                  >
+                    <View
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row'
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Regular",
+                          fontSize: 16,
+                          width: '70%'
+                        }}
+                      >
+                        Daily Calorie Progress (kcal)
+                      </Text>
+                      <Pressable
+                        onPress={() => {
+                          redirectToEditGoalCard('calorie')
+                        }}
+                        onPressIn={() => {
+                          setHoveredEditGoalButton('Calorie');
+                        }}
+                        onPressOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        onHoverIn={() => {
+                          setHoveredEditGoalButton('Calorie');
+                        }}
+                        onHoverOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        style={{
+                          width: '30%'             
+                        }}
+                      >
+                        <Text
+                          style={
+                            hoveredEditGoalButton === 'Calorie'
+                              ? {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#6a8970",
+                                  textAlign: 'right'
+                                }
+                              : {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#84a98c",
+                                  textAlign: 'right'
+                                }
+                          }
+                        >
+                          Edit Goal
+                        </Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                    }}
+                  >
+                    <AnimatedCircularProgress
+                      size={150}
+                      width={10}
+                      fill={percentOfCalorieGoal}
+                      tintColor="#84a98c"
+                      backgroundColor="#E0E0E0"
+                      rotation={0}
+                      renderCap={({ center }) => (
+                        <Circle cx={center.x} cy={center.y} r="5" fill="#84a98c" />
+                      )}
+                      style={{
+                        margin: "auto",
+                      }}
+                    >
+                      {() => (
+                        <View
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontFamily: "Nunito-Bold",
+                              fontSize: 26,
+                            }}
+                          >
+                            {caloriesRemaining}
+                          </Text>
+                          <Text
+                            style={{
+                              fontFamily: "Nunito-Regular",
+                              fontSize: 14,
+                              color: "#6B7280",
+                            }}
+                          >
+                            Remaining
+                          </Text>
+                        </View>
+                      )}
+                    </AnimatedCircularProgress>
+                  </View>
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-evenly",
+                      paddingTop: 10,
+                      paddingBottom: 10,
+                    }}
+                  >
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                        }}
+                      >
+                        {Emoji.emojify(":dart:")}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Bold",
+                          fontSize: 20,
+                        }}
+                      >
+                        {calorieGoal}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Regular",
+                          fontSize: 14,
+                          color: "#6B7280",
+                        }}
+                      >
+                        Goal
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                        }}
+                      >
+                        {Emoji.emojify(":fork_and_knife:")}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Bold",
+                          fontSize: 20,
+                        }}
+                      >
+                        {caloriesConsumed}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Regular",
+                          fontSize: 14,
+                          color: "#6B7280",
+                        }}
+                      >
+                        Consumed
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                        }}
+                      >
+                        {Emoji.emojify(":fire:")}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Bold",
+                          fontSize: 20,
+                        }}
+                      >
+                        {caloriesBurned}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Regular",
+                          fontSize: 14,
+                          color: "#6B7280",
+                        }}
+                      >
+                        Burned
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                {/* Protein */}
+                <View
+                  style={{
+                    width: "45%",
+                    borderStyle: "solid",
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    borderColor: "grey",
+                    backgroundColor: "#FFFFFF",
+                  }}
+                >
+                  <View
+                    style={{
+                      padding: 10,
+                    }}
+                  >
+                    <View
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row'
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Regular",
+                          fontSize: 16,
+                          width: '70%'
+                        }}
+                      >
+                        Daily Protein Progress (g)
+                      </Text>
+                      <Pressable
+                        onPress={() => {
+                          redirectToEditGoalCard('protein');
+                        }}
+                        onPressIn={() => {
+                          setHoveredEditGoalButton('Protein');
+                        }}
+                        onPressOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        onHoverIn={() => {
+                          setHoveredEditGoalButton('Protein');
+                        }}
+                        onHoverOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        style={{
+                          width: '30%'             
+                        }}
+                      >
+                        <Text
+                          style={
+                            hoveredEditGoalButton === 'Protein'
+                              ? {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#6a8970",
+                                  textAlign: 'right'
+                                }
+                              : {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#84a98c",
+                                  textAlign: 'right'
+                                }
+                          }
+                        >
+                          Edit Goal
+                        </Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                    }}
+                  >
+                    <AnimatedCircularProgress
+                      size={150}
+                      width={10}
+                      fill={percentOfProteinGoal}
+                      tintColor="#84a98c"
+                      backgroundColor="#E0E0E0"
+                      rotation={0}
+                      renderCap={({ center }) => (
+                        <Circle cx={center.x} cy={center.y} r="5" fill="#84a98c" />
+                      )}
+                      style={{
+                        margin: "auto",
+                      }}
+                    >
+                      {() => (
+                        <View
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontFamily: "Nunito-Bold",
+                              fontSize: 26,
+                            }}
+                          >
+                            {proteinRemaining}
+                          </Text>
+                          <Text
+                            style={{
+                              fontFamily: "Nunito-Regular",
+                              fontSize: 14,
+                              color: "#6B7280",
+                            }}
+                          >
+                            Remaining
+                          </Text>
+                        </View>
+                      )}
+                    </AnimatedCircularProgress>
+                  </View>
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-evenly",
+                      paddingTop: 10,
+                      paddingBottom: 10,
+                    }}
+                  >
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                        }}
+                      >
+                        {Emoji.emojify(":dart:")}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Bold",
+                          fontSize: 20,
+                        }}
+                      >
+                        {proteinGoal}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Regular",
+                          fontSize: 14,
+                          color: "#6B7280",
+                        }}
+                      >
+                        Goal
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                        }}
+                      >
+                        {Emoji.emojify(":fork_and_knife:")}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Bold",
+                          fontSize: 20,
+                        }}
+                      >
+                        {proteinConsumed}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Regular",
+                          fontSize: 14,
+                          color: "#6B7280",
+                        }}
+                      >
+                        Consumed
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+              {/* Carbs */}
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'space-evenly',
+                  paddingBottom: 10
+                }}
+              >
+                <View
+                  style={{
+                    width: "45%",
+                    borderStyle: "solid",
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    borderColor: "grey",
+                    backgroundColor: "#FFFFFF",
+                  }}
+                >
+                  <View
+                    style={{
+                      padding: 10,
+                    }}
+                  >
+                    <View
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row'
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Regular",
+                          fontSize: 16,
+                          width: '70%'
+                        }}
+                      >
+                        Daily Carbs Progress (g)
+                      </Text>
+                      <Pressable
+                        onPress={() => {
+                          redirectToEditGoalCard('carbs');
+                        }}
+                        onPressIn={() => {
+                          setHoveredEditGoalButton('Carbs');
+                        }}
+                        onPressOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        onHoverIn={() => {
+                          setHoveredEditGoalButton('Carbs');
+                        }}
+                        onHoverOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        style={{
+                          width: '30%'             
+                        }}
+                      >
+                        <Text
+                          style={
+                            hoveredEditGoalButton === 'Carbs'
+                              ? {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#6a8970",
+                                  textAlign: 'right'
+                                }
+                              : {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#84a98c",
+                                  textAlign: 'right'
+                                }
+                          }
+                        >
+                          Edit Goal
+                        </Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                    }}
+                  >
+                    <AnimatedCircularProgress
+                      size={150}
+                      width={10}
+                      fill={percentOfCarbGoal}
+                      tintColor="#84a98c"
+                      backgroundColor="#E0E0E0"
+                      rotation={0}
+                      renderCap={({ center }) => (
+                        <Circle cx={center.x} cy={center.y} r="5" fill="#84a98c" />
+                      )}
+                      style={{
+                        margin: "auto",
+                      }}
+                    >
+                      {() => (
+                        <View
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontFamily: "Nunito-Bold",
+                              fontSize: 26,
+                            }}
+                          >
+                            {carbRemaining}
+                          </Text>
+                          <Text
+                            style={{
+                              fontFamily: "Nunito-Regular",
+                              fontSize: 14,
+                              color: "#6B7280",
+                            }}
+                          >
+                            Remaining
+                          </Text>
+                        </View>
+                      )}
+                    </AnimatedCircularProgress>
+                  </View>
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-evenly",
+                      paddingTop: 10,
+                      paddingBottom: 10,
+                    }}
+                  >
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                        }}
+                      >
+                        {Emoji.emojify(":dart:")}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Bold",
+                          fontSize: 20,
+                        }}
+                      >
+                        {carbGoal}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Regular",
+                          fontSize: 14,
+                          color: "#6B7280",
+                        }}
+                      >
+                        Goal
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                        }}
+                      >
+                        {Emoji.emojify(":fork_and_knife:")}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Bold",
+                          fontSize: 20,
+                        }}
+                      >
+                        {carbConsumed}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Regular",
+                          fontSize: 14,
+                          color: "#6B7280",
+                        }}
+                      >
+                        Consumed
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                {/* Fat */}
+                <View
+                  style={{
+                    width: "45%",
+                    borderStyle: "solid",
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    borderColor: "grey",
+                    backgroundColor: "#FFFFFF",
+                  }}
+                >
+                  <View
+                    style={{
+                      padding: 10,
+                    }}
+                  >
+                    <View
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row'
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Regular",
+                          fontSize: 16,
+                          width: '70%'
+                        }}
+                      >
+                        Daily Fat Progress (g)
+                      </Text>
+                      <Pressable
+                        onPress={() => {
+                          redirectToEditGoalCard('fat');
+                        }}
+                        onPressIn={() => {
+                          setHoveredEditGoalButton('Fat');
+                        }}
+                        onPressOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        onHoverIn={() => {
+                          setHoveredEditGoalButton('Fat');
+                        }}
+                        onHoverOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        style={{
+                          width: '30%'             
+                        }}
+                      >
+                        <Text
+                          style={
+                            hoveredEditGoalButton === 'Fat'
+                              ? {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#6a8970",
+                                  textAlign: 'right'
+                                }
+                              : {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#84a98c",
+                                  textAlign: 'right'
+                                }
+                          }
+                        >
+                          Edit Goal
+                        </Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                    }}
+                  >
+                    <AnimatedCircularProgress
+                      size={150}
+                      width={10}
+                      fill={percentOfFatGoal}
+                      tintColor="#84a98c"
+                      backgroundColor="#E0E0E0"
+                      rotation={0}
+                      renderCap={({ center }) => (
+                        <Circle cx={center.x} cy={center.y} r="5" fill="#84a98c" />
+                      )}
+                      style={{
+                        margin: "auto",
+                      }}
+                    >
+                      {() => (
+                        <View
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontFamily: "Nunito-Bold",
+                              fontSize: 26,
+                            }}
+                          >
+                            {fatRemaining}
+                          </Text>
+                          <Text
+                            style={{
+                              fontFamily: "Nunito-Regular",
+                              fontSize: 14,
+                              color: "#6B7280",
+                            }}
+                          >
+                            Remaining
+                          </Text>
+                        </View>
+                      )}
+                    </AnimatedCircularProgress>
+                  </View>
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-evenly",
+                      paddingTop: 10,
+                      paddingBottom: 10,
+                    }}
+                  >
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                        }}
+                      >
+                        {Emoji.emojify(":dart:")}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Bold",
+                          fontSize: 20,
+                        }}
+                      >
+                        {fatGoal}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Regular",
+                          fontSize: 14,
+                          color: "#6B7280",
+                        }}
+                      >
+                        Goal
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                        }}
+                      >
+                        {Emoji.emojify(":fork_and_knife:")}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Bold",
+                          fontSize: 20,
+                        }}
+                      >
+                        {fatConsumed}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: "Nunito-Regular",
+                          fontSize: 14,
+                          color: "#6B7280",
+                        }}
+                      >
+                        Consumed
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+            
+          </View>
+          <View style={{ paddingTop: 10 }}>
+            <View
+              style={{
+                width: "100%",
+                borderStyle: "solid",
+                borderWidth: 1,
+                borderRadius: 10,
+                borderColor: "grey",
+                backgroundColor: "#FFFFFF",
+              }}
+            >
+              <View style={{ padding: 10 }}>
+                <Text
+                  style={{
+                    fontFamily: "Nunito-Regular",
+                    fontSize: 16,
+                  }}
+                >
+                  Food Logs Today
+                </Text>
+              </View>
+              <View
+                style={{
+                  paddingBottom: 10,
+                  paddingLeft: 10,
+                  paddingRight: 10,
+                }}
+              >
+                {foodLogMealTypes.map((mealType, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      paddingTop: 10,
+                    }}
+                  >
+                    <View
+                      style={{
+                        width: "100%",
+                        shadowColor: "#000",
+                        shadowOffset: {
+                          width: 0,
+                          height: 2,
+                        },
+                        shadowOpacity: 0.1,
+                        shadowRadius: 4,
+                        elevation: 3,
+                        borderRadius: 5,
+                        backgroundColor: "#FCFDF7",
+                      }}
+                    >
+                      <View
+                        style={{
+                          padding: 10,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontFamily: "Nunito-Bold",
+                            fontSize: 14,
+                          }}
+                        >
+                          {mealType}
+                        </Text>
+                        <Pressable
+                          onPress={redirectToLogFoodTab}
+                          onPressIn={() => {
+                            setHoveredMealButton(mealType);
+                          }}
+                          onPressOut={() => {
+                            setHoveredMealButton(null);
+                          }}
+                          onHoverIn={() => {
+                            setHoveredMealButton(mealType);
+                          }}
+                          onHoverOut={() => {
+                            setHoveredMealButton(null);
+                          }}
+                          style={{
+                            position: "absolute",
+                            top: 10,
+                            right: 10,
+                          }}
+                        >
+                          <Text
+                            style={
+                              hoveredMealButton === mealType
+                                ? {
+                                    fontFamily: "Nunito-Regular",
+                                    fontSize: 14,
+                                    color: "#6a8970",
+                                  }
+                                : {
+                                    fontFamily: "Nunito-Regular",
+                                    fontSize: 14,
+                                    color: "#84a98c",
+                                  }
+                            }
+                          >
+                            + Log Food
+                          </Text>
+                        </Pressable>
+                      </View>
+                      <View
+                        style={{
+                          paddingBottom: 10,
+                          paddingLeft: 10,
+                          paddingRight: 10,
+                        }}
+                      >
+                        {(() => {
+                          const filteredFoodLogs = foodLogs.filter(
+                            (foodLog) => foodLog.meal === `${mealType}`,
+                          );
+                          if (filteredFoodLogs.length === 0) {
+                            return (
+                              <View
+                                style={{
+                                  paddingTop: 5,
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    fontFamily: "Nunito-Regular",
+                                    fontSize: 14,
+                                    textAlign: "center",
+                                    color: "#6B7280",
+                                  }}
+                                >
+                                  No food logs for this meal.
+                                </Text>
+                              </View>
+                            );
+                          } else {
+                            return filteredFoodLogs.map((foodLog, index) => (
+                              <View key={index} style={{
+                                paddingTop: 5
+                              }}>
+                                <View style={{
+                                  display: 'flex',
+                                  flexDirection: 'row',
+                                  alignItems: 'center'
+                                }}>
+                                  <View
+                                    style={{
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      width: '80%'
+                                    }}
+                                  >
+                                    <Text style={{
+                                      fontFamily: 'Nunito-Regular',
+                                      fontSize: 14,
+                                      wordWrap: 'break-word',
+                                      textAlign: 'left'
+                                    }}>{foodLog.name}</Text>
+                                    <Text
+                                      style={{
+                                        fontFamily: 'Nunito-Regular',
+                                        fontSize: 14,
+                                        wordWrap: 'break-word',
+                                        textAlign: 'left',
+                                        color: '#6B7280'
+                                      }}
+                                    >
+                                      P: {foodLog.macros.protein}g    C:{foodLog.macros.carbs}g    F:{foodLog.macros.fat}g
+                                    </Text>
+                                  </View>  
+                                  <Text style={{
+                                    fontFamily: 'Nunito-Regular',
+                                    fontSize: 14,
+                                    width: '20%',
+                                    wordWrap: 'break-word',
+                                    textAlign: 'right',
+                                    verticalAlign: 'middle'
+                                  }}>{foodLog.macros.calories} kcal</Text>
+                                </View> 
+                              </View> 
+                            ))
+                          }
+                        })()}
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.container}>
+            {/* Button to trigger gemini analytics */}
+            <Pressable
+              onPress={gemini_analytics}
+              style={{
+                backgroundColor: "#6c63ff",
+                padding: 10,
+                borderRadius: 5,
+                marginTop: 20,
+                alignItems: "center",
+                justifyContent: "center",
+                shadowColor: "#000",
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 3,
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: "Nunito-Bold",
+                  fontSize: 16,
+                  color: "#FFFFFF",
+                }}
+              >
+                Get Analytics with AI
+              </Text>
+            </Pressable>
+
+            {/* Loader */}
+            {isLoading && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#6c63ff" />
+                <Text style={styles.infoText}>Processing...</Text>
+              </View>
+            )}
+
+            {response && (
+              <Text
+                style={{
+                  fontFamily: "Nunito-Regular",
+                  fontSize: 16,
+                  color: TEXT,
+                  marginTop: 20,
+                }}
+              >
+                {response}
+              </Text>
+            )}
+          </View>
         </View>
+      </ScrollView>
+      {isDashboardLoading && (
+        <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1000,
+        }}
+      >
+        <ActivityIndicator 
+          size='large' 
+          color='#FFFFFF'
+        />
+        <Text
+          style={{
+            color: "#FFFFFF",
+            marginTop: 10,
+            fontFamily: "Nunito-Regular",
+            fontSize: 16,
+          }}
+        >
+          Loading...
+        </Text>
       </View>
-    </ScrollView>
+      )}
+    </View>
   );
 }
 
