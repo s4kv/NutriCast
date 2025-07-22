@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { Button, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
-import { Card } from "react-native-paper";
-import { Dropdown } from "react-native-element-dropdown";
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useAuth } from "../../services/auth-context";
 import backend from "../../services/backend";
 import { useRouter } from "expo-router";
@@ -13,12 +11,6 @@ enum FoodType {
   ITEM,
   MEAL
 }
-
-// Data for the Dropdown
-const data = [
-  { label: "Item", value: FoodType.ITEM },
-  { label: "Meal", value: FoodType.MEAL },
-];
 
 export default function AddFood() {
   const { user, logout } = useAuth();
@@ -408,6 +400,7 @@ export default function AddFood() {
                 setValue={setFoodType}
                 setOpen={setOpen}
                 setItems={setData}
+                zIndex={3000}
                 onPress={() => {
                   setIsFoodTypeFocus(true);
                 }}
@@ -420,7 +413,13 @@ export default function AddFood() {
                   fontSize: 14,
                   color: '#A0AEC0'
                 }}
-                listMode='SCROLLVIEW'
+                listMode={
+                  Platform.OS === 'web' 
+                  ? 
+                  'MODAL'
+                  :
+                  'SCROLLVIEW'
+                }
                 style={ isFoodTypeFocus ?
                   {
                     paddingHorizontal: 10,
@@ -447,6 +446,9 @@ export default function AddFood() {
                   fontFamily: 'Nunito-Regular',
                   fontSize: 14
                 }}
+                dropDownContainerStyle={{
+                  backgroundColor: '#FCFDF7'
+                }}
               />
               {isFoodTypeEmpty && (
                 <Text style={{
@@ -464,7 +466,8 @@ export default function AddFood() {
           }}>
             <View style={{
               borderBottomWidth: 1,
-              paddingBottom: 10
+              paddingBottom: 10,
+              borderColor: 'grey'
             }}>
               <Text style={{
                 fontFamily: 'Nunito-Bold',
