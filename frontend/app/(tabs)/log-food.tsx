@@ -45,10 +45,13 @@ export default function LogFood() {
     router.push("/food/add-food");
   };
 
-  const redirectToAddFoodLogTab = (foodId: string) => {
+  const redirectToAddFoodLogTab = (foodId: String, foodName: String) => {
     router.push({
       pathname: "/food/add-food-log",
-      params: { foodId: String(foodId) },
+      params: { 
+        foodId: String(foodId),
+        foodName: String(foodName)
+      },
     });
   };
 
@@ -289,7 +292,7 @@ export default function LogFood() {
                         }}>
                           <Pressable
                             onPress={() => {
-                              redirectToAddFoodLogTab(foods.id)
+                              redirectToAddFoodLogTab(foods.id, foods.name)
                             }}
                             onPressIn={() => {
                               setHoveredFoodId(foods.id);
