@@ -7,13 +7,29 @@ import { Circle } from "react-native-svg";
 import * as Emoji from "node-emoji";
 import { useRouter } from "expo-router";
 
-interface FoodLog {
-  id: string,
+interface FoodLogDetailsDto {
+  foodLogId: string,
   userId: string,
   foodId: string,
   meal: string,
   noOfServings: number,
-  timeStamp: string
+  timeStamp: string,
+  name: string,
+  type: string,
+  servingSize: number,
+  servingUnit: string,
+  macros: FoodMacros
+}
+
+interface FoodMacros {
+  calories: number,
+  protein: number,
+  carbs: number,
+  fat: number,
+  fiber: number,
+  sugar: number,
+  sodium: number,
+  chloresterol: number
 }
 
 export default function Dashboard() {
@@ -22,7 +38,7 @@ export default function Dashboard() {
   const [calorieGoal, setCalorieGoal] = useState(0); // User's goal for daily calorie intake
   const [caloriesConsumed, setCaloriesConsumed] = useState(0); // User's calories consumed today
   const [caloriesBurned, setCaloriesBurned] = useState(0); // User's calories burned from exercise today
-  const [foodLogs, setFoodLogs] = useState<FoodLog[]>([]); // User's foodLogs today
+  const [foodLogs, setFoodLogs] = useState<FoodLogDetailsDto[]>([]); // User's foodLogs today
   const [foodLogMealTypes, setFoodLogMealTypes] = useState<string[]>(["BREAKFAST", "LUNCH", "DINNER", "SNACK"]); // Types of food log meal types
 
   const caloriesRemaining = calorieGoal - caloriesConsumed + caloriesBurned; // User's remaining calories for the day
@@ -50,7 +66,9 @@ export default function Dashboard() {
       // Get the user's calories logged today
       backend
         .get(`/api/users/${user?.email}/nutrition/calories/today`)
-        .then((response) => setCaloriesConsumed(response.data))
+        .then((response) => {
+          setCaloriesConsumed(response.data)
+        })
         .catch((error) => {
           console.error(error);
         });
@@ -65,7 +83,7 @@ export default function Dashboard() {
         });
       
       // Gets the user's foodLogs today
-      backend.get(`/api/users/${user?.email}/foods/logs/today`)
+      backend.get(`/api/users/${user?.email}/foods/logs/today/details`)
         .then((response) => {
           setFoodLogs(response.data);
         })
@@ -368,7 +386,7 @@ export default function Dashboard() {
                                   width: '80%',
                                   wordWrap: 'break-word',
                                   textAlign: 'left'
-                                }}>{foodLog.foodId}</Text>
+                                }}>{foodLog.name}</Text>
                                 <Text style={{
                                   fontFamily: 'Nunito-Regular',
                                   fontSize: 14,
@@ -376,7 +394,7 @@ export default function Dashboard() {
                                   wordWrap: 'break-word',
                                   textAlign: 'right',
                                   verticalAlign: 'middle'
-                                }}>{foodLog.noOfServings} kcal</Text>
+                                }}>{foodLog.macros.calories} kcal</Text>
                               </View> 
                             </View> 
                           ))
