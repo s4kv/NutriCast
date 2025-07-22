@@ -11,15 +11,11 @@ export interface FoodMacros {
   cholesterol: number;
 }
 
-// ... other types like FoodType, Food
 
 export interface ScannedFoodItem {
   name_of_the_food: string;
-  barcode: string; // Corresponds to @JsonProperty("barcode_scanned")
-
-  // Change this to match the @JsonProperty name from Java
-  // This tells TypeScript that the incoming JSON will have 'nutritional_macros'
-  nutritionalMacros: FoodMacros; // <--- CHANGED THIS LINE
+  barcode: string; 
+  nutritionalMacros: FoodMacros; 
 }
 
 export enum FoodType {
@@ -37,4 +33,3 @@ export interface Food {
   macros: FoodMacros;
 }
 
-// You can add other shared interfaces/types here as your app grows
