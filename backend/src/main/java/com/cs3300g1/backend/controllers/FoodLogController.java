@@ -1,7 +1,5 @@
 package com.cs3300g1.backend.controllers;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cs3300g1.backend.models.FoodLog;
+import com.cs3300g1.backend.models.FoodLogDetailsDto;
 import com.cs3300g1.backend.models.FoodLogRequest;
 import com.cs3300g1.backend.services.FoodLogService;
 
@@ -50,12 +49,24 @@ public class FoodLogController {
     /**
      * This method gets all the Food Log objects the user logged today.
      * @param userEmail the email of the user.
-     * @return a list of all Food Log objects that matches the userEmail and is logged today
+     * @return a list of all Food Log objects that matches the userEmail
      *         and a ResponseEntity status.
      */
     @GetMapping("/today")
     public ResponseEntity<List<FoodLog>> getFoodLogToday(@PathVariable("userEmail") String userEmail) {
-        List<FoodLog> foodLogs = foodLogService.getFoodLogsTodayWithUserEmail(userEmail, LocalDate.now(ZoneId.systemDefault()));
+        List<FoodLog> foodLogs = foodLogService.getFoodLogsTodayWithUserEmail(userEmail);
         return new ResponseEntity<>(foodLogs, HttpStatus.OK);
+    }
+
+    /**
+     * This method gets all the FoodLogDetailsDto objects the user logged today.
+     * @param userEmail the email of the user.
+     * @return a list of all the detailed food log objects that macthes the userEmail
+     *         and a ResponseEntity status.
+     */
+    @GetMapping("/today/details")
+    public ResponseEntity<List<FoodLogDetailsDto>> getDetailedFoodLogsToday(@PathVariable("userEmail") String userEmail) {
+        List<FoodLogDetailsDto> detailedFoodLogs = foodLogService.getDetailedFoodLogsTodayWithUserEmail(userEmail);
+        return new ResponseEntity<>(detailedFoodLogs, HttpStatus.OK);
     }
 }
