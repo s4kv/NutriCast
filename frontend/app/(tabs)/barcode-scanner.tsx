@@ -236,41 +236,10 @@ function BarcodeScannerScreen() {
       <Text style={styles.titleText}>NutriCast Barcode/Food Analyzer</Text>
 
       <View style={{ width: "100%", alignItems: "center" }}>
-        {/* Image Preview Area */}
-        <View style={styles.imageContainer}>
-          {selectedImageUri ? (
-            <Image source={{ uri: selectedImageUri }} style={styles.image} />
-          ) : (
-            <View style={styles.placeholder}>
-              <Ionicons name="image-outline" size={80} color="#bbb" />
-              <Text style={styles.placeholderText}>No image selected</Text>
-              <Text style={styles.placeholderTextSmall}>
-                (Take or select a picture of a food item or barcode)
-              </Text>
-            </View>
-          )}
-        </View>
-
-        {/* Action Buttons */}
-        <View style={styles.buttonContainer}>
-          <Button
-            title="Take Picture of Barcode/Food"
-            onPress={handleTakePicture}
-            disabled={loading}
-            color="#4CAF50" // Primary button color
-          />
-          <View style={{ marginVertical: 10 }} /> {/* Spacer */}
-          <Button
-            title="Select Picture from Gallery"
-            onPress={handleSelectPicture}
-            disabled={loading}
-            color="#6c757d" // Secondary button color
-          />
-        </View>
 
         {/* Manual Barcode Input */}
         <View style={styles.manualInputCard}>
-          <Text style={styles.inputLabel}>Or Enter Barcode Manually:</Text>
+          <Text style={styles.inputLabel}>Enter Barcode Manually:</Text>
           <TextInput
             style={styles.textInput}
             placeholder="Enter barcode value"
