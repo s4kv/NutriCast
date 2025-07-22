@@ -42,5 +42,6 @@ public class BarcodeController {
       return ResponseEntity.internalServerError().build(); // Generic error
     }
   }
-}
 
+  // TODO: extract-and-scan
+}
