@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,8 +54,11 @@ public class FoodLogController {
      *         and a ResponseEntity status.
      */
     @GetMapping("/today")
-    public ResponseEntity<List<FoodLog>> getFoodLogToday(@PathVariable("userEmail") String userEmail) {
-        List<FoodLog> foodLogs = foodLogService.getFoodLogsTodayWithUserEmail(userEmail);
+    public ResponseEntity<List<FoodLog>> getFoodLogToday(
+        @PathVariable("userEmail") String userEmail,
+        @RequestHeader("X-User-Time-Zone") String timezone
+    ) {
+        List<FoodLog> foodLogs = foodLogService.getFoodLogsTodayWithUserEmail(userEmail, timezone);
         return new ResponseEntity<>(foodLogs, HttpStatus.OK);
     }
 
@@ -65,8 +69,11 @@ public class FoodLogController {
      *         and a ResponseEntity status.
      */
     @GetMapping("/today/details")
-    public ResponseEntity<List<FoodLogDetailsDto>> getDetailedFoodLogsToday(@PathVariable("userEmail") String userEmail) {
-        List<FoodLogDetailsDto> detailedFoodLogs = foodLogService.getDetailedFoodLogsTodayWithUserEmail(userEmail);
+    public ResponseEntity<List<FoodLogDetailsDto>> getDetailedFoodLogsToday(
+        @PathVariable("userEmail") String userEmail,
+        @RequestHeader("X-User-Time-Zone") String timezone
+    ) {
+        List<FoodLogDetailsDto> detailedFoodLogs = foodLogService.getDetailedFoodLogsTodayWithUserEmail(userEmail, timezone);
         return new ResponseEntity<>(detailedFoodLogs, HttpStatus.OK);
     }
 }
