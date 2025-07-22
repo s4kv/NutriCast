@@ -67,10 +67,10 @@ public class FoodLogService {
    * This method gets a list of FoodLog objects given the userEmail and today's date.
    *
    * @param userEmail the email of the user.
-   * @param today the local date of today.
+   * @param timezone the timezone of the user.
    * @return a list of FoodLog objects that matches the gicen userEmail and today's local date.
    */
-  public List<FoodLog> getFoodLogsTodayWithUserEmail(String userEmail) {
+  public List<FoodLog> getFoodLogsTodayWithUserEmail(String userEmail, String timezone) {
     // 1. Get the User Object from the email to get the userId.
     User user =
         userRepository
@@ -80,7 +80,7 @@ public class FoodLogService {
     // 2. Get the List<FoodLog> of the User for today.
     //    First, we need to convert today's LocalDate to an Instant.
     //    Second, we need to call the findUserFoodLogsForToday method from foodLogRepository.java
-    ZoneId currentZoneId = ZoneId.systemDefault();
+    ZoneId currentZoneId = ZoneId.of(timezone);
     LocalDate today = LocalDate.now(currentZoneId);
     Instant start = today.atStartOfDay(currentZoneId).toInstant();
     Instant end = today.plusDays(1).atStartOfDay(currentZoneId).toInstant();
@@ -92,17 +92,17 @@ public class FoodLogService {
    * This method fetches the food logs and then, for each log,
    * fetches the corresponding food details and combines them.
    * @param userEmail the email of the user.
-   * @param today     the local date of today.
+   * @param timezone  the timezone of the user.
    * @return a list of all the detailed food logs of the user for today.
    */
-  public List<FoodLogDetailsDto> getDetailedFoodLogsTodayWithUserEmail(String userEmail) {
+  public List<FoodLogDetailsDto> getDetailedFoodLogsTodayWithUserEmail(String userEmail, String timezone) {
     // 1. Get the User Object from the email to get the userId.
     User user = userRepository
       .findByEmail(userEmail)
       .orElseThrow(() -> new RuntimeException("No user found with the email: " + userEmail));
     
     // 2. Get all the Food Logs for today.
-    List<FoodLog> foodLogs = getFoodLogsTodayWithUserEmail(userEmail);
+    List<FoodLog> foodLogs = getFoodLogsTodayWithUserEmail(userEmail, timezone);
 
     // 3. Create a list for the Detailed Food Logs.
     List<FoodLogDetailsDto> detailedFoodLogs = new ArrayList<>();
