@@ -1,12 +1,12 @@
-import React, { useState, useEffect} from 'react';
-import { View, Button, StyleSheet } from 'react-native';
-import MapboxGL from '@rnmapbox/maps'
+import React, { useState, useEffect } from "react";
+import { View, Button, StyleSheet } from "react-native";
+// import MapboxGL from '@rnmapbox/maps'
 //import useLocation from './UseLocation'; // custom hook
 //import FilterModal from './FilterModal'; // custom hook
-import * as dotenv from 'dotenv';
-import * as Location from 'expo-location';
-import backend from "../../services/backend"; 
-MapboxGL.setAccessToken(process.env.MAPBOX_API_KEY);
+import * as dotenv from "dotenv";
+import * as Location from "expo-location";
+import backend from "../../services/backend";
+// MapboxGL.setAccessToken(process.env.MAPBOX_API_KEY);
 
 type Restaurant = {
   id: string;
@@ -21,19 +21,27 @@ type Restaurant = {
   };
 };
 
-
 export default function MapScreen() {
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(
+    null,
+  );
   const [stateName, setStateName] = useState<string | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>([]);
-  const [filter, setFilter] = useState<{ cuisine?: string; price?: string; radiusKm?: number }>({});
-  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>(
+    [],
+  );
+  const [filter, setFilter] = useState<{
+    cuisine?: string;
+    price?: string;
+    radiusKm?: number;
+  }>({});
+  const [selectedRestaurant, setSelectedRestaurant] =
+    useState<Restaurant | null>(null);
 
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') return;
+      if (status !== "granted") return;
       let location = await Location.getCurrentPositionAsync({});
       setUserLocation([location.coords.longitude, location.coords.latitude]);
     })();
@@ -44,14 +52,14 @@ export default function MapScreen() {
     (async () => {
       const [lng, lat] = userLocation;
       const res = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${process.env.MAPBOX_API_KEY}`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${process.env.MAPBOX_API_KEY}`,
       );
       const data = await res.json();
       const stateFeature = data.features.find((f: any) =>
-        f.place_type.includes('region')
+        f.place_type.includes("region"),
       );
       if (stateFeature) {
-        setStateName((stateFeature.text).toLowerCase());
+        setStateName(stateFeature.text.toLowerCase());
       }
     })();
   }, [userLocation]);
@@ -59,26 +67,33 @@ export default function MapScreen() {
   // get restaurants
   useEffect(() => {
     if (!stateName) return;
-    backend.get(`/api/restaurants/by-state`, {
-      params: { state: stateName }
-    })
-    .then((res) => {
-      setRestaurants(Array.isArray(res.data) ? res.data : []);
-    })
-    .catch((error) => {
-      console.error("Error fetching restaurants:", error);
-      setRestaurants([]);
-    });
+    backend
+      .get(`/api/restaurants/by-state`, {
+        params: { state: stateName },
+      })
+      .then((res) => {
+        setRestaurants(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch((error) => {
+        console.error("Error fetching restaurants:", error);
+        setRestaurants([]);
+      });
   }, [stateName]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (!userLocation) return;
     let filtered = restaurants.filter((r) => {
-      if (filter.cuisine && r.properties.cuisine !== filter.cuisine) return false;
+      if (filter.cuisine && r.properties.cuisine !== filter.cuisine)
+        return false;
       if (filter.price && r.properties.price !== filter.price) return false;
       if (filter.radiusKm) {
         const [lng, lat] = r.geometry.coordinates;
-        const dist = getDistanceFromLatLonInKm(userLocation[1], userLocation[0], lat, lng);
+        const dist = getDistanceFromLatLonInKm(
+          userLocation[1],
+          userLocation[0],
+          lat,
+          lng,
+        );
         if (dist > filter.radiusKm) return false;
       }
       return true;
@@ -86,7 +101,12 @@ export default function MapScreen() {
     setFilteredRestaurants(filtered);
   }, [filter, restaurants, userLocation]);
 
-  function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+  function getDistanceFromLatLonInKm(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ) {
     const R = 6371;
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
@@ -100,7 +120,7 @@ export default function MapScreen() {
     return R * c;
   }
   const handleFilter = () => {
-    setFilter({ cuisine: 'Italian', price: '$$', radiusKm: 5 });
+    setFilter({ cuisine: "Italian", price: "$$", radiusKm: 5 });
   };
-
 }
+

@@ -79,7 +79,6 @@ interface BarcodeRequest {
   barcode: string;
 }
 
-
 interface BarcodeRequest {
   barcode: string; // This matches the 'barcode' property expected by the backend
 }
@@ -93,7 +92,6 @@ export async function sendBarcodeToBackend(
   );
   return response.data;
 }
-
 
 interface ImageBarcodeRequest {
   imageUri: string; // Base64 string
@@ -109,4 +107,3 @@ export async function sendImageForBarcodeExtraction(
   );
   return response.data;
 }
-
