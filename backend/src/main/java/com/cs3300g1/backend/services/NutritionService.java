@@ -48,10 +48,10 @@ public class NutritionService {
    * This method gets the number of calories logged by an user today.
    *
    * @param userEmail the email of the user.
-   * @param date when the user logged the food.
+   * @param timezone the timezone when the user logged the food.
    * @return the number of calories logged by the user today.
    */
-  public int getUserCaloriesLoggedToday(String userEmail, LocalDate today) {
+  public int getUserCaloriesLoggedToday(String userEmail, String timezone) {
     // 1. Get the User from userEmail in MongoDB.
     //    If User is found, then proceed with the calculation.
     //    If User is not found, then don't proceed with the calculation and generate an runtime error.
@@ -62,8 +62,10 @@ public class NutritionService {
     // 2. Get the List<FoodLog> of the user for today.
     //    First, we need to convert the LocalDate to Instant.
     //    Second, we use findUserFoodLogsForToday from foodLogRepository.
-    Instant start = today.atStartOfDay(ZoneId.systemDefault()).toInstant();
-    Instant end = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+    ZoneId currentZoneId = ZoneId.of(timezone);
+    LocalDate today = LocalDate.now(currentZoneId);
+    Instant start = today.atStartOfDay(currentZoneId).toInstant();
+    Instant end = today.plusDays(1).atStartOfDay(currentZoneId).toInstant();
     List<FoodLog> userFoodLogsForToday = foodLogRepository.findUserFoodLogsForToday(user.getId(), start, end);
 
     // 3. Go through userFoodLogsForToday and get the total amount of calories logged by the user.

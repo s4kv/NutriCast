@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ScrollView,
   View,
@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Pressable,
   ActivityIndicator,
-  Button,
 } from "react-native";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { useAuth } from "../../services/auth-context";
@@ -14,6 +13,7 @@ import backend from "../../services/backend";
 import { Circle } from "react-native-svg";
 import * as Emoji from "node-emoji";
 import { useRouter } from "expo-router";
+import * as Localization from 'expo-localization';
 
 interface FoodLogDetailsDto {
   foodLogId: string,
@@ -78,9 +78,18 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (user) {
+      const userTimeZone = Localization.getCalendars()[0].timeZone;
+
       // Get the user's calories logged today
       backend
-        .get(`/api/users/${user?.email}/nutrition/calories/today`)
+        .get(
+          `/api/users/${user?.email}/nutrition/calories/today`, 
+          {
+            headers: {
+              'X-User-Time-Zone': userTimeZone
+            }
+          }
+        )
         .then((response) => {
           setCaloriesConsumed(response.data)
         })
@@ -97,7 +106,15 @@ export default function Dashboard() {
         });
       
       // Gets the user's foodLogs today
-      backend.get(`/api/users/${user?.email}/foods/logs/today/details`)
+      backend
+        .get(
+          `/api/users/${user?.email}/foods/logs/today/details`, 
+          {
+            headers: {
+              'X-User-Time-Zone': userTimeZone
+            }
+          }
+        )
         .then((response) => {
           setFoodLogs(response.data);
         })
