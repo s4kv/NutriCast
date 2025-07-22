@@ -23,25 +23,25 @@ services:
       - react-spring
       - spring-sql
 
-  # Spring-boot backend
-  backend:
-    build: ./backend/
-    container_name: backend_app
-    depends_on:
-      - app
-      # - mongo
-    env_file:
-      - .env
-    ports:
-      - "8080:8080"
-    expose:
-      - "8080"
-    volumes:
-      - ./backend/:/usr/src/app
-      - ./backend/target:/usr/src/app/target
-    networks:
-      - react-spring
-      - spring-sql
+  # # Spring-boot backend
+  # backend:
+  #   build: ./backend/
+  #   container_name: backend_app
+  #   depends_on:
+  #     - app
+  #     # - mongo
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - "8080:8080"
+  #   expose:
+  #     - "8080"
+  #   volumes:
+  #     - ./backend/:/usr/src/app
+  #     - ./backend/target:/usr/src/app/target
+  #   networks:
+  #     - react-spring
+  #     - spring-sql
 
   # # MongoDB database
   # mongo:
