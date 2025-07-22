@@ -1,8 +1,7 @@
 import axios from "axios";
 
-
- const BASE_URL = "https://nutricast-462020.ue.r.appspot.com/"; // Adjust this URL as needed
-// const BASE_URL = "http://localhost:8080";
+// const BASE_URL = "https://nutricast-462020.ue.r.appspot.com/"; // Adjust this URL as needed
+const BASE_URL = "http://localhost:8080";
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -61,7 +60,7 @@ export async function respondToRequest(
 
 interface ScannedFoodItem {
   name_of_the_food: string;
-  barcode_scanned: string; 
+  barcode_scanned: string;
   nutritional_macros: FoodMacros;
 }
 
@@ -88,8 +87,13 @@ interface BarcodeRequest {
 }
 
 // CRITICAL FIX: Changed parameter type from 'string' to 'BarcodeRequest' object
-export async function sendBarcodeToBackend(requestBody: BarcodeRequest): Promise<ScannedFoodItem> {
-  const response = await api.post<ScannedFoodItem>("/api/barcode/scan", requestBody);
+export async function sendBarcodeToBackend(
+  requestBody: BarcodeRequest,
+): Promise<ScannedFoodItem> {
+  const response = await api.post<ScannedFoodItem>(
+    "/api/barcode/scan",
+    requestBody,
+  );
   return response.data;
 }
 
@@ -100,8 +104,14 @@ interface ImageBarcodeRequest {
   imageUri: string; // Base64 string
 }
 
-export async function sendImageForBarcodeExtraction(requestBody: ImageBarcodeRequest): Promise<ScannedFoodItem> {
+export async function sendImageForBarcodeExtraction(
+  requestBody: ImageBarcodeRequest,
+): Promise<ScannedFoodItem> {
   // This is the new endpoint on your backend that will handle image processing
-  const response = await api.post<ScannedFoodItem>("/api/barcode/extract-and-scan", requestBody);
+  const response = await api.post<ScannedFoodItem>(
+    "/api/barcode/extract-and-scan",
+    requestBody,
+  );
   return response.data;
 }
+
