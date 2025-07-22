@@ -51,7 +51,7 @@ export default function LoginScreen() {
       <Button title="Log In" onPress={handleLogin} />
 
       <View style={styles.switchContainer}>
-        <Text>Don't have an account?</Text>
+        <Text>Don&apos;t have an account?</Text>
         <Button title="Sign Up" onPress={() => router.push("/signup")} />
       </View>
     </View>
