@@ -79,14 +79,11 @@ interface BarcodeRequest {
   barcode: string;
 }
 
-/* ------------------------------------------------------------------
-   Helper: Send barcode string to backend for analysis (for manual input)
-   ------------------------------------------------------------------ */
+
 interface BarcodeRequest {
   barcode: string; // This matches the 'barcode' property expected by the backend
 }
 
-// CRITICAL FIX: Changed parameter type from 'string' to 'BarcodeRequest' object
 export async function sendBarcodeToBackend(
   requestBody: BarcodeRequest,
 ): Promise<ScannedFoodItem> {
@@ -97,9 +94,7 @@ export async function sendBarcodeToBackend(
   return response.data;
 }
 
-/* ------------------------------------------------------------------
-   NEW HELPER: Send Base64 image to backend for barcode extraction and analysis
-   ------------------------------------------------------------------ */
+
 interface ImageBarcodeRequest {
   imageUri: string; // Base64 string
 }
