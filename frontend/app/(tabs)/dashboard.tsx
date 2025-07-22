@@ -15,13 +15,29 @@ import { Circle } from "react-native-svg";
 import * as Emoji from "node-emoji";
 import { useRouter } from "expo-router";
 
-interface FoodLog {
-  id: string;
-  userId: string;
-  foodId: string;
-  meal: string;
-  noOfServings: number;
-  timeStamp: string;
+interface FoodLogDetailsDto {
+  foodLogId: string,
+  userId: string,
+  foodId: string,
+  meal: string,
+  noOfServings: number,
+  timeStamp: string,
+  name: string,
+  type: string,
+  servingSize: number,
+  servingUnit: string,
+  macros: FoodMacros
+}
+
+interface FoodMacros {
+  calories: number,
+  protein: number,
+  carbs: number,
+  fat: number,
+  fiber: number,
+  sugar: number,
+  sodium: number,
+  chloresterol: number
 }
 
 export default function Dashboard() {
@@ -30,13 +46,8 @@ export default function Dashboard() {
   const [calorieGoal, setCalorieGoal] = useState(0); // User's goal for daily calorie intake
   const [caloriesConsumed, setCaloriesConsumed] = useState(0); // User's calories consumed today
   const [caloriesBurned, setCaloriesBurned] = useState(0); // User's calories burned from exercise today
-  const [foodLogs, setFoodLogs] = useState<FoodLog[]>([]); // User's foodLogs today
-  const [foodLogMealTypes, setFoodLogMealTypes] = useState<string[]>([
-    "BREAKFAST",
-    "LUNCH",
-    "DINNER",
-    "SNACK",
-  ]); // Types of food log meal types
+  const [foodLogs, setFoodLogs] = useState<FoodLogDetailsDto[]>([]); // User's foodLogs today
+  const [foodLogMealTypes, setFoodLogMealTypes] = useState<string[]>(["BREAKFAST", "LUNCH", "DINNER", "SNACK"]); // Types of food log meal types
 
   // gemini
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -70,29 +81,30 @@ export default function Dashboard() {
       // Get the user's calories logged today
       backend
         .get(`/api/users/${user?.email}/nutrition/calories/today`)
-        .then((response) => setCaloriesConsumed(response.data))
+        .then((response) => {
+          setCaloriesConsumed(response.data)
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      
+      // Get the user's calorie goal
+      backend
+        .get(`/api/users/${user?.email}/nutrition/calories/goal`)
+        .then((response) => setCalorieGoal(response.data))
+        .catch((error) => {
+          console.error(error);
+        });
+      
+      // Gets the user's foodLogs today
+      backend.get(`/api/users/${user?.email}/foods/logs/today/details`)
+        .then((response) => {
+          setFoodLogs(response.data);
+        })
         .catch((error) => {
           console.error(error);
         });
     }
-
-    // Get the user's calorie goal
-    backend
-      .get(`/api/users/${user?.email}/nutrition/calories/goal`)
-      .then((response) => setCalorieGoal(response.data))
-      .catch((error) => {
-        console.error(error);
-      });
-
-    // Gets the user's foodLogs today
-    backend
-      .get(`/api/users/${user?.email}/foods/logs/today`)
-      .then((response) => {
-        setFoodLogs(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
   }, [user]);
 
   // TODO: you should change this rex
@@ -518,45 +530,32 @@ export default function Dashboard() {
                           );
                         } else {
                           return filteredFoodLogs.map((foodLog, index) => (
-                            <View
-                              key={index}
-                              style={{
-                                paddingTop: 5,
-                              }}
-                            >
-                              <View
-                                style={{
-                                  display: "flex",
-                                  flexDirection: "row",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <Text
-                                  style={{
-                                    fontFamily: "Nunito-Regular",
-                                    fontSize: 14,
-                                    width: "80%",
-                                    wordWrap: "break-word",
-                                    textAlign: "left",
-                                  }}
-                                >
-                                  {foodLog.foodId}
-                                </Text>
-                                <Text
-                                  style={{
-                                    fontFamily: "Nunito-Regular",
-                                    fontSize: 14,
-                                    width: "20%",
-                                    wordWrap: "break-word",
-                                    textAlign: "right",
-                                    verticalAlign: "middle",
-                                  }}
-                                >
-                                  {foodLog.noOfServings} kcal
-                                </Text>
-                              </View>
-                            </View>
-                          ));
+                            <View key={index} style={{
+                              paddingTop: 5
+                            }}>
+                              <View style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center'
+                              }}>
+                                <Text style={{
+                                  fontFamily: 'Nunito-Regular',
+                                  fontSize: 14,
+                                  width: '80%',
+                                  wordWrap: 'break-word',
+                                  textAlign: 'left'
+                                }}>{foodLog.name}</Text>
+                                <Text style={{
+                                  fontFamily: 'Nunito-Regular',
+                                  fontSize: 14,
+                                  width: '20%',
+                                  wordWrap: 'break-word',
+                                  textAlign: 'right',
+                                  verticalAlign: 'middle'
+                                }}>{foodLog.macros.calories} kcal</Text>
+                              </View> 
+                            </View> 
+                          ))
                         }
                       })()}
                     </View>
