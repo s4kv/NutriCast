@@ -3,4 +3,4 @@ env: standard
 service: default
 env_variables:
   OPENAI_API_KEY: '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'
-  GEMNINI_API_KEY: 'AIzaSyAonTP23HRZ1mpdiItvTPQbK1iuMRR9efs'
+  GEMINI_API_KEY: 'AIzaSyAQKX7q2eCPCVrKfAbbw3sQItXbXjKjUR8'
