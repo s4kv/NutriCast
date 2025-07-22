@@ -16,5 +16,4 @@ import org.springframework.data.annotation.Id;
 public class Restaurant {
   @Id @ToString.Exclude private String id; // Unique identifier for the food
   private Properties properties;
-  private Geometry geometry;
 }
