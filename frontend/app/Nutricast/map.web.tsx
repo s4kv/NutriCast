@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from "@react-google-maps/api";
+import backend from "../../services/backend";
+import * as dotenv from 'dotenv';
+
 
 const useUserLocation = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -25,7 +28,7 @@ const useUserLocation = () => {
   return { location, loading, error };
 };
 
-const GOOGLE_MAPS_API_KEY = "YOUR_API_KEY"; 
+const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY; 
 
 const containerStyle = {
   width: "100vw",
@@ -55,18 +58,19 @@ export default function MapWeb() {
 
   useEffect(() => {
     if (userLocation) {
-      fetch("http://localhost:8080/api/restaurants/nearby", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          latitude: userLocation.latitude,
-          longitude: userLocation.longitude,
-          radius: Math.round(radius * 1609.34),
-          types: selectedTypes,
-        }),
+      backend.post("/api/restaurants/nearby", {
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        radius: Math.round(radius * 1609.34),
+        types: selectedTypes,
       })
-        .then((res) => res.json())
-        .then((data) => setRestaurants(Array.isArray(data) ? data : [])); // <-- always array
+      .then((res) => {
+        setRestaurants(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch((error) => {
+        console.error("Error fetching restaurants:", error);
+        setRestaurants([]);
+      });
     }
   }, [userLocation, radius, selectedTypes]);
 
