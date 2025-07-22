@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ScrollView, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  Pressable,
+  StyleSheet,
+} from "react-native";
 import { getIdToken } from "firebase/auth";
 import { firebaseAuth } from "../../services/firebase";
 import api from "../../services/backend";
@@ -14,25 +21,25 @@ export default function ProAdviceScreen() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-
         const res = await api.get("/api/pro-posts");
         const posts = res.data;
 
-        const rawIds = posts.map((p: any) => p.authorId).filter(Boolean); // removes undefined/null
-        const uniqueIds: string[] = Array.from(new Set(rawIds)); // ensures it's typed correctly
+        const rawIds = posts.map((p: any) => p.authorId).filter(Boolean);
+        const uniqueIds: string[] = Array.from(new Set(rawIds));
         const idToUsername: Record<string, string> = {};
 
         await Promise.all(
-            uniqueIds.map(async (uid: string) => {
-                console.log("fetching username for UID:", uid); // should print
-                try {
-                    const { data } = await api.get(`/api/users/username-from-uid/${uid}`);
-                    idToUsername[uid] = data;
-                } catch (err) {
-                    console.error("Failed for UID:", uid, err);
-                    idToUsername[uid] = "unknown";
-                }
-            })
+          uniqueIds.map(async (uid: string) => {
+            try {
+              const { data } = await api.get(
+                `/api/users/username-from-uid/${uid}`
+              );
+              idToUsername[uid] = data;
+            } catch (err) {
+              console.error("Failed for UID:", uid, err);
+              idToUsername[uid] = "unknown";
+            }
+          })
         );
 
         const enrichedPosts = posts.map((post) => ({
@@ -56,7 +63,8 @@ export default function ProAdviceScreen() {
     checkPro();
   }, []);
 
-  const formatDate = (timestamp: string) => new Date(timestamp).toLocaleString();
+  const formatDate = (timestamp: string) =>
+    new Date(timestamp).toLocaleString();
 
   return (
     <ScrollView style={{ padding: 16 }}>
@@ -71,13 +79,28 @@ export default function ProAdviceScreen() {
       {posts.map((post, index) => (
         <View key={index} style={styles.postCard}>
           <View style={styles.headerRow}>
-            <Text style={styles.username}>{post.resolvedUsername}</Text>
-            <FontAwesome name="check-circle" size={14} color="#007bff" style={{ marginLeft: 6 }} />
+            <Pressable
+              onPress={() =>
+                router.push(`/pro-advice/${post.resolvedUsername}`)
+              }
+            >
+              <Text style={styles.username}>{post.resolvedUsername}</Text>
+            </Pressable>
+            <FontAwesome
+              name="check-circle"
+              size={14}
+              color="#007bff"
+              style={{ marginLeft: 6 }}
+            />
           </View>
           <Text style={styles.timestamp}>{formatDate(post.createdAt)}</Text>
           {post.text && <Text style={styles.postText}>{post.text}</Text>}
           {post.imageUrl && (
-            <Image source={{ uri: post.imageUrl }} style={styles.image} resizeMode="cover" />
+            <Image
+              source={{ uri: post.imageUrl }}
+              style={styles.image}
+              resizeMode="cover"
+            />
           )}
         </View>
       ))}

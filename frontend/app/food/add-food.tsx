@@ -1,22 +1,16 @@
 import { useState } from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-import { Card } from "react-native-paper";
-import { Dropdown } from "react-native-element-dropdown";
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useAuth } from "../../services/auth-context";
 import backend from "../../services/backend";
 import { useRouter } from "expo-router";
+import { FontAwesome5 } from "@expo/vector-icons";
+import DropDownPicker from 'react-native-dropdown-picker';
 
 // For the field 'type' in Food.java
 enum FoodType {
   ITEM,
   MEAL
 }
-
-// Data for the Dropdown
-const data = [
-  { label: "Item", value: FoodType.ITEM },
-  { label: "Meal", value: FoodType.MEAL },
-];
 
 export default function AddFood() {
   const { user, logout } = useAuth();
@@ -29,24 +23,33 @@ export default function AddFood() {
   const [foodFat, setFoodFat] = useState(""); // Total fat of the food (g)
   const [foodCarb, setFoodCarb] = useState(""); // Total carbohydrates of the food (g)
   const [foodProtein, setFoodProtein] = useState(""); // Total protein of the food (g)
-  const [isFoodNameFocus, setIsFoodNameFocus] = useState<Boolean>(false); // Whether the text input of name is focus or not
+  const [isFoodNameFocus, setIsFoodNameFocus] = useState<boolean>(false); // Whether the text input of name is focus or not
+  const [isFoodTypeFocus, setIsFoodTypeFocus] = useState<boolean>(false);
   const [isFoodServingSizeFocus, setIsFoodServingSizeFocus] =
-    useState<Boolean>(false); // Whether the text input of serving size is focus or not
+    useState<boolean>(false); // Whether the text input of serving size is focus or not
   const [isFoodServingSizeUnitFocus, setIsFoodServingSizeUnitFocus] =
-    useState<Boolean>(false); // Whether the text input of serving size unit is focus or not
-  const [isFoodCalorieFocus, setIsFoodCalorieFocus] = useState<Boolean>(false); // Whether the text input of calories is focus or not
-  const [isFoodFatFocus, setIsFoodFatFocus] = useState<Boolean>(false); // Whether the text input of fat is focus or not
-  const [isFoodCarbFocus, setIsFoodCarbFocus] = useState<Boolean>(false); // Whether the text input of carbohyrdates is focus or not
-  const [isFoodProteinFocus, setIsFoodProteinFocus] = useState<Boolean>(false); // Whether the text input of protein is focus or not
-  var [isFoodNameEmpty, setIsFoodNameEmpty] = useState<Boolean>(); // Makes the food name field required
-  var [isFoodTypeEmpty, setIsFoodTypeEmpty] = useState<Boolean>(); // Makes the food type field required
-  var [isFoodServingSizeEmpty, setIsFoodServingSizeEmpty] = useState<Boolean>(); // Makes the food serving size required
-  var [isFoodServingSizeUnitEmpty, setIsFoodServingSizeUnitEmpty] =
-    useState<Boolean>(); // Makes the food serving size unit field required
-  var [isFoodCalorieEmpty, setIsFoodCalorieEmpty] = useState<Boolean>(); // Makes the food calories field required
-  var [isFoodFatEmpty, setIsFoodFatEmpty] = useState<Boolean>(); // Makes the food fat field required
-  var [isFoodCarbEmpty, setIsFoodCarbEmpty] = useState<Boolean>(); // Makes the food carb field required
-  var [isFoodProteinEmpty, setIsFoodProteinEmpty] = useState<Boolean>(); // Makes the food protein field required
+    useState<boolean>(false); // Whether the text input of serving size unit is focus or not
+  const [isFoodCalorieFocus, setIsFoodCalorieFocus] = useState<boolean>(false); // Whether the text input of calories is focus or not
+  const [isFoodFatFocus, setIsFoodFatFocus] = useState<boolean>(false); // Whether the text input of fat is focus or not
+  const [isFoodCarbFocus, setIsFoodCarbFocus] = useState<boolean>(false); // Whether the text input of carbohyrdates is focus or not
+  const [isFoodProteinFocus, setIsFoodProteinFocus] = useState<boolean>(false); // Whether the text input of protein is focus or not
+  const [isAddFoodButtonHovered, setIsAddFoodButtonHovered] = useState<boolean>(false);
+
+  let [isFoodNameEmpty, setIsFoodNameEmpty] = useState<boolean>(); // Makes the food name field required
+  let [isFoodTypeEmpty, setIsFoodTypeEmpty] = useState<boolean>(); // Makes the food type field required
+  let [isFoodServingSizeEmpty, setIsFoodServingSizeEmpty] = useState<boolean>(); // Makes the food serving size required
+  let [isFoodServingSizeUnitEmpty, setIsFoodServingSizeUnitEmpty] =
+    useState<boolean>(); // Makes the food serving size unit field required
+  let [isFoodCalorieEmpty, setIsFoodCalorieEmpty] = useState<boolean>(); // Makes the food calories field required
+  let [isFoodFatEmpty, setIsFoodFatEmpty] = useState<boolean>(); // Makes the food fat field required
+  let [isFoodCarbEmpty, setIsFoodCarbEmpty] = useState<boolean>(); // Makes the food carb field required
+  let [isFoodProteinEmpty, setIsFoodProteinEmpty] = useState<boolean>(); // Makes the food protein field required
+
+  const [data, setData] = useState([
+    { label: "Item", value: FoodType.ITEM },
+    { label: "Meal", value: FoodType.MEAL },
+  ]);
+  const [open, setOpen] = useState<boolean>(false);
 
   // Sends all the data to the backend to save the food on mongoDb.
   const addFood = async () => {
@@ -88,14 +91,14 @@ export default function AddFood() {
   // If any of the fields are empty, then tell the user that the field that is empty is required.
   // If all the fields are not empty, then continue with the POST action.
   const checkForm = () => {
-    isFoodNameEmpty = foodName.trim() == "";
-    isFoodTypeEmpty = foodType == null;
-    isFoodServingSizeEmpty = foodServingSize.trim() == "";
-    isFoodServingSizeUnitEmpty = foodServingSizeUnit.trim() == "";
-    isFoodCalorieEmpty = foodCalorie.trim() == "";
-    isFoodFatEmpty = foodFat.trim() == "";
-    isFoodCarbEmpty = foodCarb.trim() == "";
-    isFoodProteinEmpty = foodProtein.trim() == "";
+    isFoodNameEmpty = foodName.trim() === "";
+    isFoodTypeEmpty = foodType === null;
+    isFoodServingSizeEmpty = foodServingSize.trim() === "";
+    isFoodServingSizeUnitEmpty = foodServingSizeUnit.trim() === "";
+    isFoodCalorieEmpty = foodCalorie.trim() === "";
+    isFoodFatEmpty = foodFat.trim() === "";
+    isFoodCarbEmpty = foodCarb.trim() === "";
+    isFoodProteinEmpty = foodProtein.trim() === "";
     setIsFoodNameEmpty(isFoodNameEmpty);
     setIsFoodTypeEmpty(isFoodTypeEmpty);
     setIsFoodServingSizeEmpty(isFoodServingSizeEmpty);
@@ -117,290 +120,707 @@ export default function AddFood() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.titleText}>Add Food</Text>
-      <View style={{ width: "90%" }}>
-        <Card>
-          <Card.Content>
-            <View style={styles.flexRowBaseline}>
-              <Text style={styles.heading3Text}>Name: </Text>
+    <ScrollView style={{
+      height: '100%',
+      backgroundColor: '#FCFDF7'
+    }}>
+      <View style={{
+        padding: 10
+      }}>
+        <View style={{
+          display: 'flex',
+          flexDirection: 'column',
+          paddingBottom: 20
+        }}>
+          <Text style={{
+            textAlign: 'center'
+          }}><FontAwesome5 name='leaf' style={{ fontSize: 26 }}/></Text>
+          <Text style={{
+            fontFamily: 'Nunito-Bold',
+            fontSize: 26,
+            textAlign: 'center'
+          }}>Add a New Food</Text>
+          <Text style={{
+            fontFamily: 'Nunito-Regular',
+            fontSize: 14,
+            textAlign: 'center',
+            color: '#6B7280'
+          }}>Enter the details of your food item to add it to your personal library.</Text>
+        </View>
+        <View style={{
+          width: '100%',
+          borderRadius: 10,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: 2
+          },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 3,
+          backgroundColor: 'white'
+        }}>
+          <View style={{
+            padding: 10
+          }}>
+            <Text style={{
+              fontFamily: 'Nunito-Bold',
+              fontSize: 20,
+              borderStyle: 'solid',
+              borderBottomWidth: 1,
+              borderColor: 'grey',
+              paddingBottom: 10
+            }}>Basic Information</Text>
+          </View>
+          <View style={{
+            padding: 10
+          }}>
+            <View style={{
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <Text style={{
+                fontFamily: 'Nunito-Bold',
+                fontSize: 16,
+                textAlign: 'left',
+                paddingBottom: 5
+              }}>Food Name</Text>
               <TextInput
-                placeholder={"e.g, Chicken Breast"}
+                placeholder={"e.g., Chicken Breast"}
+                placeholderTextColor={'#A0AEC0'}
                 value={foodName}
                 onChangeText={(text) => {
                   setFoodName(text);
-                  setIsFoodNameFocus(text != "");
                 }}
-                onBlur={(event) => {
-                  setIsFoodNameFocus(event.nativeEvent.text != "");
+                onBlur={() => {
+                  setIsFoodNameFocus(false);
                 }}
-                style={
-                  isFoodNameFocus ? styles.textInputFocus : styles.textInputBlur
+                onFocus={() => {
+                  setIsFoodNameFocus(true);
+                }}
+                style={ isFoodNameFocus ?
+                  {
+                    width: '100%',
+                    fontFamily: 'Nunito-Regular',
+                    fontSize: 14,
+                    textAlign: 'left',
+                    borderStyle: 'solid',
+                    borderWidth: 2,
+                    borderRadius: 5,
+                    borderColor: '#84a98c',
+                    padding: 10,
+                    backgroundColor: '#FCFDF7'
+                  }
+                  :
+                  {
+                    width: '100%',
+                    fontFamily: 'Nunito-Regular',
+                    fontSize: 14,
+                    textAlign: 'left',
+                    borderStyle: 'solid',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    borderColor: 'grey',
+                    padding: 10,
+                    backgroundColor: '#FCFDF7'
+                  }
                 }
               />
+              {isFoodNameEmpty && (
+                <Text style={{
+                  fontFamily: 'Nunito-Regular',
+                  fontSize: 14,
+                  color: 'red',
+                  textAlign: 'left',
+                  paddingTop: 5
+                }}>This field is required.</Text>
+              )}
             </View>
-            {isFoodNameEmpty && (
-              <Text style={styles.errorText}>This field is required.</Text>
-            )}
-            <View style={styles.flexRowBaseline}>
-              <Text style={styles.heading3Text}>Type: </Text>
-              <Dropdown
-                placeholder={"e.g, Item"}
-                data={data}
-                labelField="label"
-                valueField="value"
-                onChange={(item) => {
-                  setFoodType(item.value);
-                }}
-                placeholderStyle={styles.dropdownPlaceholder}
-                selectedTextStyle={styles.dropdownSelectedText}
-                itemTextStyle={styles.dropdownItemText}
-                style={styles.dropdown}
-              />
+          </View>
+          <View style={{
+            padding: 10
+          }}>
+            <View style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between'
+            }}>
+              <View style={{
+                width: '45%'
+              }}>
+                <View style={{
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <Text style={{
+                    fontFamily: 'Nunito-Bold',
+                    fontSize: 16,
+                    textAlign: 'left',
+                    paddingBottom: 5
+                  }}>Serving Size</Text>
+                  <TextInput
+                    placeholder={"e.g., 100"}
+                    placeholderTextColor={'#A0AEC0'}
+                    value={foodServingSize}
+                    onChangeText={(text) => {
+                      setFoodServingSize(text);
+                    }}
+                    onBlur={() => {
+                      setIsFoodServingSizeFocus(false);
+                    }}
+                    onFocus={() => {
+                      setIsFoodServingSizeFocus(true);
+                    }}
+                    keyboardType="numeric"
+                    style={
+                      isFoodServingSizeFocus ? 
+                      {
+                        width: '100%',
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 14,
+                        textAlign: 'left',
+                        borderStyle: 'solid',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        borderColor: '#84a98c',
+                        padding: 10,
+                        backgroundColor: '#FCFDF7'
+                      }
+                      : 
+                      {
+                        width: '100%',
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 14,
+                        textAlign: 'left',
+                        borderStyle: 'solid',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        borderColor: 'grey',
+                        padding: 10,
+                        backgroundColor: '#FCFDF7'
+                      }
+                    }
+                  />
+                  {isFoodServingSizeEmpty && (
+                    <Text style={{
+                      fontFamily: 'Nunito-Regular',
+                      fontSize: 14,
+                      textAlign: 'left',
+                      color: 'red',
+                      paddingTop: 5
+                    }}>This field is required.</Text>
+                  )}
+                </View>
+              </View>
+              <View style={{
+                width: '45%'
+              }}>
+                <View style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}>
+                  <Text style={{
+                    fontFamily: 'Nunito-Bold',
+                    fontSize: 16,
+                    textAlign: 'left',
+                    paddingBottom: 5
+                  }}>Serving Unit</Text>
+                  <TextInput
+                    placeholder={"e.g., Grams"}
+                    placeholderTextColor={'#A0AEC0'}
+                    value={foodServingSizeUnit}
+                    onChangeText={(text) => {
+                      setFoodServingSizeUnit(text);
+                    }}
+                    onBlur={() => {
+                      setIsFoodServingSizeUnitFocus(false);
+                    }}
+                    onFocus={() => {
+                      setIsFoodServingSizeUnitFocus(true);
+                    }}
+                    style={
+                      isFoodServingSizeUnitFocus ? 
+                      {
+                        width: '100%',
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 14,
+                        textAlign: 'left',
+                        borderStyle: 'solid',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        borderColor: '#84a98c',
+                        padding: 10,
+                        backgroundColor: '#FCFDF7'
+                      }
+                      : 
+                      {
+                        width: '100%',
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 14,
+                        textAlign: 'left',
+                        borderStyle: 'solid',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        borderColor: 'grey',
+                        padding: 10,
+                        backgroundColor: '#FCFDF7'
+                      }
+                    }
+                  />
+                  {isFoodServingSizeUnitEmpty && (
+                    <Text style={{
+                      fontFamily: 'Nunito-Regular',
+                      fontSize: 14,
+                      color: 'red',
+                      textAlign: 'left',
+                      paddingTop: 5
+                    }}>This field is required.</Text>
+                  )}
+                </View>
+              </View>
             </View>
-            {isFoodTypeEmpty && (
-              <Text style={styles.errorText}>This field is required.</Text>
-            )}
-            <View style={styles.flexRowBaseline}>
-              <Text style={styles.heading3Text}>Serving Size: </Text>
-              <TextInput
-                placeholder={"e.g, 100"}
-                value={foodServingSize}
-                onChangeText={(text) => {
-                  setFoodServingSize(text);
-                  setIsFoodServingSizeFocus(text != "");
+          </View>
+          <View style={{
+            padding: 10,
+          }}>
+            <View style={{
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <Text style={{
+                fontFamily: 'Nunito-Bold',
+                fontSize: 16,
+                textAlign: 'left',
+                paddingBottom: 5
+              }}>Type</Text>
+              <DropDownPicker
+                open={open}
+                items={data}
+                value={foodType}
+                setValue={setFoodType}
+                setOpen={setOpen}
+                setItems={setData}
+                zIndex={3000}
+                onPress={() => {
+                  setIsFoodTypeFocus(true);
                 }}
-                onBlur={(event) => {
-                  setIsFoodServingSizeFocus(event.nativeEvent.text != "");
+                onClose={() => {
+                  setIsFoodTypeFocus(false);
                 }}
-                keyboardType="numeric"
-                style={
-                  isFoodServingSizeFocus
-                    ? styles.textInputFocus
-                    : styles.textInputBlur
+                placeholder='e.g., Item'
+                placeholderStyle={{
+                  fontFamily: 'Nunito-Regular',
+                  fontSize: 14,
+                  color: '#A0AEC0'
+                }}
+                listMode={
+                  Platform.OS === 'web' 
+                  ? 
+                  'MODAL'
+                  :
+                  'SCROLLVIEW'
                 }
-              />
-            </View>
-            {isFoodServingSizeEmpty && (
-              <Text style={styles.errorText}>This field is required.</Text>
-            )}
-            <View style={styles.input}>
-              <Text style={styles.heading3Text}>Serving Size Unit: </Text>
-              <TextInput
-                placeholder={"e.g, grams"}
-                value={foodServingSizeUnit}
-                onChangeText={(text) => {
-                  setFoodServingSizeUnit(text);
-                  setIsFoodServingSizeUnitFocus(text != "");
-                }}
-                onBlur={(event) => {
-                  setIsFoodServingSizeUnitFocus(event.nativeEvent.text != "");
-                }}
-                style={
-                  isFoodServingSizeUnitFocus
-                    ? styles.textInputFocus
-                    : styles.textInputBlur
+                style={ isFoodTypeFocus ?
+                  {
+                    paddingHorizontal: 10,
+                    paddingVertical: 10,
+                    minHeight: 0,
+                    height: 41,
+                    borderRadius: 5,
+                    borderWidth: 2,
+                    borderColor: '#84a98c',
+                    backgroundColor: '#FCFDF7'
+                  }
+                  :
+                  {
+                    paddingHorizontal: 10,
+                    paddingVertical: 10,
+                    minHeight: 0,
+                    height: 41,
+                    borderRadius: 5,
+                    borderColor: 'grey',
+                    backgroundColor: '#FCFDF7'
+                  }
                 }
+                listItemLabelStyle={{
+                  fontFamily: 'Nunito-Regular',
+                  fontSize: 14
+                }}
+                dropDownContainerStyle={{
+                  backgroundColor: '#FCFDF7'
+                }}
               />
+              {isFoodTypeEmpty && (
+                <Text style={{
+                  fontFamily: 'Nunito-Regular',
+                  fontSize: 14,
+                  color: 'red',
+                  textAlign: 'left',
+                  paddingTop: 5
+                }}>This field is required.</Text>
+              )}
             </View>
-            {isFoodServingSizeUnitEmpty && (
-              <Text style={styles.errorText}>This field is required.</Text>
-            )}
-            <Text style={styles.customHeading2Text}>
-              Nutritional Information
-            </Text>
-            <View style={styles.flexRowBaseline}>
-              <Text style={styles.heading3Text}>Calories : </Text>
-              <TextInput
-                placeholder={"e.g, 165"}
-                value={foodCalorie}
-                onChangeText={(text) => {
-                  setFoodCalorie(text);
-                  setIsFoodCalorieFocus(text != "");
-                }}
-                onBlur={(event) => {
-                  setIsFoodCalorieFocus(event.nativeEvent.text != "");
-                }}
-                keyboardType="numeric"
-                style={
-                  isFoodCalorieFocus
-                    ? styles.textInputFocus
-                    : styles.textInputBlur
+          </View>
+          <View style={{
+            padding: 10
+          }}>
+            <View style={{
+              borderBottomWidth: 1,
+              paddingBottom: 10,
+              borderColor: 'grey'
+            }}>
+              <Text style={{
+                fontFamily: 'Nunito-Bold',
+                fontSize: 20,
+                textAlign: 'left'
+              }}>Nutritional Information</Text>
+            </View>
+          </View>
+          <View style={{
+            padding: 10
+          }}>
+            <View style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between'
+            }}>
+              <View style={{
+                width: '45%'
+              }}>
+                <View style={{
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <Text style={{
+                    fontFamily: 'Nunito-Bold',
+                    fontSize: 16,
+                    textAlign: 'left',
+                    paddingBottom: 5
+                  }}>Calories (kcal)</Text>
+                  <TextInput
+                    placeholder={"e.g., 165"}
+                    placeholderTextColor={'#A0AEC0'}
+                    value={foodCalorie}
+                    onChangeText={(text) => {
+                      setFoodCalorie(text);
+                    }}
+                    onBlur={() => {
+                      setIsFoodCalorieFocus(false);
+                    }}
+                    onFocus={() => {
+                      setIsFoodCalorieFocus(true);
+                    }}
+                    keyboardType="numeric"
+                    style={ isFoodCalorieFocus ? 
+                      {
+                        width: '100%',
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 14,
+                        textAlign: 'left',
+                        borderStyle: 'solid',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        borderColor: '#84a98c',
+                        padding: 10,
+                        backgroundColor: '#FCFDF7'
+                      }
+                      :
+                      {
+                        width: '100%',
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 14,
+                        textAlign: 'left',
+                        borderStyle: 'solid',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        borderColor: 'grey',
+                        padding: 10,
+                        backgroundColor: '#FCFDF7'
+                      }
+                    }
+                  />
+                  {isFoodCalorieEmpty && (
+                    <Text style={{
+                      fontFamily: 'Nunito-Regular',
+                      fontSize: 14,
+                      textAlign: 'left',
+                      color: 'red',
+                      paddingTop: 5
+                    }}>This field is required.</Text>
+                  )}
+                </View>
+              </View>
+              <View style={{
+                width: '45%'
+              }}>
+                <View style={{
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <Text style={{
+                    fontFamily: 'Nunito-Bold',
+                    fontSize: 16,
+                    textAlign: 'left',
+                    paddingBottom: 5
+                  }}>Protein (g)</Text>
+                  <TextInput
+                    placeholder={"e.g., 31"}
+                    placeholderTextColor={'#A0AEC0'}
+                    value={foodProtein}
+                    onChangeText={(text) => {
+                      setFoodProtein(text);
+                    }}
+                    onBlur={() => {
+                      setIsFoodProteinFocus(false);
+                    }}
+                    onFocus={() => {
+                      setIsFoodProteinFocus(true);
+                    }}
+                    keyboardType="numeric"
+                    style={ isFoodProteinFocus ? 
+                      {
+                        width: '100%',
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 14,
+                        textAlign: 'left',
+                        borderStyle: 'solid',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        borderColor: '#84a98c',
+                        padding: 10,
+                        backgroundColor: '#FCFDF7'
+                      }
+                      : 
+                      {
+                        width: '100%',
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 14,
+                        textAlign: 'left',
+                        borderStyle: 'solid',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        borderColor: 'grey',
+                        padding: 10,
+                        backgroundColor: '#FCFDF7'
+                      }
+                    }
+                  />
+                  {isFoodProteinEmpty && (
+                    <Text style={{
+                      fontFamily: 'Nunito-Regular',
+                      fontSize: 14,
+                      textAlign: 'left',
+                      color: 'red',
+                      paddingTop: 5
+                    }}>This field is required.</Text>
+                  )}
+                </View>
+              </View>
+            </View>
+          </View>
+          <View style={{
+            padding: 10
+          }}>
+            <View style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between'
+            }}>
+              <View style={{
+                width: '45%'
+              }}>
+                <View style={{
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <Text style={{
+                    fontFamily: 'Nunito-Bold',
+                    fontSize: 16,
+                    textAlign: 'left',
+                    paddingBottom: 5
+                  }}>Carbohydrates (g)</Text>
+                  <TextInput
+                    placeholder={"e.g., 0"}
+                    placeholderTextColor={'#A0AEC0'}
+                    value={foodCarb}
+                    onChangeText={(text) => {
+                      setFoodCarb(text);
+                    }}
+                    onBlur={(event) => {
+                      setIsFoodCarbFocus(false);
+                    }}
+                    onFocus={() => {
+                      setIsFoodCarbFocus(true);
+                    }}
+                    keyboardType="numeric"
+                    style={ isFoodCarbFocus ? 
+                      {
+                        width: '100%',
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 14,
+                        textAlign: 'left',
+                        borderStyle: 'solid',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        borderColor: '#84a98c',
+                        padding: 10,
+                        backgroundColor: '#FCFDF7'
+                      }
+                      : 
+                      {
+                        width: '100%',
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 14,
+                        textAlign: 'left',
+                        borderStyle: 'solid',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        borderColor: 'grey',
+                        padding: 10,
+                        backgroundColor: '#FCFDF7'
+                      }
+                    }
+                  />
+                  {isFoodCarbEmpty && (
+                    <Text style={{
+                      fontFamily: 'Nunito-Regular',
+                      fontSize: 14,
+                      color: 'red',
+                      textAlign: 'left',
+                      paddingTop: 5
+                    }}>This field is required.</Text>
+                  )}
+                </View>
+              </View>
+              <View style={{
+                width: '45%'
+              }}>
+                <View style={{
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <Text style={{
+                    fontFamily: 'Nunito-Bold',
+                    fontSize: 16,
+                    textAlign: 'left',
+                    paddingBottom: 5
+                  }}>Fat (g)</Text>
+                  <TextInput
+                    placeholder={"e.g., 3"}
+                    placeholderTextColor={'#A0AEC0'}
+                    value={foodFat}
+                    onChangeText={(text) => {
+                      setFoodFat(text);
+                    }}
+                    onBlur={() => {
+                      setIsFoodFatFocus(false);
+                    }}
+                    onFocus={() => {
+                      setIsFoodFatFocus(true);
+                    }}
+                    keyboardType="numeric"
+                    style={ isFoodFatFocus ? 
+                      {
+                        width: '100%',
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 14,
+                        textAlign: 'left',
+                        borderStyle: 'solid',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        borderColor: '#84a98c',
+                        padding: 10,
+                        backgroundColor: '#FCFDF7'
+                      } 
+                      : 
+                      {
+                        width: '100%',
+                        fontFamily: 'Nunito-Regular',
+                        fontSize: 14,
+                        textAlign: 'left',
+                        borderStyle: 'solid',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        borderColor: 'grey',
+                        padding: 10,
+                        backgroundColor: '#FCFDF7'
+                      }
+                    }
+                  />
+                  {isFoodFatEmpty && (
+                    <Text style={{
+                      fontFamily: 'Nunito-Regular',
+                      fontSize: 14,
+                      color: 'red',
+                      textAlign: 'left',
+                      paddingTop: 5
+                    }}>This field is required.</Text>
+                  )}
+                </View>
+              </View>
+            </View>
+          </View>
+          <View style={{
+            padding: 10
+          }}>
+            <Pressable
+              onPress={addFood}
+              onPressIn={() => {
+                setIsAddFoodButtonHovered(true);
+              }}
+              onPressOut={() => {
+                setIsAddFoodButtonHovered(false);
+              }}
+              onHoverIn={() => {
+                setIsAddFoodButtonHovered(true);
+              }}
+              onHoverOut={() => {
+                setIsAddFoodButtonHovered(false);
+              }}
+              style={ isAddFoodButtonHovered ?
+                {
+                  borderRadius: 5,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2
+                  },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 3,
+                  padding: 5,
+                  backgroundColor: '#6a8970'
                 }
-              />
-            </View>
-            {isFoodCalorieEmpty && (
-              <Text style={styles.errorText}>This field is required.</Text>
-            )}
-            <View style={styles.flexRowBaseline}>
-              <Text style={styles.heading3Text}>Fat (g): </Text>
-              <TextInput
-                placeholder={"e.g, 3"}
-                value={foodFat}
-                onChangeText={(text) => {
-                  setFoodFat(text);
-                  setIsFoodFatFocus(text != "");
-                }}
-                onBlur={(event) => {
-                  setIsFoodFatFocus(event.nativeEvent.text != "");
-                }}
-                keyboardType="numeric"
-                style={
-                  isFoodFatFocus ? styles.textInputFocus : styles.textInputBlur
+                :
+                {
+                  borderRadius: 5,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2
+                  },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 3,
+                  padding: 5,
+                  backgroundColor: '#84a98c'
                 }
-              />
-            </View>
-            {isFoodFatEmpty && (
-              <Text style={styles.errorText}>This field is required.</Text>
-            )}
-            <View style={styles.flexRowBaseline}>
-              <Text style={styles.heading3Text}>Carbohydrates (g): </Text>
-              <TextInput
-                placeholder={"e.g, 0"}
-                value={foodCarb}
-                onChangeText={(text) => {
-                  setFoodCarb(text);
-                  setIsFoodCarbFocus(text != "");
-                }}
-                onBlur={(event) => {
-                  setIsFoodCarbFocus(event.nativeEvent.text != "");
-                }}
-                keyboardType="numeric"
-                style={
-                  isFoodCarbFocus ? styles.textInputFocus : styles.textInputBlur
-                }
-              />
-            </View>
-            {isFoodCarbEmpty && (
-              <Text style={styles.errorText}>This field is required.</Text>
-            )}
-            <View style={styles.flexRowBaseline}>
-              <Text style={styles.heading3Text}>Protein (g): </Text>
-              <TextInput
-                placeholder={"e.g, 31"}
-                value={foodProtein}
-                onChangeText={(text) => {
-                  setFoodProtein(text);
-                  setIsFoodProteinFocus(text != "");
-                }}
-                onBlur={(event) => {
-                  setIsFoodProteinFocus(event.nativeEvent.text != "");
-                }}
-                keyboardType="numeric"
-                style={
-                  isFoodProteinFocus
-                    ? styles.textInputFocus
-                    : styles.textInputBlur
-                }
-              />
-            </View>
-            {isFoodProteinEmpty && (
-              <Text style={styles.errorText}>This field is required.</Text>
-            )}
-            <View style={styles.saveButton}>
-              <Button title="Add Food" onPress={addFood} />
-            </View>
-          </Card.Content>
-        </Card>
+              }
+            >
+              <Text style={{
+                fontFamily: 'Nunito-Bold',
+                fontSize: 20,
+                textAlign: 'center',
+                color: 'white'
+              }}>Add Food</Text>
+            </Pressable>
+          </View>
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
+// TODO: Organize the styles above into the stylesheet.
 const styles = StyleSheet.create({
-  // General styling for all tabs
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center"
-  },
-  titleText: {
-    fontSize: 26,
-    fontWeight: "bold",
-  },
-  heading1Text: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  heading2Text: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  heading3Text: {
-    fontSize: 14,
-  },
-  flexColumn: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  flexColumnCenter: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  flexRow: {
-    display: "flex",
-    flexDirection: "row",
-  },
-  flexRowBaseline: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "baseline",
-  },
-  flexRowCenter: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  flexSpaceEvenly: {
-    display: "flex",
-    justifyContent: "space-evenly",
-  },
-
-  // Specific styling for the tab
-  textInputFocus: {
-    fontSize: 16,
-    textAlign: "right",
-    marginLeft: "auto",
-  },
-  textInputBlur: {
-    fontSize: 16,
-    textAlign: "right",
-    color: "grey",
-    marginLeft: "auto",
-  },
-  dropdownPlaceholder: {
-    fontSize: 16,
-  },
-  dropdown: {
-    marginLeft: "auto",
-  },
-  dropdownSelectedText: {
-    fontSize: 16,
-  },
-  dropdownItemText: {
-    textAlign: "right",
-  },
-  input: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "baseline",
-    paddingBottom: 5,
-  },
-  customHeading2Text: {
-    fontSize: 16,
-    fontWeight: "bold",
-    width: "100%",
-    textAlign: "center",
-    borderStyle: "solid",
-    borderTopWidth: 1,
-  },
-  saveButton: {
-    margin: "auto",
-    paddingTop: 10,
-  },
-  errorText: {
-    color: "red",
-  },
 });
-
