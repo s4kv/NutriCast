@@ -1,8 +1,5 @@
 package com.cs3300g1.backend.controllers;
 
-import com.cs3300g1.backend.services.NutritionService;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.cs3300g1.backend.services.NutritionService;
 
 /**
  * This class represents a controller that handles all API endpoints for anything related to food
@@ -34,9 +34,12 @@ public class NutritionController {
    * @return the user's calories today matching the user's email.
    */
   @GetMapping("/calories/today")
-  public int userCaloriesLoggedToday(@PathVariable("userEmail") String userEmail) {
+  public int userCaloriesLoggedToday(
+    @PathVariable("userEmail") String userEmail,
+    @RequestHeader("X-User-Time-Zone") String timezone
+  ) {
     return nutritionService.getUserCaloriesLoggedToday(
-        userEmail, LocalDate.now(ZoneId.systemDefault()));
+        userEmail, timezone);
   }
 
   /**
