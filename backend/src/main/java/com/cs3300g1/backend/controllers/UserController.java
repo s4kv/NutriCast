@@ -103,43 +103,39 @@ public class UserController {
         .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
   }
 
+  /**
+   * Given a friend's **username**, return their public email so the frontend can call the nutrition
+   * routes that are still keyed by <code>{userEmail}</code>.
+   */
+  @GetMapping("/email-from-username/{username}")
+  public ResponseEntity<?> getUserEmailFromUsername(@PathVariable("username") String username) {
+    System.out.println("HIT  /api/users/email-from-username/" + username); // <-- ADDED
 
-    /**
-     * Given a friend's **username**, return their public email so the frontend can call the nutrition
-     * routes that are still keyed by <code>{userEmail}</code>.
-     */
-
-    @GetMapping("/email-from-username/{username}")
-    public ResponseEntity<?> getUserEmailFromUsername(@PathVariable("username") String username) {
-        System.out.println("HIT  /api/users/email-from-username/" + username);   // <-- ADDED
-
-      return userService
-          .findByUsername(username)
-          .map(User::getEmail)
-          .<ResponseEntity<?>>map(email -> ResponseEntity.ok(Map.of("email", email)))
-          .orElseGet(
-              () ->
-                  ResponseEntity.status(HttpStatus.NOT_FOUND)
-                      .body(Map.of("error", "user-not-found")));
-    }
-
-
-    @GetMapping("/username-from-uid/{uid}")
-      public ResponseEntity<?> getUsernameFromUid(@PathVariable("uid") String uid) {
-
-      //   Optional<User> user = userService.findByAuthUid(uid);
-      //   if (user.isEmpty()) {
-      //     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-      //         .body(Map.of("error", "user-not-found"));
-      //   }
-      //   return ResponseEntity.ok(user.get().getUsername());
-      // }
-
-
-      User user = userService.findByAuthUid(uid).orElseThrow(() -> new RuntimeException("No user with authUid: " + uid));
-      return new ResponseEntity<>(user.getUsername(), HttpStatus.OK);
-  
+    return userService
+        .findByUsername(username)
+        .map(User::getEmail)
+        .<ResponseEntity<?>>map(email -> ResponseEntity.ok(Map.of("email", email)))
+        .orElseGet(
+            () ->
+                ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "user-not-found")));
   }
 
+  @GetMapping("/username-from-uid/{uid}")
+  public ResponseEntity<?> getUsernameFromUid(@PathVariable("uid") String uid) {
 
+    //   Optional<User> user = userService.findByAuthUid(uid);
+    //   if (user.isEmpty()) {
+    //     return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    //         .body(Map.of("error", "user-not-found"));
+    //   }
+    //   return ResponseEntity.ok(user.get().getUsername());
+    // }
+
+    User user =
+        userService
+            .findByAuthUid(uid)
+            .orElseThrow(() -> new RuntimeException("No user with authUid: " + uid));
+    return new ResponseEntity<>(user.getUsername(), HttpStatus.OK);
+  }
 }
