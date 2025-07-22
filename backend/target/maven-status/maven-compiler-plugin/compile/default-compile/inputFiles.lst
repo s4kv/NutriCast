@@ -19,14 +19,13 @@
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/Chat.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/Food.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/FoodLog.java
+/home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/FoodLogDetailsDto.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/FoodLogRequest.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/FoodMacros.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/FoodRequest.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/FoodType.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/FriendRequest.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/GeminiRequest.java
-/home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/Geometry.java
-/home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/GeometryDeserializer.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/Meal.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/Message.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/NutriCastPictureRequest.java
