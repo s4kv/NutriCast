@@ -25,7 +25,7 @@ const useUserLocation = () => {
   return { location, loading, error };
 };
 
-const GOOGLE_MAPS_API_KEY = "AIzaSyB37n_2AWc8jLGPA-8VyEKu-D3hZjBbGpw";
+const GOOGLE_MAPS_API_KEY = "YOUR_API_KEY_HERE"; // ommitting in the pr for obvious reasons
 
 const containerStyle = {
   width: "100vw",
@@ -72,7 +72,7 @@ export default function MapWeb() {
       }}
       zoom={14}
     >
-      {/* User marker */}
+      //user marker
       <Marker
         position={{
           lat: userLocation.latitude,
@@ -81,7 +81,7 @@ export default function MapWeb() {
         label="You"
       />
 
-      {/* Restaurant markers */}
+      // restaurant markers
       {restaurants.map((r) => (
         <Marker
           key={r.name}
@@ -90,7 +90,6 @@ export default function MapWeb() {
         />
       ))}
 
-      {/* Info window for selected restaurant */}
       {selectedRestaurant && (
         <InfoWindow
           position={{
