@@ -13,9 +13,10 @@ import {
   TextInput,
 } from 'react-native';
 import { Card } from 'react-native-paper';
-import { launchCamera, launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
+// Removed: launchCamera, launchImageLibrary, ImagePickerResponse from 'react-native-image-picker'
 import { Ionicons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system'; // Needed to read image file as Base64 on native
+import * as ImagePicker from 'expo-image-picker'; // Now used for permissions AND launching camera/library
 
 // Import your backend API service
 import * as backend from '../../services/backend';
@@ -58,7 +59,6 @@ function BarcodeScannerScreen() {
   const [scannedBarcodeValue, setScannedBarcodeValue] = useState<string | null>(null);
   const [foodItemResult, setFoodItemResult] = useState<ScannedFoodItem | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  // Initial status message adjusted for web vs. native
   const [statusMessage, setStatusMessage] = useState<string>(
     Platform.OS === 'web' ? 'Enter barcode manually to get started.' : 'Ready'
   );
@@ -67,8 +67,12 @@ function BarcodeScannerScreen() {
   // Ref for the hidden file input on web (still needed in case we add a specific "upload image" button for web later)
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Unified image processing response handler (only called on native now)
-  const processImage = async (uri: string, base64?: string) => {
+  // Permission hooks from expo-image-picker
+  const [mediaLibraryStatus, requestMediaLibraryPermission] = ImagePicker.useMediaLibraryPermissions();
+  const [cameraStatus, requestCameraPermission] = ImagePicker.useCameraPermissions();
+
+  // Unified image processing and sending logic
+  const processAndSendImage = async (uri: string, base64?: string) => {
     setSelectedImageUri(uri); // Display the image preview
     setScannedBarcodeValue(null); // Clear previous barcode
     setFoodItemResult(null); // Clear previous food item
@@ -78,63 +82,116 @@ function BarcodeScannerScreen() {
     await convertImageToBase64AndSend(uri, base64);
   };
 
-  // Handles response from react-native-image-picker (native only)
-  const processImagePickerResponse = async (response: ImagePickerResponse) => {
-    if (response.didCancel) {
-      setStatusMessage('Picture taking cancelled');
-    } else if (response.errorMessage) {
-      setStatusMessage(`Error taking picture: ${response.errorMessage}`);
-      Alert.alert('Camera Error', response.errorMessage);
-      if (response.errorMessage.includes('permission')) {
-        Alert.alert(
-          'Permission Required',
-          'Camera/Photo Library access is required. Please enable it in your device settings.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Open Settings', onPress: () => Linking.openSettings() },
-          ]
-        );
-      }
-    } else if (response.assets && response.assets.length > 0) {
-      const asset = response.assets[0];
+  const handleTakePicture = async () => {
+    if (Platform.OS === 'web') {
+      Alert.alert('Feature Not Available', 'Taking pictures directly is not supported on web. Please use "Select Picture from Gallery" instead.');
+      return;
+    }
+
+    // Request camera permission
+    const { status: cameraPermStatus } = await requestCameraPermission();
+    if (cameraPermStatus !== 'granted') {
+      Alert.alert(
+        'Permission Required',
+        'Camera access is required to take pictures. Please enable it in your device settings.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: () => Linking.openSettings() },
+        ]
+      );
+      setStatusMessage('Camera permission denied.');
+      return;
+    }
+
+    // Permission granted, launch camera using expo-image-picker
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true, // You can adjust this
+      aspect: [4, 3], // You can adjust this
+      quality: 0.8,
+      base64: true, // Request base64 directly
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const asset = result.assets[0];
       if (asset.uri) {
-        await processImage(asset.uri, asset.base64);
+        await processAndSendImage(asset.uri, asset.base64);
       } else {
-        setStatusMessage('Error: No image URI found.');
-        Alert.alert('Error', 'Could not get image URI.');
+        setStatusMessage('Error: No image URI found from camera.');
+        Alert.alert('Error', 'Could not get image URI from camera.');
       }
+    } else if (result.canceled) {
+      setStatusMessage('Picture taking cancelled.');
+    } else {
+      setStatusMessage('Error taking picture.');
+      Alert.alert('Camera Error', 'An unknown error occurred while taking a picture.');
     }
   };
 
-  const handleTakePicture = () => {
-    // This button is now only rendered on native platforms
-    launchCamera({ mediaType: 'photo', quality: 0.8, includeBase64: true }, processImagePickerResponse);
+  const handleSelectPicture = async () => {
+    if (Platform.OS === 'web') {
+      // For web, we still offer "Select Picture from Gallery" but it uses a different mechanism
+      // This will trigger the hidden file input click for web
+      fileInputRef.current?.click();
+      return;
+    }
+
+    // Request media library permission
+    const { status: mediaLibraryPermStatus } = await requestMediaLibraryPermission();
+    if (mediaLibraryPermStatus !== 'granted') {
+      Alert.alert(
+        'Permission Required',
+        'Photo Library access is required to select pictures. Please enable it in your device settings.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: () => Linking.openSettings() },
+        ]
+      );
+      setStatusMessage('Photo library permission denied.');
+      return;
+    }
+
+    // Permission granted, launch image library using expo-image-picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true, // You can adjust this
+      aspect: [4, 3], // You can adjust this
+      quality: 0.8,
+      base64: true, // Request base64 directly
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const asset = result.assets[0];
+      if (asset.uri) {
+        await processAndSendImage(asset.uri, asset.base64);
+      } else {
+        setStatusMessage('Error: No image URI found from gallery.');
+        Alert.alert('Error', 'Could not get image URI from gallery.');
+      }
+    } else if (result.canceled) {
+      setStatusMessage('Image selection cancelled.');
+    } else {
+      setStatusMessage('Error selecting image.');
+      Alert.alert('Gallery Error', 'An unknown error occurred while selecting an image.');
+    }
   };
 
-  const handleSelectPicture = () => {
-    // This button is now only rendered on native platforms
-    launchImageLibrary({ mediaType: 'photo', quality: 0.8, includeBase64: true }, processImagePickerResponse);
-  };
-
-  // handleWebFileChange is still needed if we later add a specific web-only image upload button
-  // For now, it's not directly triggered by a visible button.
+  // handleWebFileChange is now directly tied to the hidden file input for web
   const handleWebFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64Uri = reader.result as string;
-        // This part is for web-specific image handling if re-enabled
-        // For now, the image upload buttons are hidden on web.
-        // If you re-enable image upload for web, uncomment the call to processImage here.
-        // await processImage(base64Uri, base64Uri.split(',')[1]);
+        // For web, we pass the data URI and the raw base64 part
+        await processAndSendImage(base64Uri, base64Uri.split(',')[1]);
       };
       reader.onerror = (error) => {
         console.error("FileReader error:", error);
         setStatusMessage("Error reading file.");
         Alert.alert("File Error", "Could not read the selected file.");
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file); // Read file as data URL (Base64)
     } else {
       setStatusMessage('No file selected.');
     }
@@ -150,19 +207,26 @@ function BarcodeScannerScreen() {
     await sendBarcodeStringOnlyToBackend(manualBarcodeInput.trim());
   };
 
-  // This function is now only called on native platforms
+  // This function now handles Base64 conversion if not directly provided (e.g., older image-picker versions)
+  // But with `base64: true` in launch options, it should typically receive `providedBase64`.
   const convertImageToBase64AndSend = async (imageUri: string, providedBase64?: string) => {
     setLoading(true);
     setStatusMessage("Converting image to Base64...");
     let dataUri = imageUri;
 
     try {
-      if (!providedBase64) {
-        // This block will only run on native if base64 wasn't provided by image-picker
-        const base64 = await FileSystem.readAsStringAsync(imageUri, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-        dataUri = `data:image/jpeg;base64,${base64}`;
+      if (!providedBase64) { // Fallback if base64 wasn't provided directly by ImagePicker
+        if (Platform.OS !== 'web') { // Only use FileSystem on native
+          const base64 = await FileSystem.readAsStringAsync(imageUri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+          dataUri = `data:image/jpeg;base64,${base64}`;
+        } else {
+          // For web, if providedBase64 wasn't there, it means imageUri itself is the dataUri
+          if (!imageUri.startsWith('data:')) {
+             throw new Error("Invalid image URI format for web Base64 conversion.");
+          }
+        }
       } else {
         dataUri = `data:image/jpeg;base64,${providedBase64}`;
       }
@@ -276,18 +340,27 @@ function BarcodeScannerScreen() {
                 <Button
                   title="Take Picture of Barcode"
                   onPress={handleTakePicture}
-                  disabled={loading}
+                  disabled={loading || cameraStatus?.status !== 'granted'} // Disable if loading or camera permission not granted
                   color="#4CAF50"
                 />
                 <View style={{ marginVertical: 10 }} />
                 <Button
                   title="Select Picture from Gallery"
                   onPress={handleSelectPicture}
-                  disabled={loading}
+                  disabled={loading || mediaLibraryStatus?.status !== 'granted'} // Disable if loading or media library permission not granted
                   color="#6c757d"
                 />
               </View>
             )}
+            {Platform.OS === 'web' && ( // Hidden file input for web, triggered by handleSelectPicture
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleWebFileChange}
+                  style={{ display: 'none' }}
+                  accept="image/*"
+                />
+              )}
 
             {/* Manual Barcode Input - Always shown */}
             <View style={styles.manualInputContainer}>

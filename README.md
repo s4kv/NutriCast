@@ -4,6 +4,7 @@ For this project, you will need to have this two API keys in your system enviorn
 ```text
    OPENAI_API_KEY=your_gemini_api_key
    MAPBOX_API_KEY=your_mapbox_api_key
+   GEMINI_API_KEY=your_gemini_api_key
 ```
 
 Make sure to place this both keys in your PATH (Linux or macOS) or in your system environment variables (Windows).
@@ -12,6 +13,7 @@ You should also create a `.env` file in the root directory of the project with t
 ```text
 OPENAI_API_KEY=your_gemini_api_key
 MAPBOX_API_KEY=your_mapbox_api_key
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
 ## Before you can run the project, do the following things:
