@@ -51,10 +51,10 @@ public class BackendApplication {
       // User findByEmail = users.findByEmail("test@test.com")
       //   .orElseThrow(() -> new RuntimeException("No users with that email."));
 
-      User findByAuthUid = users.findByAuthUid("01MUBODLTDQdI65u4sONLiDFcBy1")
-        .orElseThrow(() -> new RuntimeException("No users with that email."));
+      // User findByAuthUid = users.findByAuthUid("01MUBODLTDQdI65u4sONLiDFcBy1")
+      //   .orElseThrow(() -> new RuntimeException("No users with that email."));
 
-        System.out.println(findByAuthUid);
+      //   System.out.println(findByAuthUid);
       // System.out.println("findByUsername: " + findByUsername);
       // System.out.println("findByEmail: " + findByEmail);
 
