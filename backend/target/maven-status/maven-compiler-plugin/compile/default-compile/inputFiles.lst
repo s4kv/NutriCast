@@ -19,6 +19,7 @@
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/Chat.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/Food.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/FoodLog.java
+/home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/FoodLogDetailsDto.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/FoodLogRequest.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/FoodMacros.java
 /home/sakvi/projects/gt_projects/nutriCast/backend/src/main/java/com/cs3300g1/backend/models/FoodRequest.java
