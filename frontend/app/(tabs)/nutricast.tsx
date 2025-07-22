@@ -40,10 +40,10 @@ interface NutriCastResponse {
 // okey, main idea: use java controller with this interface to send data to the backend? maybe...
 // still need to figure out how rex handles this data xd
 interface foodData {
-  name: String;
+  name: string;
   type: FoodType;
   servingSize: number;
-  servingUnit: String;
+  servingUnit: string;
   foodMacros: FoodMacros;
 }
 // end of imported interfaces...
