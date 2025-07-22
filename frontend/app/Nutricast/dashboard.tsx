@@ -4,6 +4,7 @@ import {
   View,
   Text,
   StyleSheet,
+  Pressable,
   ActivityIndicator,
 } from "react-native";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
@@ -11,7 +12,7 @@ import { useAuth } from "../../services/auth-context";
 import backend from "../../services/backend";
 import { Circle } from "react-native-svg";
 import * as Emoji from "node-emoji";
-import { useLocalSearchParams } from "expo-router";
+import { useRouter } from "expo-router";
 import * as Localization from 'expo-localization';
 
 interface FoodLogDetailsDto {
@@ -39,9 +40,8 @@ interface FoodMacros {
   chloresterol: number
 }
 
-export default function ProDashboardByUsername() {
-  const { username } = useLocalSearchParams<{ username: string }>();
-  const [friendEmail, setFriendEmail] = useState<string | null>(null);
+export default function Dashboard() {
+  const router = useRouter();
   const { user, logout } = useAuth(); // Get the authenticated user from the auth context
   const [calorieGoal, setCalorieGoal] = useState(0); // User's goal for daily calorie intake
   const [proteinGoal, setProteinGoal] = useState(0); // User's goal for daily protein intake
@@ -86,31 +86,34 @@ export default function ProDashboardByUsername() {
   const [hoveredMealButton, setHoveredMealButton] = useState<string | null>(
     null
   );
+  // gemini
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [response, setResponse] = useState<String | null>(null);
 
-  useEffect(() => { 
-    const resolveEmail = async () => {
-      try {
-        console.log("Resolving email for username:", username);
-        const res = await backend.get(`/api/users/email-from-username/${username}`);
-        console.log("Resolved email:", res.data.email);
-        setFriendEmail(res.data.email);
-      } catch (err) {
-        console.error("Failed to resolve username to email", err);
+  // Redirects the user to the edit goal card tab.
+  const redirectToEditGoalCard = (nutrition: string) => {
+    router.push({
+      pathname: '/Nutrition/[nutrition]',
+      params: {
+        nutrition: nutrition
       }
-    };
+    });
+  };
 
-    setIsDashboardLoading(true);
-    resolveEmail();
-  }, [username]);
+  // Redirects the user to the log-food.tsx tab.
+  const redirectToLogFoodTab = () => {
+    router.push("/(tabs)/log-food");
+  };
 
   useEffect(() => {
-    if (friendEmail) {
+    if (user) {
+      setIsDashboardLoading(true);
       const userTimeZone = Localization.getCalendars()[0].timeZone;
 
       // Get the user's nutritions logged today
       backend
         .get(
-          `/api/users/${friendEmail}/nutrition/today`, 
+          `/api/users/${user?.email}/nutrition/today`, 
           {
             headers: {
               'X-User-Time-Zone': userTimeZone
@@ -130,7 +133,7 @@ export default function ProDashboardByUsername() {
       
       // Get the user's nutrition goal
       backend
-        .get(`/api/users/${friendEmail}/nutrition/goal`)
+        .get(`/api/users/${user?.email}/nutrition/goal`)
         .then((response) => {
           const nutritionGoalData = response.data;
           setCalorieGoal(nutritionGoalData.calorie || 0);
@@ -145,7 +148,7 @@ export default function ProDashboardByUsername() {
       // Gets the user's foodLogs today
       backend
         .get(
-          `/api/users/${friendEmail}/foods/logs/today/details`, 
+          `/api/users/${user?.email}/foods/logs/today/details`, 
           {
             headers: {
               'X-User-Time-Zone': userTimeZone
@@ -162,7 +165,34 @@ export default function ProDashboardByUsername() {
           setIsDashboardLoading(false);
         })
     }
-  }, [friendEmail]);
+  }, [user]);
+
+  const gemini_analytics = async () => {
+    if (!user) {
+      console.error("User is not authenticated");
+      return;
+    }
+    setIsLoading(true);
+    const message = 
+    `User ${user?.email} has logged ${caloriesConsumed} calories today, with a goal of ${calorieGoal} calories. 
+    The user has consumed ${netCalories} net calories. 
+    The user has logged ${proteinConsumed} grams of protein today, with a goal of ${proteinGoal} grams of protein.
+    The user has logged ${fatConsumed} grams of fat today, with a goal of ${fatGoal} grams of fat.
+    The user has logged ${carbConsumed} grams of carbohydrates today, with a goal of ${carbGoal} grams of carbohydrates.
+    Based on this data, suggest a meal plan for the user to meet their daily nutritional needs.`;
+    const requestBody = {
+      userMessage: message, // Use the argument
+    };
+    const responseAI = await backend.post("/api/gemini/chat", requestBody);
+    if (responseAI.status !== 200) {
+      console.error("Error fetching data from the backend");
+      setIsLoading(false);
+      return;
+    }
+
+    setResponse(responseAI.data);
+    setIsLoading(false);
+  };
 
   return (
     <View
@@ -256,11 +286,51 @@ export default function ProDashboardByUsername() {
                         style={{
                           fontFamily: "Nunito-Regular",
                           fontSize: 16,
-                          width: '100%'
+                          width: '70%'
                         }}
                       >
                         Daily Calorie Progress (kcal)
                       </Text>
+                      <Pressable
+                        onPress={() => {
+                          redirectToEditGoalCard('calorie')
+                        }}
+                        onPressIn={() => {
+                          setHoveredEditGoalButton('Calorie');
+                        }}
+                        onPressOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        onHoverIn={() => {
+                          setHoveredEditGoalButton('Calorie');
+                        }}
+                        onHoverOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        style={{
+                          width: '30%'             
+                        }}
+                      >
+                        <Text
+                          style={
+                            hoveredEditGoalButton === 'Calorie'
+                              ? {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#6a8970",
+                                  textAlign: 'right'
+                                }
+                              : {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#84a98c",
+                                  textAlign: 'right'
+                                }
+                          }
+                        >
+                          Edit Goal
+                        </Text>
+                      </Pressable>
                     </View>
                   </View>
                   <View
@@ -445,11 +515,51 @@ export default function ProDashboardByUsername() {
                         style={{
                           fontFamily: "Nunito-Regular",
                           fontSize: 16,
-                          width: '100%'
+                          width: '70%'
                         }}
                       >
                         Daily Protein Progress (g)
                       </Text>
+                      <Pressable
+                        onPress={() => {
+                          redirectToEditGoalCard('protein');
+                        }}
+                        onPressIn={() => {
+                          setHoveredEditGoalButton('Protein');
+                        }}
+                        onPressOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        onHoverIn={() => {
+                          setHoveredEditGoalButton('Protein');
+                        }}
+                        onHoverOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        style={{
+                          width: '30%'             
+                        }}
+                      >
+                        <Text
+                          style={
+                            hoveredEditGoalButton === 'Protein'
+                              ? {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#6a8970",
+                                  textAlign: 'right'
+                                }
+                              : {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#84a98c",
+                                  textAlign: 'right'
+                                }
+                          }
+                        >
+                          Edit Goal
+                        </Text>
+                      </Pressable>
                     </View>
                   </View>
                   <View
@@ -611,11 +721,51 @@ export default function ProDashboardByUsername() {
                         style={{
                           fontFamily: "Nunito-Regular",
                           fontSize: 16,
-                          width: '100%'
+                          width: '70%'
                         }}
                       >
                         Daily Carbs Progress (g)
                       </Text>
+                      <Pressable
+                        onPress={() => {
+                          redirectToEditGoalCard('carbs');
+                        }}
+                        onPressIn={() => {
+                          setHoveredEditGoalButton('Carbs');
+                        }}
+                        onPressOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        onHoverIn={() => {
+                          setHoveredEditGoalButton('Carbs');
+                        }}
+                        onHoverOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        style={{
+                          width: '30%'             
+                        }}
+                      >
+                        <Text
+                          style={
+                            hoveredEditGoalButton === 'Carbs'
+                              ? {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#6a8970",
+                                  textAlign: 'right'
+                                }
+                              : {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#84a98c",
+                                  textAlign: 'right'
+                                }
+                          }
+                        >
+                          Edit Goal
+                        </Text>
+                      </Pressable>
                     </View>
                   </View>
                   <View
@@ -768,11 +918,51 @@ export default function ProDashboardByUsername() {
                         style={{
                           fontFamily: "Nunito-Regular",
                           fontSize: 16,
-                          width: '100%'
+                          width: '70%'
                         }}
                       >
                         Daily Fat Progress (g)
                       </Text>
+                      <Pressable
+                        onPress={() => {
+                          redirectToEditGoalCard('fat');
+                        }}
+                        onPressIn={() => {
+                          setHoveredEditGoalButton('Fat');
+                        }}
+                        onPressOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        onHoverIn={() => {
+                          setHoveredEditGoalButton('Fat');
+                        }}
+                        onHoverOut={() => {
+                          setHoveredEditGoalButton(null);
+                        }}
+                        style={{
+                          width: '30%'             
+                        }}
+                      >
+                        <Text
+                          style={
+                            hoveredEditGoalButton === 'Fat'
+                              ? {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#6a8970",
+                                  textAlign: 'right'
+                                }
+                              : {
+                                  fontFamily: "Nunito-Regular",
+                                  fontSize: 16,
+                                  color: "#84a98c",
+                                  textAlign: 'right'
+                                }
+                          }
+                        >
+                          Edit Goal
+                        </Text>
+                      </Pressable>
                     </View>
                   </View>
                   <View
@@ -966,6 +1156,44 @@ export default function ProDashboardByUsername() {
                         >
                           {mealType}
                         </Text>
+                        <Pressable
+                          onPress={redirectToLogFoodTab}
+                          onPressIn={() => {
+                            setHoveredMealButton(mealType);
+                          }}
+                          onPressOut={() => {
+                            setHoveredMealButton(null);
+                          }}
+                          onHoverIn={() => {
+                            setHoveredMealButton(mealType);
+                          }}
+                          onHoverOut={() => {
+                            setHoveredMealButton(null);
+                          }}
+                          style={{
+                            position: "absolute",
+                            top: 10,
+                            right: 10,
+                          }}
+                        >
+                          <Text
+                            style={
+                              hoveredMealButton === mealType
+                                ? {
+                                    fontFamily: "Nunito-Regular",
+                                    fontSize: 14,
+                                    color: "#6a8970",
+                                  }
+                                : {
+                                    fontFamily: "Nunito-Regular",
+                                    fontSize: 14,
+                                    color: "#84a98c",
+                                  }
+                            }
+                          >
+                            + Log Food
+                          </Text>
+                        </Pressable>
                       </View>
                       <View
                         style={{
@@ -1007,13 +1235,31 @@ export default function ProDashboardByUsername() {
                                   flexDirection: 'row',
                                   alignItems: 'center'
                                 }}>
-                                  <Text style={{
-                                    fontFamily: 'Nunito-Regular',
-                                    fontSize: 14,
-                                    width: '80%',
-                                    wordWrap: 'break-word',
-                                    textAlign: 'left'
-                                  }}>{foodLog.name}</Text>
+                                  <View
+                                    style={{
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      width: '80%'
+                                    }}
+                                  >
+                                    <Text style={{
+                                      fontFamily: 'Nunito-Regular',
+                                      fontSize: 14,
+                                      wordWrap: 'break-word',
+                                      textAlign: 'left'
+                                    }}>{foodLog.name}</Text>
+                                    <Text
+                                      style={{
+                                        fontFamily: 'Nunito-Regular',
+                                        fontSize: 14,
+                                        wordWrap: 'break-word',
+                                        textAlign: 'left',
+                                        color: '#6B7280'
+                                      }}
+                                    >
+                                      P: {foodLog.macros.protein}g    C:{foodLog.macros.carbs}g    F:{foodLog.macros.fat}g
+                                    </Text>
+                                  </View>  
                                   <Text style={{
                                     fontFamily: 'Nunito-Regular',
                                     fontSize: 14,
@@ -1033,6 +1279,60 @@ export default function ProDashboardByUsername() {
                 ))}
               </View>
             </View>
+          </View>
+
+          <View style={styles.container}>
+            {/* Button to trigger gemini analytics */}
+            <Pressable
+              onPress={gemini_analytics}
+              style={{
+                backgroundColor: "#6c63ff",
+                padding: 10,
+                borderRadius: 5,
+                marginTop: 20,
+                alignItems: "center",
+                justifyContent: "center",
+                shadowColor: "#000",
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 3,
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: "Nunito-Bold",
+                  fontSize: 16,
+                  color: "#FFFFFF",
+                }}
+              >
+                Get Analytics with AI
+              </Text>
+            </Pressable>
+
+            {/* Loader */}
+            {isLoading && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#6c63ff" />
+                <Text style={styles.infoText}>Processing...</Text>
+              </View>
+            )}
+
+            {response && (
+              <Text
+                style={{
+                  fontFamily: "Nunito-Regular",
+                  fontSize: 16,
+                  color: TEXT,
+                  marginTop: 20,
+                }}
+              >
+                {response}
+              </Text>
+            )}
           </View>
         </View>
       </ScrollView>
@@ -1070,5 +1370,25 @@ export default function ProDashboardByUsername() {
   );
 }
 
+// Style sheet for the dashboard screen.
+// TODO: Input all the styles used above into a stylesheet for readability purposes.
+const TEXT = "#34495e"; // Muted dark slate
+
 const styles = StyleSheet.create({
+  loadingContainer: {
+    marginTop: 30,
+    alignItems: "center",
+  },
+
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f6fa",
+    padding: 20,
+  },
+
+  infoText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: TEXT,
+  },
 });

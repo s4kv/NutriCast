@@ -24,19 +24,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString
 public class User {
   @Id @ToString.Exclude private String id; // Unique identifier for the user
-
   @Indexed(unique = true, sparse = true)
   private String username; // Username of the user
-
   @Indexed(unique = true)
   private String authUid; // Unique identifier of the user in firebase
-
   @Indexed(unique = true)
   private String email; // Email of the user
-
   private int calorieGoal; // Number of calories the user wants to consume each day
-
+  private int proteinGoal;
+  private int carbGoal;
+  private int fatGoal;
   private List<FoodLog> foodLogs; // List of foods that the user has logged
-
   private List<String> friends;
 }
