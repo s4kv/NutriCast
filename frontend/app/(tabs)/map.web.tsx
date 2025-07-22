@@ -1,111 +1,109 @@
-import React, { useState, useEffect } from 'react';
-import MapGL, { Marker, Popup } from 'react-map-gl/mapbox';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { useUserLocation } from '../hooks/useUserLocation';
+import React, { useEffect, useState } from "react";
+import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from "@react-google-maps/api";
 
-const UserMarker = () => (
-  <div style={{
-    width: 20,
-    height: 20,
-    backgroundColor: '#1D4ED8',
-    borderRadius: '50%',
-    border: '2px solid white',
-    cursor: 'pointer'
-  }} />
-);
-
-const RestaurantMarker = () => (
-  <div style={{
-    width: 15,
-    height: 15,
-    backgroundColor: '#DC2626',
-    borderRadius: '50%',
-    border: '2px solid white',
-    cursor: 'pointer'
-  }} />
-);
-
-export default function MapPage() {
-  const { location: userLocation, loading, error } = useUserLocation();
-
-  const [restaurants, setRestaurants] = useState([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
-  const [viewState, setViewState] = useState({
-    latitude: 33.7490,
-    longitude: -84.3880,
-    zoom: 11,
-  });
+const useUserLocation = () => {
+  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<GeolocationPositionError | null>(null);
 
   useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setLoading(false);
+      },
+      (error) => {
+        setError(error);
+        setLoading(false);
+      }
+    );
+  }, []);
+
+  return { location, loading, error };
+};
+
+const GOOGLE_MAPS_API_KEY = "AIzaSyB37n_2AWc8jLGPA-8VyEKu-D3hZjBbGpw";
+
+const containerStyle = {
+  width: "100vw",
+  height: "100vh",
+};
+
+export default function MapWeb() {
+  const { location: userLocation, loading, error } = useUserLocation();
+  const [restaurants, setRestaurants] = useState<any[]>([]);
+  const [selectedRestaurant, setSelectedRestaurant] = useState<any | null>(null);
+
+  // Load Google Maps JS API
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+  });
+
+  // Fetch nearby restaurants from backend
+  useEffect(() => {
     if (userLocation) {
-      setViewState(currentView => ({
-        ...currentView,
-        latitude: userLocation.latitude,
-        longitude: userLocation.longitude,
-        zoom: 12, 
-      }));
-      // TODO: Fetch restaurant data w/ given loc
+      fetch("http://localhost:8080/api/restaurants/nearby", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude,
+          radius: 1500, // meters
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => setRestaurants(data));
     }
   }, [userLocation]);
 
-  if (loading) {
-    return <div>📍 Getting your location...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-  
-  if (!userLocation) {
-    return <div>Could not determine your location.</div>;
-  }
-
-  const mapProps = {
-    ...viewState,
-    onMove: evt => setViewState(evt.viewState),
-    style:{ width: '100%', height: '100%' },
-    mapStyle: "mapbox://styles/mapbox/streets-v11",
-    mapboxAccessToken: process.env.NEXT_PUBLIC_MAPBOX_API_KEY
-  };
+  if (!isLoaded || loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  if (!userLocation) return <div>Getting location...</div>;
 
   return (
-    <MapGL {...mapProps}>
-      // user marker
-      <Marker longitude={userLocation.longitude} latitude={userLocation.latitude}>
-        <UserMarker />
-      </Marker>
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={{
+        lat: userLocation.latitude,
+        lng: userLocation.longitude,
+      }}
+      zoom={14}
+    >
+      {/* User marker */}
+      <Marker
+        position={{
+          lat: userLocation.latitude,
+          lng: userLocation.longitude,
+        }}
+        label="You"
+      />
 
-      // restaurant marker
-      {restaurants.map(restaurant => (
+      {/* Restaurant markers */}
+      {restaurants.map((r) => (
         <Marker
-          key={restaurant.id}
-          longitude={restaurant.geometry.coordinates[0]}
-          latitude={restaurant.geometry.coordinates[1]}
-          onClick={e => {
-            e.originalEvent.stopPropagation();
-            setSelectedRestaurant(restaurant);
-          }}
-        >
-          <RestaurantMarker />
-        </Marker>
+          key={r.name}
+          position={{ lat: r.latitude, lng: r.longitude }}
+          onClick={() => setSelectedRestaurant(r)}
+        />
       ))}
 
-      // popup 
+      {/* Info window for selected restaurant */}
       {selectedRestaurant && (
-        <Popup
-          anchor="top"
-          longitude={selectedRestaurant.geometry.coordinates[0]}
-          latitude={selectedRestaurant.geometry.coordinates[1]}
-          onClose={() => setSelectedRestaurant(null)}
-          offset={15}
+        <InfoWindow
+          position={{
+            lat: selectedRestaurant.latitude,
+            lng: selectedRestaurant.longitude,
+          }}
+          onCloseClick={() => setSelectedRestaurant(null)}
         >
           <div>
-            <h3>{selectedRestaurant.properties.name}</h3>
-            <p>Cuisine: {selectedRestaurant.properties.cuisine}</p>
-            <p>Price: {selectedRestaurant.properties.price || 'N/A'}</p>
+            <h3>{selectedRestaurant.name}</h3>
           </div>
-        </Popup>
+        </InfoWindow>
       )}
-    </MapGL>
+    </GoogleMap>
   );
 }
