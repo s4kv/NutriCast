@@ -88,7 +88,8 @@ You should configure these keys in two places:
 ---
 
 ### Download Instructions
-To download the project, simply clone the Github repository to get access to the files for the project locally on your computer. You can install all the necessary dependencies using npm install. If an error is raised, then add --legacy-peer-deps to the end of your npm install. This should install all the necessary packages and dependencies needed for the project. If you wish to run the project locally on your phone, you need to install the Expo app on your phone.
+**To download the project:**
+Clone the Github repository to get access to the files for the project locally on your computer. You can install all the necessary dependencies using npm install. If an error is raised, then add --legacy-peer-deps to the end of your npm install. This should install all the necessary packages and dependencies needed for the project. If you wish to run the project locally on your phone, you need to install the Expo app on your phone.
 ---
 
 ### Build Instructions
