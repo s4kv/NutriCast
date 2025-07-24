@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NutriCast Project Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #1e3a8a;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        section {
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>NutriCast Project Report</h1>
+
+    <section>
+        <h2>Introduction and Background</h2>
+        <p>NutriCast is a mobile-first nutrition tracking and recommendation platform that leverages artificial intelligence to help users achieve their dietary goals in a personalized and interactive way. Unlike traditional food logging apps, NutriCast allows users to simply upload an image of their meal, from which AI models analyze and return a detailed nutritional breakdown. It further supports users by suggesting meals, tracking macronutrient intake, locating healthy dining options, connecting with friends, and receiving professional advice—all wrapped in an intuitive mobile interface.</p>
+        <p>The project was developed using a robust technology stack: React Native was chosen for cross-platform frontend development, Spring Boot with Java powered the backend, and MongoDB was used for data persistence. For AI functionality, NutriCast integrated OpenAI’s GPT-4o and Google’s Gemini, both of which significantly accelerated implementation and testing. Additional tools such as Firebase, Google Maps API, GitHub, and Google Cloud Platform supported the app’s infrastructure and deployment.</p>
+        <p>From a project management perspective, NutriCast was scoped and executed using an agile methodology. The team divided responsibilities by feature set, with each member owning specific modules (e.g., chat, nutrition analysis, dashboards). Weekly standups, frequent code merges, and rigorous testing ensured smooth collaboration and progress tracking. The scope encompassed both functional and social features to deliver a comprehensive wellness platform for mobile users.</p>
+        <p>In terms of existing solutions, NutriCast draws inspiration from similar health apps like MyFitnessPal but differentiates itself through deeper AI integration and stronger community features. While most apps require manual logging or barcode scanning, NutriCast supports AI-driven meal analysis from images and real-time social engagement, thus enhancing both convenience and user motivation.</p>
+    </section>
+
+    <section>
+        <h2>Software Technologies Used</h2>
+        <p>NutriCast’s development required a combination of mobile, backend, and AI technologies. On the frontend, React Native was used to ensure that the application could run smoothly on mobile devices with a single codebase. The backend was built using Java with Spring Boot, which provided powerful RESTful APIs and seamless integration with MongoDB.</p>
+        <p>The MongoDB database was used to store key entities such as users, food logs, friendships, and professional advice posts. For authentication and media storage, Firebase was used due to its reliability and mobile SDK support. The app also utilized the Google Maps API for geolocation features related to restaurant discovery.</p>
+        <p>In terms of AI, NutriCast relied heavily on GPT-4o for natural language processing and image-based nutrition analysis. Google Gemini was used in testing phases to help generate and validate test cases. Lucidchart and Mermaid.js were used to assist with design diagram generation, saving time during planning stages. Postman and JaCoCo were employed for backend testing and code coverage analysis respectively.</p>
+    </section>
+
+    <!-- More sections can be appended if needed -->
+
+</body>
+</html>
+
+    <section>
+        <h2>Requirements</h2>
+        <h3>Functional and Non-Functional Requirements</h3>
+        <p>NutriCast’s functional requirements included a wide range of user-facing features: account login, photo-based food analysis, nutritional dashboard display, personalized meal suggestions, map-based restaurant search, friend system with messaging, professional advice feed, and barcode scanning. Each of these features was mapped to a core business requirement and supported with backend APIs.</p>
+        <p>On the non-functional side, the app had to be responsive, secure, and scalable. Real-time updates via Firebase and MongoDB were essential, as was compatibility across mobile platforms. Security and performance were prioritized, especially in handling sensitive user data and processing AI requests efficiently.</p>
+
+        <h3>Minimum Marketable Features (MMFs)</h3>
+        <ul>
+            <li><strong>AI Nutrition Analysis:</strong> Users can upload meal photos and receive nutritional feedback generated by GPT-4.</li>
+            <li><strong>Nutrition Dashboard:</strong> A visual dashboard displays daily and weekly intake of calories, protein, and carbs, powered by MongoDB queries.</li>
+            <li><strong>AI Meal Suggestions:</strong> Based on user input or images, GPT-4 suggests healthy meals with nutritional breakdowns.</li>
+            <li><strong>Local Restaurants:</strong> Google Maps API shows nearby dining options with customizable filters.</li>
+            <li><strong>Connect with Friends:</strong> Users can add friends, view each other's nutrition summaries, and chat.</li>
+            <li><strong>Receive Professional Advice:</strong> Verified professionals can post insights and users can view them in a dedicated feed.</li>
+            <li><strong>Barcode Scanner:</strong> Users can enter a barcode to retrieve AI-generated nutritional details of food items.</li>
+        </ul>
+
+        <h3>Role of AI in Requirements Implementation</h3>
+        <p>GPT-4o played a significant role in implementing features like image-based meal analysis and intelligent suggestions, while Gemini accelerated the testing of backend endpoints. AI reduced implementation complexity for data models and helped automate tedious tasks like test case generation, leading to increased productivity and fewer bugs. Requirements were identified using a mixture of user stories, feasibility analysis, and impact prioritization, ensuring that AI-intensive features were front-loaded for early validation.</p>
+    </section>
+
+
+    <section>
+        <h2>Design</h2>
+        <p>The NutriCast system architecture follows a high-level modular design consisting of four primary layers: frontend, backend, database, and AI services. The frontend is developed using React Native and provides an intuitive mobile interface that communicates with backend REST APIs. These APIs are built using Spring Boot in Java and act as the core application logic layer, handling routing, business logic, and validation. This backend in turn communicates with a MongoDB database, which stores user profiles, food logs, friend connections, and professional posts.</p>
+        <p>At a higher level, the system design supports horizontal scalability by separating concerns across well-defined services and facilitating independent testing and deployment. The backend services are hosted on Google Cloud Platform, while Firebase handles authentication and media storage, supporting secure, high-performance mobile access. Additionally, the backend can invoke external AI services such as GPT-4o to perform meal analysis and generate responses based on user input.</p>
+        <p>The architectural design is visually captured in diagrams created using Lucidchart, one of which illustrates the interaction between mobile clients, the backend service, the database, and AI integrations. This clarity helped ensure that every feature could be traced through its stack interactions. The team also utilized Mermaid.js for lightweight component-level diagrams embedded in documentation.</p>
+        <img src="images/architecture.png" alt="NutriCast High-Level Architecture Diagram" style="max-width:100%; margin: 1rem 0;">
+        <img src="images/deployment.png" alt="NutriCast Deployment Diagram" style="max-width:100%; margin: 1rem 0;">
+        <p>Major design decisions included using React Native for cross-platform support, applying modular controllers and services on the backend, and configuring centralized API request handling through a facade layer in the frontend. These decisions collectively enabled fast feature development and reliable integration of AI services while maintaining code clarity and separation of concerns.</p>
+    </section>
+
+
+    <section>
+        <h2>Design Patterns Implementation</h2>
+        <p>Several key design patterns were applied to improve structure and maintainability:</p>
+        <ul>
+            <li><strong>Observer Pattern:</strong> Used in the frontend via React’s useEffect hooks to listen for state changes and re-render dashboards when user or meal data changed. This ensured reactivity without requiring explicit data fetches.</li>
+            <img src="images/observer.png" alt="Observer Pattern" style="max-width:100%; margin: 1rem 0;">
+
+            <li><strong>Facade Pattern:</strong> A centralized api wrapped axios configuration for all backend calls. This simplified each component’s data-fetching logic and allowed global headers to be managed in one place.</li>
+            <img src="images/facade.png" alt="Facade Pattern" style="max-width:100%; margin: 1rem 0;">
+            
+            <li><strong>Singleton Pattern:</strong> Firebase was initialized as a singleton to avoid multiple app instances. This was critical for maintaining a single point of truth for authentication and storage.</li>
+            <img src="images/singleton.png" alt="Singleton Pattern" style="max-width:100%; margin: 1rem 0;">
+
+        </ul>
+        <p>These patterns helped reduce code duplication, simplified component design, and made debugging significantly easier. Their application also made it easier to onboard new developers or adjust architecture mid-project.</p>
+    </section>
+
+    <section>
+        <h2>Testing Strategy, Execution, and AI Analysis</h2>
+        <h3>Black-Box Testing</h3>
+        <p>Postman was used for black-box testing of backend endpoints. A total of 15 test cases were created for the FoodLogController, testing both positive and negative scenarios. Sampling methods such as equivalence partitioning and boundary value analysis helped ensure robustness. Notable tests included logging meals with minimum servings, requesting data for invalid users, and missing required headers.</p>
+        <p>Gemini was used during this phase to generate test cases automatically. This AI-enhanced method identified additional edge cases and significantly sped up the testing process.</p>
+
+        <h3>White-Box Testing</h3>
+        <p>For white-box testing, both manually written and AI-generated unit tests were applied. GPT-4o was used to produce tests targeting models and controllers. Compared to manual efforts, AI-generated tests required less time (5–10 minutes vs. 30–45 minutes) and achieved slightly higher code coverage (74% vs. 68%). When both methods were combined, the project achieved a final code coverage of 83%, as verified using JaCoCo, allowing us to conclude that a hybrid of manual and AI-generated tests was the best approach.</p>
+
+        <h3>AI Performance and Usability</h3>
+        <p>In testing, AI tools contributed to faster feedback loops, higher code quality, and broader test case coverage. The productivity gain from using GPT-4o and Gemini was notable, especially for repetitive or pattern-based tasks. AI-supported tools were found to be highly effective for black-box validation and white-box modeling tasks.</p>
+    </section>
+
+    <section>
+        <h2>Challenges and Innovations</h2>
+        <p>Several key challenges shaped the development process and spurred innovation:</p>
+        <ul>
+            <li><strong>Image Analysis:</strong> Integrating image-based nutritional analysis required uploading to Firebase, generating prompts for GPT-4o, and parsing JSON outputs. This process required multiple iterations to ensure accuracy.</li>
+            <li><strong>Map Integration:</strong> The team switched from Mapbox to Google Maps API due to integration bugs, leveraging the Nearby Places API and AI filtering to display relevant restaurants.</li>
+            <li><strong>React Native Components:</strong> Web elements like <code>&lt;div&gt;</code> needed to be replaced with native components like <code>&lt;View&gt;</code>, and issues like keyboard overlap required UI refactoring, leading to a stronger mobile-first mindset.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Project Outcomes and Evaluation</h2>
+        <p>NutriCast was successfully deployed as a fully functional mobile application. Users can log meals, analyze food (including barcodes), view dashboards, receive meal suggestions, explore nearby restaurants, connect with friends, and view professional posts.</p>
+        <p>AI tools played a pivotal role in achieving these outcomes. GPT-4o was central to features like meal analysis and suggestions, while Gemini improved testing and robustness. Overall, AI-support accelerated development by a conservative 30%.</p>
+        <p>From a quantitative standpoint, the project reached 83% code coverage, passed all critical test cases, and maintained low bug rates during testing. Qualitatively, the application was well-received in demos, showcasing a fluid user experience and reliable functionality.</p>
+    </section>
+
+    <section>
+        <h2>Future Directions</h2>
+        <p>There are several potential areas for future development. One direction involves integrating a calendar feature for meal planning. Another potential expansion could include exercise tracking and burned calories for a more comprehensive wellness application.</p>
+        <p>AI tools could also be improved through better prompt tuning, fallback mechanisms for failed responses, and potentially incorporating alternative LLMs for comparison. Future research could focus on user retention and behavior change outcomes in AI-driven nutrition apps compared to traditional methods.</p>
+    </section>
+</html>
