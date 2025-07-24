@@ -68,15 +68,31 @@ You should configure these keys in two places:
 ---
 
 ### Dependent Libraries
-
+**For this project, we used the folowing dependencies:**
+* Springboot Starter Web
+* OpenAI for Java
+* Jackson Databind
+* Lombok
+* Firebase/Firebase Admin
+* Google GenAI
+* Springboot Starter Data MongoDB
+* React Native
+* Expo
+* React-map-gl
+* Axios
+* Expo Location
+* React Native Maps
+* Dotenv
+* Google Maps API
+* Google Cloud Tools
 ---
 
 ### Download Instructions
-
+To download the project, simply clone the Github repository to get access to the files for the project locally on your computer. You can install all the necessary dependencies using npm install. If an error is raised, then add --legacy-peer-deps to the end of your npm install. This should install all the necessary packages and dependencies needed for the project. If you wish to run the project locally on your phone, you need to install the Expo app on your phone.
 ---
 
 ### Build Instructions
-
+Since we are providing consumers with the raw source code, they will need to create the required executable application themselves. To do this, consumers will need to run the application from the BackendApplication.java file. This will ensure that the backend is running. Next, once they have run the backend for our application, they must navigate to the **/frontend** directory in the terminal. From here, input the following command to run the frontend for the application: npx expo start. This should run the application. To bring it up, users can scan the QR code on Expo Mobile, or press w to bring up the web version on their browser.
 ---
 
 ### Installation of Application
@@ -84,7 +100,7 @@ You should configure these keys in two places:
 ---
 
 ### Run Instructions
-
+The customer simply has to run the BackendApplication.java file in the **/backend** directory of our project, and then run the frontend using npx expo start(as detailed previously). From here, users can use the application locally, and bring it up on mobile and on web.
 ---
 
 ### Troubleshooting
