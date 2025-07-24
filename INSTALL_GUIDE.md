@@ -97,7 +97,7 @@ Clone the Github repository to get access to the files for the project locally o
 
 ### Build Instructions
 
-Since we are providing consumers with the raw source code, they will need to create the required executable application themselves. To do this, consumers will need to run the application from the BackendApplication.java file. This will ensure that the backend is running. Next, once they have run the backend for our application, they must navigate to the **/frontend** directory in the terminal. From here, input the following command to run the frontend for the application: npx expo start. This should run the application. To bring it up, users can scan the QR code on Expo Mobile, or press w to bring up the web version on their browser.
+Since we are providing consumers with the raw source code, they will need to create the required executable application themselves. To do this, consumers will need to run the application from the BackendApplication.java file. This will ensure that the backend is running. Next, once they have run the backend for our application, they must navigate to the `/frontend` directory in the terminal. From here, input the following command to run the frontend for the application: npx expo start. This should run the application. To bring it up, users can scan the QR code on Expo Mobile, or press w to bring up the web version on their browser.
 
 ---
 
@@ -107,10 +107,17 @@ Since we are providing consumers with the raw source code, they will need to cre
 
 ### Run Instructions
 
-The customer simply has to run the BackendApplication.java file in the **/backend** directory of our project, and then run the frontend using npx expo start(as detailed previously). From here, users can use the application locally, and bring it up on mobile and on web.
+The customer simply has to run the BackendApplication.java file in the `/backend` directory of our project, and then run the frontend using npx expo start(as detailed previously). From here, users can use the application locally, and bring it up on mobile and on web.
 
 ---
 
 ### Troubleshooting
+
+One common error is npm install not working due to conflicts with packages in the packages.json file. To fix this, simply input the following command:
+`npm install --legacy-peer-deps`
+This will ensure that the necessary packages are installed, even if the package manager has to install a more outdated version for this to work.
+
+If for some reason you are having issues running the frontend(after some update), try doing:
+`npx expo start -c`, to clear the cache from the previous time you ran the application and ensure that any changes to the application have been applied.
 
 ---
