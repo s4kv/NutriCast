@@ -1,6 +1,6 @@
 # NutriCast
 ## Enviornment Setup 
-For this project, you will need to have three API keys in your system enviornment variables.
+For this project, you will need to have four API keys in your system enviornment variables.
 ```text
    OPENAI_API_KEY=your_gemini_api_key
    MAPBOX_API_KEY=your_mapbox_api_key
