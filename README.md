@@ -1,22 +1,160 @@
-# NutriCast
-## Enviornment Setup 
-For this project, you will need to have three API keys in your system enviornment variables.
-```text
-   OPENAI_API_KEY=your_gemini_api_key
-   MAPBOX_API_KEY=your_mapbox_api_key
-   GEMINI_API_KEY=your_gemini_api_key
-   GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-```
+# NutriCast: AI-Powered Nutrition & Wellness Platform 🍏✨
 
-Make sure to place the keys in your PATH (Linux or macOS) or in your system environment variables (Windows).
-You should also create a `.env` file in the root directory of the project with the following content:
+## 1. Description
 
-```text
-OPENAI_API_KEY=your_gemini_api_key
-MAPBOX_API_KEY=your_mapbox_api_key
-GEMINI_API_KEY=your_gemini_api_key
-GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-```
+NutriCast is a personalized, mobile-first food tracking and recommendation platform. It leverages cutting-edge AI for image recognition and nutrition analysis, combined with real-time location data, to help users seamlessly plan, track, and enjoy meals that perfectly match their dietary needs and preferences.
+
+---
+
+## 2. Key Features 🚀
+
+* **Photo-Based Meal Logging:** Effortlessly track your intake! Detects calories, carbs, protein, and other macros directly from meal photos.
+* **Nutrition Dashboard:** Visualize your progress with dynamic graphs showing daily and weekly intake of calories, carbohydrates, and protein.
+* **Restaurant Recommendations:** Discover local, healthy dining options tailored to your dietary goals using the Google Maps API.
+* **Smart Meal Suggestions:** Get personalized meal ideas generated from photos of your fridge contents or typed ingredients.
+* **Recipe Generator:** Receive recipe suggestions complete with shopping lists, optimized based on your priorities (e.g., high protein, budget-friendly).
+* **Surprise Me Feature:** Feeling adventurous? Get "I'm Feeling Lucky" meal suggestions that still adhere to your dietary constraints.
+* **Verified Professionals:** Connect with and receive guidance from verified dietitians and fitness coaches who can share meal plans and workout routines.
+* **Friends Network:** Share your journey! View friends' profiles, share meals, and celebrate each other's achievements and progress streaks.
+
+---
+
+## 3. Additional Features (Future Enhancements) 💡
+
+* **Allergen Tracking & Warnings:** Receive alerts for potential allergens in meals and recipes.
+* **Meal Tagging & Image Generation:** Organize your meals with custom tags and generate realistic meal images from recipe descriptions using a text-to-picture API.
+* **Clear Data Disclaimers:** Transparent disclaimers regarding the accuracy of AI-generated nutritional data.
+
+---
+
+## 4. Tech Stack Specification 💻
+
+NutriCast is built with a robust, modern technology stack to ensure performance, scalability, and an intuitive user experience.
+
+### 4.1. Frontend Framework/Library
+
+* **React Native:** For seamless cross-platform mobile development (iOS & Android).
+
+### 4.2. Backend Framework
+
+* **Java/Spring Boot:** Powering robust RESTful APIs and core application logic.
+
+### 4.3. Database Technology
+
+* **MongoDB:** A flexible NoSQL database for efficient storage of user data, food logs, and more.
+
+### 4.4. Version Control System
+
+* **Git / GitHub:** For collaborative development, version tracking, and code management.
+
+### 4.5. Key Additional Tools & Libraries
+
+* **Google Cloud Platform (GCP):** Cloud infrastructure for deployment and services.
+* **OpenAI GPT-4:** For advanced AI capabilities like image-based nutrition analysis and smart suggestions.
+* **Google Maps API:** For location-based features and restaurant discovery.
+* **Google Gemini:** Utilized for AI-driven testing and development acceleration.
+* **Firebase:** For authentication and media storage.
+
+---
+
+## 5. Minimal Marketable Features (MMFs) ✨
+
+These core features represent the essential functionalities for NutriCast's initial launch, ensuring immediate value to our users.
+
+### 5.1. Photo-Based Meal Logging & Nutrition Analysis
+
+**Goal:** Allow users to effortlessly log meals and receive instant nutritional breakdowns via AI.
+
+**User Flow:**
+1.  User logs into the application.
+2.  User navigates to the "Log Meals" section.
+3.  User uploads a photo of their meal.
+4.  AI (GPT-4) processes the photo and generates a detailed nutritional analysis (calories, protein, carbs, etc.).
+5.  The nutritional breakdown is displayed prominently on the frontend.
+6.  User has options to modify, copy, or export the analysis.
+
+### 5.2. Dynamic Nutrition Dashboard
+
+**Goal:** Provide users with a clear visual summary of their daily and weekly macronutrient intake.
+
+**User Flow:**
+1.  User logs into the application.
+2.  User navigates to the "Dashboard" section.
+3.  Past meal information and dietary goals, stored in MongoDB, are fetched and displayed.
+4.  Daily and weekly intake of calories, carbs, and protein are dynamically summed and presented graphically (via React Native frontend).
+5.  Users can input new meals, and the dashboard updates in real-time.
+
+### 5.3. AI-Powered Meal Suggestions
+
+**Goal:** Offer personalized meal ideas based on available ingredients or dietary constraints.
+
+**User Flow:**
+1.  User logs into the application.
+2.  User navigates to the "AI Meal Suggestion" section.
+3.  User uploads a photo of fridge contents or types in ingredients/constraints (e.g., calorie limits, macros, budget).
+4.  GPT-4 processes the input and generates a personalized meal suggestion.
+5.  The suggested meal, along with its nutritional breakdown, appears on the React Native frontend.
+6.  User can modify, copy, or export the suggestion.
+
+### 5.4. Local Restaurant Discovery with Filters
+
+**Goal:** Help users find healthy local dining options tailored to their preferences.
+
+**User Flow:**
+1.  User logs into the application.
+2.  User navigates to the "Near Me" section.
+3.  The app requests and uses the user's location via Google Maps API to display a map with their current pin.
+4.  User can apply filters (distance, price, cuisine) via the React Native interface, hiding restaurants that don't meet the criteria.
+5.  Users can tap on a restaurant pin to view detailed information.
+
+### 5.5. Social Connection & Progress Sharing
+
+**Goal:** Enable users to connect with friends and share their fitness journeys.
+
+**User Flow:**
+1.  User logs into the application.
+2.  User navigates to their "Profile" section.
+3.  User accesses the "Friends" section.
+4.  Users can send/accept friend requests, view friends' profiles, see their achievements, and compare progress streaks.
+
+### 5.6. Verified Professional Guidance Feed
+
+**Goal:** Provide users with access to insights and advice from certified nutrition and fitness experts.
+
+**User Flow:**
+1.  User logs into the application.
+2.  User navigates to the "Community Feed" (or similar social media section).
+3.  Users can scroll through a feed of posts from other users and verified professionals.
+4.  Verified professionals (or any user) can create posts containing text, images, or both, which are stored in MongoDB and instantly visible in the feed to other users.
+
+---
+
+## 6. Installation 🛠️
+
+Ready to get NutriCast up and running? Our comprehensive installation guide will walk you through everything needed to set up the application, from prerequisites to execution.
+
+**Highlights:**
+* **Prerequisites:** All necessary software and hardware configurations.
+* **Dependencies:** Required third-party libraries.
+* **Build & Run:** Step-by-step instructions for compiling and launching the application.
+* **Troubleshooting:** Solutions for common setup issues.
+
+➡️ **For detailed installation instructions, please refer to our [INSTALL_GUIDE.md](INSTALL_GUIDE.md).**
+
+---
+
+## 7. Release Information 📜
+
+Stay updated with the latest features, improvements, and known issues in NutriCast.
+
+**Current Release Highlights (v1.0.0):**
+* **New Features:** Fully functional Photo-Based Meal Logging with AI analysis, Dynamic Nutrition Dashboard, AI-Powered Meal Suggestions, and seamless Restaurant Discovery.
+* **Bug Fixes:** Enhanced stability for image uploads, improved friend system synchronization, and minor UI refinements.
+* **Known Issues:** (Example: Occasional delay in initial AI meal suggestion loading on slower networks.)
+
+➡️ **For a comprehensive list of new features, bug fixes, and known issues, please see our [RELEASE_NOTES.md](RELEASE_NOTES.md).**
+
+---
 
 ## Before you can run the project, do the following things:
 1. Make a new branch from main.
@@ -142,99 +280,3 @@ gcloud app browse
    ```bash
    docker compose up --build
    ```
-
-## 1. Description
-
-- A personalized food tracking and recommendation platform that uses image recognition, nutrition analysis, and real-time location data to help users plan, track, and enjoy meals that match their dietary needs and preferences.
-
-## 2. Key Features
-
-- Photo-Based Meal Logging: Detects calories, carbs, protein, etc., from meal photos.
-- Nutrition Dashboard: Graph daily/weekly intake of calories, carbs, and protein.
-- Restaurant Recommendations: Use Google Maps API to find local meals based on dietary goals.
-- Smart Meal Suggestions: Suggest meals from fridge photos or typed ingredients.
-- Recipe Generator: Suggest recipes + shopping list based on user priorities (e.g., protein, budget).
-- Surprise Me Feature: “I’m Feeling Lucky” meal suggestions within user constraints.
-- Verified Professionals: verified dietitians and fitness coaches that can share meals and their workout plan.
-- Friends: View friends profiles, share meals with friends, etc.
-
-## 3. Additional Features
-
-- Allergen tracking and warnings.
-- Meal tagging and image generation from recipes.
-- Clear disclaimers on data accuracy.
-- Generate realistic meal images from recipe descriptions using a text-to-picture API.
-
-## 4. Tech Stack Specification
-
-### 4.1. Frontend framework/library
-
-- React Native
-
-### 4.2. Backend framework
-
-- Java/SpringBoot
-
-### 4.3. Database technology
-
-- mongoDB
-
-### 4.4 Version Control System
-
-- Github/Git
-
-### 4.5. Any Additional tools or libraries
-
-- Google Cloud Platform (GCP), GPT-4, Google Maps API, Gemini
-
-## 5. Minimal Marketable Features
-
-### 5.1. Users can log meals by uploading photos from React Native, process it using GPT-4, and receive nutritional analysis (calories, protein, carbs, etc.) of it and show it on the frontend
-
-- User logs into the application
-- User navigates to the “Log Meals” section
-- User uploads a photo.
-- AI processes the photo and generates a nutritional analysis.
-- Nutritional analysis appears in the frontend.
-- User can modify, copy, or export the nutritional analysis.
-
-### 5.2. Users can view a dynamic nutrition dashboard from React Native with Java/SpringBoot backend using mongoDB database, showing their daily and weekly intake of calories, carbs, and protein
-
-- User logs into the application.
-- User navigates to the “Dashboard” section.
-- User’s past information, dietary information and caloric intake is stored in a mongoDB database and displayed on the dashboard.
-- User’s caloric intake, carb intake, and protein intake across various meals throughout the week are summed up and displayed graphically.
-- Graphs are created and inputted using the frontend through React Native.
-- Users can input new meals they consumed and update the information displayed.
-
-### 5.3. Users receive AI-powered meal suggestions based on fridge photos, ingredient input, or personalized constraints (e.g., calorie limits, macros, budget) using GPT-4 to process the user inputs and output those inputs onto React Native
-
-- User logs into the application.
-- User navigates to the “AI Meal Suggestion” section.
-- User uploads a photo of his ingredients in the fridge.
-- GPT-4 processes the photo of the ingredients and generates a personalized meal suggestion based on the constraints.
-- Personalized meal suggestion appears in the frontend React Native.
-- User can modify, copy, or export the personalized meal suggestions.
-
-### 5.4. Users can discover local restaurant meals that match their dietary needs using Google Maps API and filter results by price, cuisine, or location and show to the frontend
-
-- User logs into the application.
-- User navigates to the “Near Me” section.
-- Users share their location on the app and Google Maps API is used to generate a map with the user’s pin.
-- User can click the “Filter” button which gives them the option to filter by location(certain distance away), price, and cuisine. This is done using React Native. Restaurants that don’t meet the criteria are hidden.
-- Users can click on a Restaurant pin to bring up information regarding it.
-
-### 5.5. Users can connect with friends to view friends profiles and share meals with friends, see the achievements of the other person, and view your own progress streaks and friends’ progress streaks
-
-- User logs into the application.
-- User navigates to the “profile” section.
-- User navigates to the “friends” section.
-- User can add and remove friends, view the profile of their friends where it shows the achievements of the other person and their progress streaks.
-
-### 5.6. Users can connect with verified professionals to share meals, view profiles, and get guidance from dietitians or fitness coaches
-
-- Users log into the application.
-- Logged in users navigate to the social media section.
-- Users can see a button to "post" meals or guidance or thoughts in general, or scroll through the feed to see what other users post.
-- Users can create a post; posts can have either text or an image or both. This will update the MongoDB database so other users can see what is posted.
-- Other users can see what is posted in the social media feature. Social media feed will be updated with the latest data in our MongoDB database.
